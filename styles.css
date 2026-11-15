@@ -224,17 +224,18 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
-.queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(180px, 1.35fr) 120px minmax(110px, .85fr) 105px 105px 110px; min-width: 800px; gap: 10px; align-items: center; }
+.queue-result-header, .queue-result-row { display: grid; grid-template-columns: 28px minmax(0, 1.45fr) 92px minmax(80px, .8fr) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
 .queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
-.queue-result-header span:nth-child(n+3), .queue-result-row span:nth-child(n+3), .queue-result-row strong { text-align: right; }
+.queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
 .queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 13px; }
-.queue-result-row b { color: var(--orange); font: 12px "DM Mono", monospace; }
-.queue-result-row span:first-of-type { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queue-result-row span:nth-of-type(n+2), .queue-result-row strong { color: var(--muted); font: 12px "DM Mono", monospace; }
+.queue-result-number { color: var(--orange); font: 12px "DM Mono", monospace; }
+.queue-result-row span:nth-of-type(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-result-row span:nth-of-type(n+3), .queue-result-row strong { color: var(--muted); font: 11px "DM Mono", monospace; }
 .queue-result-row strong { color: var(--ink); font-weight: 500; }
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
-@media (max-width: 760px) { .lane-time { font-size: 62px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(150px, 1.35fr) 105px minmax(90px, .85fr) 80px 80px 85px; gap: 6px; } .queue-result-row { font-size: 11px; } }
+@media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 28px minmax(140px, 1.3fr) 95px minmax(85px, .8fr) 72px 72px 78px; min-width: 760px; gap: 6px; } }
+@media (max-width: 760px) { .lane-time { font-size: 62px; } .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(140px, 1.3fr) 95px 85px 68px 68px 74px; gap: 6px; } .queue-result-row { font-size: 11px; } }
 
 /* App-like presentation: focus on controls, lanes and queues. */
 body { background: #eef0ea; }

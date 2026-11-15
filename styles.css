@@ -254,6 +254,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
 .queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
 .queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 13px; }
+.queue-result-row.attempt-complete { background: rgba(143, 163, 154, .12); color: #a8b9b1; }
+.queue-result-row.attempt-complete strong { color: #b7c8bf; }
 .queue-result-number { color: var(--orange); font: 12px "DM Mono", monospace; }
 .queue-result-row span:nth-of-type(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .queue-result-row span:nth-of-type(n+3), .queue-result-row strong { color: var(--muted); font: 11px "DM Mono", monospace; }

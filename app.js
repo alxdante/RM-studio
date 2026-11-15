@@ -101,8 +101,13 @@ function showToast(text) { const toast = $('#toast'); toast.textContent = text; 
 function addActivity(text) { state.activity = [{ at: Date.now(), text }, ...(state.activity || [])].slice(0, 20); persist(); }
 
 function qualificationOrder(categoryId, attempt = categoryState(categoryId).attempt) {
-  const athletes = athletesForCategory(categoryId).slice();
-  if (attempt === 1) return athletes.sort((a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
+  const baseOrder = athletesForCategory(categoryId).slice().sort((a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
+  if (attempt === 1) {
+    const waiting = baseOrder.filter((athlete) => !Number.isFinite(getTime(categoryId, athlete.id, 1)));
+    const finished = baseOrder.filter((athlete) => Number.isFinite(getTime(categoryId, athlete.id, 1))).sort((a, b) => getTime(categoryId, b.id, 1) - getTime(categoryId, a.id, 1) || a.name.localeCompare(b.name, 'ru'));
+    return [...waiting, ...finished];
+  }
+  const athletes = baseOrder;
   return athletes.sort((a, b) => { const aTime = getTime(categoryId, a.id, 1); const bTime = getTime(categoryId, b.id, 1); if (!Number.isFinite(aTime) && Number.isFinite(bTime)) return -1; if (Number.isFinite(aTime) && !Number.isFinite(bTime)) return 1; return (bTime ?? Infinity) - (aTime ?? Infinity) || Number(a.rating) - Number(b.rating); });
 }
 function reservedAthletes(categoryId, laneIndex) { return state.lanes.filter((lane, index) => index !== laneIndex && lane.categoryId === categoryId && lane.athleteId).map((lane) => lane.athleteId); }
@@ -147,7 +152,8 @@ function resultCell(categoryId, athleteId, attempt) {
 }
 function waitingListHtml(lane, index) {
   const athletes = lane.categoryId ? qualificationOrder(lane.categoryId, categoryState(lane.categoryId).attempt) : [];
-  return athletes.map((athlete, position) => `<div class="queue-result-row"><span class="queue-result-number">${position + 1}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`).join('');
+  const attempt = categoryState(lane.categoryId).attempt;
+  return athletes.map((athlete, position) => { const completedFirstAttempt = Number.isFinite(getTime(lane.categoryId, athlete.id, 1)); return `<div class="queue-result-row ${attempt === 1 && completedFirstAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${position + 1}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
 }
 function renderLanes() {
   const now = Date.now();

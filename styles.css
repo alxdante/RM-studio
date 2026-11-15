@@ -136,6 +136,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-panel input::-webkit-inner-spin-button, .penalty-panel input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .penalty-quick-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
 .penalty-quick-row button, .penalty-dq { height: 24px; border: 1px solid rgba(255,179,158,.5); background: rgba(255,116,69,.16); color: #ffb39e; padding: 0; font: 600 12px "Space Grotesk", sans-serif; }
+.penalty-quick-row button.active, .penalty-dq.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }
 .penalty-quick-row button:hover, .penalty-dq:hover { background: rgba(255,116,69,.3); border-color: #ffb39e; }
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }

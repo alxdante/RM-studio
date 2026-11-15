@@ -418,3 +418,8 @@ body { background: #eef0ea; }
 .match-athlete { display: grid; align-items: center; }
 .match-race-value { text-align: center; color: var(--muted); font: 10px "DM Mono", monospace; }
 .match-athlete.winner .match-race-value { color: var(--ink); }
+.lane-grid.finals-mode .lane-next-row { grid-template-columns: minmax(0, 1fr) 132px; }
+.lane-grid.finals-mode .lane-next-row .queue-arrow,
+.lane-grid.finals-mode .lane-next-row .next-athlete-trigger { display: none; }
+.lane-grid.finals-mode .lane-next-row .manual-result { grid-column: 1; }
+.lane-grid.finals-mode .lane-next-row .penalty-quick-controls { grid-column: 2; }

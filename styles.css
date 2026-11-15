@@ -35,7 +35,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .ble-inline { display: flex !important; align-items: center; gap: 8px; color: #c0d0c7; font: 10px "DM Mono", monospace; } .text-button { border: 0; background: transparent; color: var(--orange); padding: 0; font: 10px "DM Mono", monospace; } .text-button:hover { color: var(--ink); text-decoration: underline; }
 .status-pill { font: 9px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .07em; padding: 4px 6px; } .status-pill.offline { color: #ffb39e; background: rgba(255,116,69,.13); } .status-pill.online { color: var(--mint); background: rgba(183,245,141,.13); }
 .page-layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 30px; } .workspace { min-width: 0; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 17px; } .section-head h3 { font-size: 23px; margin: 0; font-weight: 500; letter-spacing: -.05em; }
 .phase-switch { display: flex; border-bottom: 1px solid var(--line); } .phase-tab { background: transparent; border: 0; color: var(--muted); padding: 0 0 9px; font-size: 11px; margin-left: 18px; position: relative; } .phase-tab.active { color: var(--ink); font-weight: 600; } .phase-tab.active:after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--orange); }
 .automation-banner { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--paper-2); margin-bottom: 14px; } .automation-mark { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--orange); color: var(--orange); font-size: 16px; } .automation-banner div:nth-child(2) { flex: 1; } .automation-banner strong { display: block; font-size: 12px; font-weight: 600; } .automation-banner span { display: block; margin-top: 4px; color: var(--muted); font: 10px/1.4 "DM Mono", monospace; } .automation-actions { display: flex; gap: 6px; }
 .btn-small { min-height: 30px; padding: 0 10px; font-size: 10px; } .btn-outline { border: 1px solid rgba(16,42,43,.28); background: transparent; color: var(--ink); } .btn-outline:hover:not(:disabled) { border-color: var(--orange); } .btn-muted { background: rgba(255,255,255,.08); color: #c2d0c8; } .btn-start { background: var(--mint); color: var(--deep); font-weight: 600; } .btn-start:hover:not(:disabled) { background: #d1fcae; }
@@ -73,11 +72,10 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .toast { position: fixed; right: 24px; bottom: 22px; max-width: 380px; background: var(--ink); color: var(--paper); padding: 12px 15px; font: 10px "DM Mono", monospace; opacity: 0; transform: translateY(9px); pointer-events: none; transition: .25s; z-index: 30; } .toast.show { opacity: 1; transform: translateY(0); } .hidden { display: none !important; }
 @media (max-width: 1180px) { .page-layout { grid-template-columns: 1fr; } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; } .rules-card { grid-column: span 3; } }
 @media (max-width: 850px) { .topbar { padding: 12px 20px; flex-wrap: wrap; gap: 12px 18px; } .event-fields { order: 3; flex-basis: 100%; } .top-actions { margin-left: auto; } .main-content { padding: 0 20px 35px; } .hero-row { min-height: 170px; } .hero-metrics { gap: 14px; } .hero-metrics strong { font-size: 28px; } .status-strip { grid-template-columns: 1fr 1fr; } .ble-inline { grid-column: span 2; } .qual-lower-grid { grid-template-columns: 1fr; } .category-row { grid-template-columns: minmax(150px, 1fr) minmax(90px, .7fr) auto; } .category-row .text-button { grid-column: 3; } }
-@media (max-width: 620px) { .topbar { padding: 12px 14px; } .brand-lockup h1 { font-size: 17px; } .top-actions { width: 100%; } .top-actions .save-status { display: none; } .top-actions .btn { flex: 1; } .main-content { padding: 0 14px 28px; } .hero-row { min-height: 155px; } .hero-row h2 { font-size: 32px; } .hero-metrics { display: none; } .status-strip { display: block; padding: 12px; } .status-progress, .ble-inline { margin-top: 10px; } .ble-inline { display: flex !important; } .section-head { display: block; } .phase-switch { margin-top: 16px; width: max-content; } .automation-banner { align-items: flex-start; flex-wrap: wrap; } .automation-banner > div:nth-child(2) { width: calc(100% - 42px); } .automation-banner .automation-actions { width: 100%; } .automation-banner .btn { flex: 1; } .lane-grid { grid-template-columns: 1fr; } .lane-card { min-height: 320px; } .lane-athlete { grid-template-columns: 1fr; } .lane-actions { grid-template-columns: auto auto; } .manual-result { grid-column: span 2; justify-content: flex-start; } .right-rail { display: flex; } .rail-card { width: 100%; } .category-row { grid-template-columns: 1fr auto; } .category-progress { grid-column: 1 / 2; } .category-row select { grid-column: 2; grid-row: 1 / span 2; } .category-row .text-button { grid-column: 1; text-align: left; } .finals-toolbar { align-items: stretch; flex-wrap: wrap; } .finals-toolbar > div { flex-basis: 100%; } .finals-toolbar .bracket-choice { flex: 1; } .finals-toolbar .btn { width: 100%; } .finals-progress { display: block; line-height: 1.6; } .standings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .modal-card { padding: 16px; } }
+@media (max-width: 620px) { .topbar { padding: 12px 14px; } .brand-lockup h1 { font-size: 17px; } .top-actions { width: 100%; } .top-actions .save-status { display: none; } .top-actions .btn { flex: 1; } .main-content { padding: 0 14px 28px; } .hero-row { min-height: 155px; } .hero-row h2 { font-size: 32px; } .hero-metrics { display: none; } .status-strip { display: block; padding: 12px; } .status-progress, .ble-inline { margin-top: 10px; } .ble-inline { display: flex !important; } .phase-switch { margin-top: 16px; width: max-content; } .automation-banner { align-items: flex-start; flex-wrap: wrap; } .automation-banner > div:nth-child(2) { width: calc(100% - 42px); } .automation-banner .automation-actions { width: 100%; } .automation-banner .btn { flex: 1; } .lane-grid { grid-template-columns: 1fr; } .lane-card { min-height: 320px; } .lane-athlete { grid-template-columns: 1fr; } .lane-actions { grid-template-columns: auto auto; } .manual-result { grid-column: span 2; justify-content: flex-start; } .right-rail { display: flex; } .rail-card { width: 100%; } .category-row { grid-template-columns: 1fr auto; } .category-progress { grid-column: 1 / 2; } .category-row select { grid-column: 2; grid-row: 1 / span 2; } .category-row .text-button { grid-column: 1; text-align: left; } .finals-toolbar { align-items: stretch; flex-wrap: wrap; } .finals-toolbar > div { flex-basis: 100%; } .finals-toolbar .bracket-choice { flex: 1; } .finals-toolbar .btn { width: 100%; } .finals-progress { display: block; line-height: 1.6; } .standings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .modal-card { padding: 16px; } }
 
 /* Race-deck redesign: category tabs, large timing windows and waiting queues. */
 @font-face { font-family: "DSEG7"; src: url("DSEG7Classic-BoldItalic.ttf") format("truetype"); font-style: italic; font-weight: 700; font-display: swap; }
-.lane-category-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .lane-tab-panel { background: #fff; border: 1px solid var(--line); padding: 11px 12px 10px; }
 .lane-tab-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 9px; }
 .lane-tab-heading span { color: var(--orange); font: 9px "DM Mono", monospace; letter-spacing: .1em; }
@@ -119,7 +117,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .waiting-athlete small { grid-column: 2; color: var(--muted); font: 8px "DM Mono", monospace; margin-top: -3px; }
 .waiting-empty { grid-column: 1 / -1; color: var(--muted); padding: 9px 0 2px; font: 9px "DM Mono", monospace; }
 @media (max-width: 760px) {
-  .lane-category-tabs { grid-template-columns: 1fr; }
   .lane-grid { grid-template-columns: 1fr; }
   .lane-time { font-size: 51px; }
 }
@@ -213,21 +210,18 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 760px) { .lane-tab-row .lane-tab { flex-basis: 142px; } }
 
 /* Keep group selectors exactly aligned with the two timing cards. */
-.lane-category-tabs { width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .lane-tab-panel { width: 100%; min-width: 0; padding: 9px 10px 10px; }
 .lane-tab-heading { min-height: 28px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .lane-tab-heading span { flex: 0 0 auto; }
 .lane-tab-heading b { min-width: 0; flex: 1 1 auto; overflow: hidden; margin: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
 .add-group-button { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; }
 .lane-tab-row .lane-tabs { width: 100%; gap: 5px; }
-.lane-gender-headings { display: flex; gap: 5px; margin-bottom: 5px; }
-.lane-gender-headings span { flex: 1 1 0; max-width: 180px; min-width: 118px; color: var(--ink); font-size: 12px; font-weight: 600; line-height: 1.1; text-align: center; }
 .lane-tab-row .lane-tab { flex: 1 1 0; max-width: 180px; min-width: 118px; min-height: 43px; padding: 6px 5px; }
 .lane-tab-heading { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
 .lane-tab-heading span { grid-column: 1; }
 .lane-tab-heading b { grid-column: 2; grid-row: 1; justify-self: center; text-align: center; font-size: 12px; font-weight: 600; }
 .lane-tab-heading .add-group-button { grid-column: 3; grid-row: 1; justify-self: end; }
-@media (max-width: 620px) { .lane-category-tabs { grid-template-columns: 1fr; } .lane-tab-row .lane-tab { max-width: none; } }
+@media (max-width: 620px) { .lane-tab-row .lane-tab { max-width: none; } }
 
 /* Full-width race console after removing the side rail. */
 .page-layout { grid-template-columns: minmax(0, 1fr); }
@@ -235,15 +229,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .top-utility { min-height: 30px; padding: 0 9px; font-size: 9px; }
 .top-utility-clear { color: var(--muted); font-size: 16px; padding: 2px 4px; }
 .top-utility-clear:hover { color: var(--orange); }
-.ble-signal { display: inline-flex; align-items: flex-end; gap: 2px; min-width: 54px; height: 25px; color: var(--muted); }
-.ble-signal i { display: block; width: 4px; background: var(--muted); opacity: .35; }
-.ble-signal i:nth-child(1) { height: 6px; }
-.ble-signal i:nth-child(2) { height: 10px; }
-.ble-signal i:nth-child(3) { height: 14px; }
-.ble-signal small { align-self: center; margin-left: 3px; font: 8px "DM Mono", monospace; text-transform: uppercase; }
-.ble-signal.online i { background: var(--mint-2); opacity: 1; }
-@media (max-width: 850px) { .top-utility { flex: 0 0 auto !important; } .ble-signal { margin-left: auto; } }
-@media (max-width: 620px) { .top-utility-clear { display: none; } .ble-signal { margin-left: 0; } .ble-signal small { display: none; } }
+@media (max-width: 850px) { .top-utility { flex: 0 0 auto !important; } }
+@media (max-width: 620px) { .top-utility-clear { display: none; } }
 
 /* Race-control foundation: stable lanes and result queues, with larger type after rail removal. */
 .lane-tab-panel { padding: 14px 16px 15px; }
@@ -277,9 +264,6 @@ body { background: #eef0ea; }
 .event-fields label span { font-size: 8px; }
 .save-status { display: none; }
 .main-content { padding: 18px 22px 40px; }
-.section-head { margin-bottom: 12px; }
-.section-head h3 { font-size: 27px; }
-.lane-category-tabs { gap: 12px; }
 .lane-tab-panel { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
 .lane-grid { gap: 14px; }
 .lane-card { border-radius: 12px; box-shadow: 0 6px 18px rgba(13,34,36,.08); }
@@ -293,16 +277,11 @@ body { background: #eef0ea; }
 
 /* Inline lane group selector */
 .lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 2px; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; min-height: 12px; text-align: center; }
-.lane-top.lane-group-toggle:hover .lane-top-group { color: var(--mint); }
 .lane-top .lane-number { color: var(--mint); font: 600 11px/1.1 "Space Grotesk", sans-serif; letter-spacing: .02em; }
-.lane-top-group { min-width: 0; overflow: hidden; color: #cfe0d6; font: 10px "DM Mono", monospace; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-.lane-top-status { color: #8aa29b; font: 8px "DM Mono", monospace; text-transform: uppercase; white-space: nowrap; }
 .lane-top.lane-group-toggle > b { color: var(--mint); font-size: 15px; line-height: 1; font-weight: 400; transition: transform .18s ease; }
 .lane-group-picker { margin: 0 -5px 1px; padding: 5px; display: grid; gap: 5px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); overflow: visible; }
 .lane-group-picker .lane-tab-row { display: block; }
 .lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 0; }
-.lane-group-picker .lane-gender-headings { gap: 4px; margin-bottom: 3px; }
-.lane-group-picker .lane-gender-headings span { min-width: 0; color: #a9c0b6; font: 600 10px/1.1 "Space Grotesk", sans-serif; text-transform: none; }
 .lane-group-picker .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
 .lane-group-picker .lane-tabs { overflow: visible; overscroll-behavior: auto; padding-bottom: 0; }
 .lane-group-picker .lane-tab { min-width: 0; width: 100%; }

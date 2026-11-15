@@ -136,7 +136,10 @@ function setLaneCategory(index, categoryId) {
   state.lanes[index].categoryId = categoryId; state.lanes[index].athleteId = null; state.lanes[index].time = null; state.lanes[index].penalties = 0; state.lanes[index].dq = false; state.lanes[index].running = false; autoAssignLanes(); persist(); renderAll();
 }
 function setLanePenalties(index, value) {
-  const lane = state.lanes[index]; lane.penalties = Math.max(0, Math.min(20, Number(value) || 0)); lane.dq = lane.penalties >= 5; persist(); renderLanes();
+  const lane = state.lanes[index]; const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; persist(); renderLanes();
+}
+function setLaneDQ(index) {
+  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true; persist(); renderLanes();
 }
 function promoteNextAthlete(index) {
   const lane = state.lanes[index];
@@ -171,14 +174,16 @@ function waitingListHtml(lane, index) {
 function renderLanes() {
   const now = Date.now();
   $('#laneCards').innerHTML = state.lanes.map((lane, index) => {
-    const athlete = athleteById(lane.athleteId); const runningTime = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time; const displayTime = lane.dq ? 'DQ' : formatClock(runningTime);
-    return `<div class="lane-card-wrap"><article class="lane-card ${lane.running ? 'active' : ''} ${Number.isFinite(lane.time) && !lane.running ? 'finished' : ''} ${lane.dq ? 'dq' : ''}"><div class="lane-top lane-group-toggle"><span class="lane-number">ДОРОЖКА ${index + 1}</span></div>${laneCategoryPicker(lane, index)}<div class="lane-athlete"><div><strong>${athlete ? escapeHtml(athlete.name) : 'Следующий спортсмен'}</strong></div><select data-lane-athlete="${index}" aria-label="Спортсмен дорожки ${index + 1}">${athleteOptions(lane, index)}</select></div><div class="lane-timer-row"><div class="lane-timer-block"><span class="timer-caption">ВРЕМЯ / РЕЗУЛЬТАТ</span><strong class="lane-time">${displayTime}</strong><span class="lane-state">${lane.running ? 'LIVE / BLE' : lane.dq ? 'DISQUALIFIED' : lane.time ? 'RESULT' : 'STANDBY'}</span></div><div class="penalty-panel"><input data-lane-penalties="${index}" type="number" min="0" max="20" step="1" value="${lane.penalties}" aria-label="Штрафы дорожки ${index + 1}" /></div></div><div class="lane-next-row"><button data-promote-prev="${index}" class="queue-arrow queue-arrow-prev" ${lane.queueHistory?.length ? '' : 'disabled'} aria-label="Предыдущий спортсмен">←</button><button data-promote-next="${index}" class="next-athlete-trigger" ${pendingForCategory(lane.categoryId, index).filter((candidate) => candidate.id !== lane.athleteId).length ? '' : 'disabled'}><span>СЛЕДУЮЩИЙ</span><strong>${escapeHtml(pendingForCategory(lane.categoryId, index).find((candidate) => candidate.id !== lane.athleteId)?.name || 'нет следующего')}</strong><b>→</b></button><div class="manual-result"><input data-manual-time="${index}" type="number" min="0.001" step="0.001" placeholder="---" aria-label="Ручное время дорожки ${index + 1}" /></div><div class="penalty-quick-controls"><div class="penalty-quick-row">${[1, 2, 3, 4].map((value) => `<button type="button" data-quick-penalty="${index}" data-penalty-value="${value}">${value}</button>`).join('')}</div><button type="button" class="penalty-dq ${lane.dq ? 'active' : ''}" data-lane-dq="${index}">DQ</button></div></div></article><section class="lane-waiting"><div class="queue-result-header"><span>№</span><span>ФИО</span><span>ДАТА РОЖДЕНИЯ</span><span>РЕГИОН</span><span>ПОПЫТКА 01</span><span>ПОПЫТКА 02</span><span>ЛУЧШЕЕ</span></div><div class="waiting-list">${waitingListHtml(lane, index)}</div></section></div>`;
+    const athlete = athleteById(lane.athleteId); const runningTime = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time; const displayTime = lane.dq ? '—' : formatClock(runningTime);
+    return `<div class="lane-card-wrap"><article class="lane-card ${lane.running ? 'active' : ''} ${Number.isFinite(lane.time) && !lane.running ? 'finished' : ''} ${lane.dq ? 'dq' : ''}"><div class="lane-top lane-group-toggle"><span class="lane-number">ДОРОЖКА ${index + 1}</span></div>${laneCategoryPicker(lane, index)}<div class="lane-athlete"><div><strong>${athlete ? escapeHtml(athlete.name) : 'Следующий спортсмен'}</strong></div><select data-lane-athlete="${index}" aria-label="Спортсмен дорожки ${index + 1}">${athleteOptions(lane, index)}</select></div><div class="lane-timer-row"><div class="lane-timer-block"><span class="timer-caption">ВРЕМЯ / РЕЗУЛЬТАТ</span><strong class="lane-time">${displayTime}</strong><span class="lane-state">${lane.running ? 'LIVE / BLE' : lane.dq ? 'DISQUALIFIED' : lane.time ? 'RESULT' : 'STANDBY'}</span></div><div class="penalty-panel"><input data-lane-penalties="${index}" type="text" inputmode="numeric" maxlength="2" value="${lane.dq ? 'DQ' : lane.penalties}" aria-label="Штрафы дорожки ${index + 1}" /></div></div><div class="lane-next-row"><button data-promote-prev="${index}" class="queue-arrow queue-arrow-prev" ${lane.queueHistory?.length ? '' : 'disabled'} aria-label="Предыдущий спортсмен">←</button><button data-promote-next="${index}" class="next-athlete-trigger" ${pendingForCategory(lane.categoryId, index).filter((candidate) => candidate.id !== lane.athleteId).length ? '' : 'disabled'}><span>СЛЕДУЮЩИЙ</span><strong>${escapeHtml(pendingForCategory(lane.categoryId, index).find((candidate) => candidate.id !== lane.athleteId)?.name || 'нет следующего')}</strong><b>→</b></button><div class="manual-result"><input data-manual-time="${index}" type="number" min="0.001" step="0.001" placeholder="---" aria-label="Ручное время дорожки ${index + 1}" /></div><div class="penalty-quick-controls"><div class="penalty-quick-row">${[1, 2, 3, 4].map((value) => `<button type="button" data-quick-penalty="${index}" data-penalty-value="${value}">${value}</button>`).join('')}</div><button type="button" class="penalty-dq ${lane.dq ? 'active' : ''}" data-lane-dq="${index}">DQ</button></div></div></article><section class="lane-waiting"><div class="queue-result-header"><span>№</span><span>ФИО</span><span>ДАТА РОЖДЕНИЯ</span><span>РЕГИОН</span><span>ПОПЫТКА 01</span><span>ПОПЫТКА 02</span><span>ЛУЧШЕЕ</span></div><div class="waiting-list">${waitingListHtml(lane, index)}</div></section></div>`;
   }).join('');
   $$('[data-lane-tab]').forEach((button) => button.addEventListener('click', () => setLaneCategory(Number(button.dataset.laneTab), button.dataset.categoryId)));
   $$('[data-lane-athlete]').forEach((select) => select.addEventListener('change', () => { const index = Number(select.dataset.laneAthlete); state.lanes[index].athleteId = select.value || pendingForCategory(state.lanes[index].categoryId, index)[0]?.id || null; state.lanes[index].queueHistory = []; state.lanes[index].time = null; state.lanes[index].penalties = 0; state.lanes[index].dq = false; persist(); renderLanes(); }));
   $$('[data-promote-next]').forEach((button) => button.addEventListener('click', () => promoteNextAthlete(Number(button.dataset.promoteNext))));
   $$('[data-promote-prev]').forEach((button) => button.addEventListener('click', () => promotePreviousAthlete(Number(button.dataset.promotePrev))));
-  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2); }); input.addEventListener('change', () => setLanePenalties(Number(input.dataset.lanePenalties), input.value)); });
+  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { const raw = input.value.toUpperCase(); input.value = raw.includes('D') ? 'DQ' : raw.replace(/\D/g, '').replace(/^0+/, '').slice(0, 1); }); input.addEventListener('change', () => setLanePenalties(Number(input.dataset.lanePenalties), input.value === 'DQ' ? 5 : input.value)); });
+  $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => setLanePenalties(Number(button.dataset.quickPenalty), button.dataset.penaltyValue)));
+  $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => setLaneDQ(Number(button.dataset.laneDq))));
   $$('[data-manual-time]').forEach((input) => input.addEventListener('keydown', (event) => { if (event.key !== 'Enter') return; const index = Number(input.dataset.manualTime); const time = Number(input.value); if (!Number.isFinite(time) || time <= 0) return showToast('Введите время больше нуля'); applyLaneResult(index, time, 'manual'); input.value = ''; }));
 }
 function renderGlobalQueue() { const lanes = state.lanes.map((lane, index) => { const category = categoryById(lane.categoryId); const next = lane.athleteId ? athleteById(lane.athleteId) : pendingForCategory(lane.categoryId, index)[0]; return `<div class="queue-lane"><span class="queue-lane-number">0${index + 1}</span><div><strong>${escapeHtml(category.label)}</strong><span>${next ? `на старте · ${escapeHtml(next.name)}` : 'нет спортсмена на старте'}</span></div><b>${categoryState(lane.categoryId).attempt > 2 ? 'FIN' : `0${categoryState(lane.categoryId).attempt}`}</b></div>`; }).join(''); const nextCategories = activeCategoryIds().filter((id) => !state.lanes.some((lane) => lane.categoryId === id)).slice(0, 4).map((id) => `<div class="queue-next"><span>следующая категория</span><strong>${escapeHtml(categoryById(id).label)}</strong><button data-queue-category="${id}" class="text-button">выбрать →</button></div>`).join(''); $('#globalQueue').innerHTML = lanes + (nextCategories || '<div class="queue-empty">Все активные категории уже назначены на дорожки.</div>'); $$('[data-queue-category]').forEach((button) => button.addEventListener('click', () => { const laneIndex = state.lanes.findIndex((lane) => categoryState(lane.categoryId).attempt > 2 || !lane.athleteId); const index = laneIndex >= 0 ? laneIndex : 0; state.lanes[index].categoryId = button.dataset.queueCategory; state.lanes[index].athleteId = null; autoAssignLanes(); persist(); renderAll(); })); }
@@ -233,6 +238,7 @@ function applyLaneResult(index, time, source = 'ble') {
 
   lane.running = false;
   lane.startedAt = null;
+  const adjustedTime = Number((result + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
   if (state.phase === 'qualification') {
     const category = categoryState(lane.categoryId);
     if (category.attempt > 2) return showToast('Эта категория уже завершила квалификацию');
@@ -244,22 +250,22 @@ function applyLaneResult(index, time, source = 'ble') {
       renderAll();
       return showToast('Результат этого спортсмена уже записан и не может быть перезаписан');
     }
-    lane.time = result;
+    lane.time = lane.dq ? null : adjustedTime;
     lane.queueHistory = [];
-    category.attempts[attempt][lane.athleteId] = result;
+    category.attempts[attempt][lane.athleteId] = adjustedTime;
     category.penalties[attempt][lane.athleteId] = lane.penalties;
-    addActivity(`${source === 'ble' ? 'BLE / laser' : 'Ручной ввод'} · ${categoryById(lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${formatTime(result)}`);
+    addActivity(`${source === 'ble' ? 'BLE / laser' : 'Ручной ввод'} · ${categoryById(lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${lane.dq ? 'DQ' : formatTime(adjustedTime)}`);
     advanceCategoryIfComplete(lane.categoryId);
   } else {
-    lane.time = result;
+    lane.time = lane.dq ? null : adjustedTime;
     lane.queueHistory = [];
     const cat = categoryState(state.selectedFinalCategory);
     const match = cat.bracket?.matches?.find((item) => item.id === cat.selectedMatchId);
     if (match) {
-      if (match.athlete1 === lane.athleteId) match.time1 = result;
-      if (match.athlete2 === lane.athleteId) match.time2 = result;
+      if (match.athlete1 === lane.athleteId) match.time1 = lane.dq ? null : adjustedTime;
+      if (match.athlete2 === lane.athleteId) match.time2 = lane.dq ? null : adjustedTime;
       resolveMatch(state.selectedFinalCategory, match.id);
-      addActivity(`Финал · ${athleteById(lane.athleteId)?.name || ''} · ${formatTime(result)}`);
+      addActivity(`Финал · ${athleteById(lane.athleteId)?.name || ''} · ${lane.dq ? 'DQ' : formatTime(adjustedTime)}`);
     }
   }
   if (!state.lanes.some((item) => item.running)) clearInterval(timerHandle);

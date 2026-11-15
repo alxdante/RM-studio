@@ -149,7 +149,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-arrow:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); }
 .queue-arrow:disabled { opacity: .28; cursor: not-allowed; }
 .lane-next-row .manual-result { justify-content: stretch; }
-.lane-next-row .manual-result input { width: 100%; min-width: 0; }
+.lane-next-row .manual-result input { width: 100%; min-width: 0; height: 35px; padding: 4px 5px; font: italic 700 17px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; }
+.penalty-panel input { font: italic 700 24px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; }
 .next-athlete-trigger:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); transform: translateY(-1px); }
 .next-athlete-trigger span { color: var(--mint); font: 8px "DM Mono", monospace; letter-spacing: .1em; }
 .next-athlete-trigger strong { overflow: hidden; color: #e4eee5; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }

@@ -122,7 +122,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
   .waiting-list { grid-template-columns: 1fr; }
 }
 /* Penalty input sits beside the timing display, like a race-control console. */
-.lane-timer-row { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: stretch; margin: 16px 0 12px; }
+.lane-timer-row { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: stretch; margin: 8px 0 12px; }
 .lane-timer-row .lane-timer-block { margin: 0; }
 .penalty-panel { padding: 0; background: transparent; border: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; }
 .penalty-panel span { color: #ffb39e; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
@@ -136,8 +136,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }
 .penalty-panel input:focus { border-color: var(--orange); }
-.lane-athlete-name { display: inline-flex; width: calc(100% - 82px); min-height: 34px; margin: 17px 0 0; align-items: center; color: var(--paper); font: 500 19px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
-.lane-fs-controls { display: inline-flex; width: 76px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 17px 0 0; vertical-align: middle; }
+.lane-athlete-name { display: inline-flex; width: calc(100% - 82px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
+.lane-fs-controls { display: inline-flex; width: 76px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
 .fs-button { width: 34px; height: 34px; border: 1px solid rgba(255,179,158,.45); background: rgba(255,116,69,.1); color: #ffb39e; padding: 0; font: 700 10px "Space Grotesk", sans-serif; }
 .fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
 .fs-button.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }

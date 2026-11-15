@@ -128,12 +128,11 @@ function qualificationOrder(categoryId, attempt = categoryState(categoryId).atte
     return [...waiting, ...finished];
   }
   if (attempt === 2) {
-    const waiting = baseOrder.filter((athlete) => !Number.isFinite(getTime(categoryId, athlete.id, 2)));
-    const finished = baseOrder.filter((athlete) => Number.isFinite(getTime(categoryId, athlete.id, 2))).sort((a, b) => getTime(categoryId, b.id, 2) - getTime(categoryId, a.id, 2) || a.name.localeCompare(b.name, 'ru'));
+    const waiting = baseOrder.filter((athlete) => !Number.isFinite(getTime(categoryId, athlete.id, 2))).sort((a, b) => getTime(categoryId, b.id, 1) - getTime(categoryId, a.id, 1) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
+    const finished = baseOrder.filter((athlete) => Number.isFinite(getTime(categoryId, athlete.id, 2))).sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); return (bBest ?? -Infinity) - (aBest ?? -Infinity) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'); });
     return [...waiting, ...finished];
   }
-  const athletes = baseOrder;
-  return athletes.sort((a, b) => { const aTime = getTime(categoryId, a.id, 1); const bTime = getTime(categoryId, b.id, 1); if (!Number.isFinite(aTime) && Number.isFinite(bTime)) return -1; if (Number.isFinite(aTime) && !Number.isFinite(bTime)) return 1; return (bTime ?? Infinity) - (aTime ?? Infinity) || Number(a.rating) - Number(b.rating); });
+  return baseOrder.sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return -1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return 1; return (bBest ?? -Infinity) - (aBest ?? -Infinity) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'); });
 }
 function reservedAthletes(categoryId, laneIndex) { return state.lanes.filter((lane, index) => index !== laneIndex && lane.categoryId === categoryId && lane.athleteId).map((lane) => lane.athleteId); }
 function pendingForCategory(categoryId, laneIndex = -1, sourceState = state) { const category = categoryState(categoryId); if (category.attempt > 2) return []; const attempt = category.attempt; const reserved = sourceState === state ? reservedAthletes(categoryId, laneIndex) : []; return qualificationOrder(categoryId, attempt).filter((athlete) => !Number.isFinite(category.attempts[attempt][athlete.id]) && !reserved.includes(athlete.id)); }

@@ -44,13 +44,13 @@ const CATEGORIES = categoryDefinitions();
 function categoryById(id) { return CATEGORIES.find((category) => category.id === id) || CATEGORIES[0]; }
 function categoryForAthlete(athlete) { const age = ageGroupForAge(athlete.age); const gender = normalizeGenderKey(athlete.gender, athlete.age); return categoryById(`${age.id}-${gender}`); }
 function categoryLabelForAthlete(athlete) { return categoryForAthlete(athlete).label; }
-function activeCategoryIds() { return CATEGORIES.filter((category) => athletesForCategory(category.id).length > 0).map((category) => category.id); }
+function activeCategoryIds() { return CATEGORIES.filter((category) => athletesForCategory(category.id).length > 0 || state.enabledAgeGroups?.includes(category.ageId)).map((category) => category.id); }
 
 function emptyCategoryState() { return { attempt: 1, attempts: { 1: {}, 2: {} }, penalties: { 1: {}, 2: {} }, finalSize: 4, bracket: null, selectedMatchId: null, standings: [] }; }
 function createCategoryStates() { return Object.fromEntries(CATEGORIES.map((category) => [category.id, emptyCategoryState()])); }
 function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, running: false, startedAt: null, error: null }; }
 function firstActiveCategory(exclude = [], roster = DEMO_ROSTER) { const ids = CATEGORIES.filter((category) => roster.some((athlete) => categoryForAthlete(athlete).id === category.id)).map((category) => category.id); return ids.find((id) => !exclude.includes(id)) || ids[0] || CATEGORIES[0].id; }
-function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategory([], roster); const second = firstActiveCategory([first], roster); return [createLane(first), createLane(second)]; }
+function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategory([], roster); const second = firstActiveCategory([first], roster); return [createLane(first), createLane(second === first ? CATEGORIES[1]?.id || CATEGORIES[0].id : second)]; }
 
 function createInitialState() {
   const state = { eventName: 'Urban Flow Open', eventDate: new Date().toISOString().slice(0, 10), phase: 'qualification', roster: DEMO_ROSTER, enabledAgeGroups: AGE_GROUPS.map((group) => group.id), categories: createCategoryStates(), lanes: lanesForRoster(), selectedFinalCategory: firstActiveCategory(), activity: [{ at: Date.now(), text: 'Демо-состав готов. Выберите категории на дорожках.' }] };
@@ -68,7 +68,11 @@ function migrateState(saved) {
   } else if (saved.groups) {
     AGE_GROUPS.forEach((age) => { const old = saved.groups[age.id]; if (!old) return; const target = categories[`${age.id}-boys`]; target.attempts = { 1: { ...(old.attempts?.[1] || {}) }, 2: { ...(old.attempts?.[2] || {}) } }; });
   }
-  const next = { ...base, ...saved, roster, enabledAgeGroups: saved.enabledAgeGroups || AGE_GROUPS.map((group) => group.id), categories, selectedFinalCategory: saved.selectedFinalCategory || firstActiveCategory([], roster), lanes: (saved.lanes || base.lanes).map((lane, index) => ({ ...createLane(lane.categoryId || base.lanes[index]?.categoryId || firstActiveCategory()), ...lane, running: false, startedAt: null })) };
+  const savedLanes = Array.isArray(saved.lanes) && saved.lanes.length ? saved.lanes : base.lanes;
+  const enabledAgeGroups = saved.enabledAgeGroups?.length ? saved.enabledAgeGroups : AGE_GROUPS.map((group) => group.id);
+  const lanes = savedLanes.slice(0, 2).map((lane, index) => ({ ...createLane(lane.categoryId || base.lanes[index]?.categoryId || CATEGORIES[index].id), ...lane, running: false, startedAt: null }));
+  while (lanes.length < 2) lanes.push(createLane(CATEGORIES[lanes.length].id));
+  const next = { ...base, ...saved, roster, enabledAgeGroups, categories, selectedFinalCategory: saved.selectedFinalCategory || firstActiveCategory([], roster), lanes };
   return next;
 }
 let state;
@@ -192,7 +196,7 @@ function openImportPreview(fileName, parsed) { pendingImport = { fileName, roste
 function importWorkbook(file) { const reader = new FileReader(); reader.onload = (event) => { try { const workbook = XLSX.read(event.target.result, { type: 'array', cellDates: true }); const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' }); const parsed = parseRosterRows(rows); if (!parsed.roster.length) return showToast(parsed.errors[0] || 'Не найдено корректных строк'); openImportPreview(file.name, parsed); } catch (error) { showToast('Не удалось прочитать файл Excel'); } }; reader.readAsArrayBuffer(file); }
 function confirmImport() { if (!pendingImport?.roster?.length) return; const roster = normalizeRoster(pendingImport.roster); state = { eventName: state.eventName, eventDate: state.eventDate, phase: 'qualification', roster, enabledAgeGroups: [...new Set(roster.map((athlete) => ageGroupForAge(athlete.age).id))], categories: createCategoryStates(), lanes: [], selectedFinalCategory: null, activity: [] }; state.lanes = lanesForRoster(state.roster); autoAssignLanes(); state.selectedFinalCategory = firstActiveCategory([], state.roster); addActivity(`Импортировано ${state.roster.length} спортсменов из ${pendingImport.fileName}`); pendingImport = null; $('#importModal').classList.add('hidden'); renderAll(); showToast(`Загружено ${state.roster.length} спортсменов`); }
 function cancelImport() { pendingImport = null; $('#importModal').classList.add('hidden'); }
-function clearRoster() { if (!confirm('Очистить список спортсменов и результаты?')) return; state.roster = []; state.enabledAgeGroups = []; state.categories = createCategoryStates(); state.lanes = [createLane(CATEGORIES[0].id), createLane(CATEGORIES[1].id)]; state.selectedFinalCategory = CATEGORIES[0].id; addActivity('Список спортсменов очищен'); renderAll(); }
+function clearRoster() { if (!confirm('Очистить список спортсменов и результаты?')) return; state.roster = []; state.enabledAgeGroups = AGE_GROUPS.map((group) => group.id); state.categories = createCategoryStates(); state.lanes = [createLane(CATEGORIES[0].id), createLane(CATEGORIES[1].id)]; state.selectedFinalCategory = CATEGORIES[0].id; addActivity('Список спортсменов очищен'); renderAll(); }
 function loadDemo() { state = createInitialState(); persist('Сохранено · демо-состав'); renderAll(); showToast('Демо-состав загружен'); }
 
 function qualificationRanking(categoryId) { return athletesForCategory(categoryId).slice().sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return 1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return -1; return (aBest ?? Infinity) - (bBest ?? Infinity) || Number(b.rating) - Number(a.rating); }); }

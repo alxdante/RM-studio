@@ -291,16 +291,19 @@ body { background: #eef0ea; }
 .lane-top.lane-group-toggle > b { color: var(--mint); font-size: 15px; line-height: 1; font-weight: 400; transition: transform .18s ease; }
 .lane-group-picker { margin: 0 -5px 4px; padding: 8px 7px 7px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); }
 .lane-group-picker .lane-tab-row { display: block; }
-.lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 7px; }
+.lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 5px; }
 .lane-group-picker .lane-gender-headings { gap: 4px; margin-bottom: 3px; }
 .lane-group-picker .lane-gender-headings span { min-width: 0; color: #a9c0b6; font: 600 10px/1.1 "Space Grotesk", sans-serif; text-transform: none; }
-.lane-group-picker .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.lane-group-picker .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
 .lane-group-picker .lane-tab { min-width: 0; min-height: 27px; padding: 3px 4px; border: 1px solid rgba(183,245,141,.2); background: rgba(255,255,255,.06); color: #b9cbc2; text-align: center; }
 .lane-group-picker .lane-tab:hover:not(:disabled):not(.active) { transform: none; border-color: var(--orange); }
 .lane-group-picker .lane-tab, .lane-group-picker .lane-tab:hover { box-sizing: border-box; }
-.lane-group-picker .lane-tab span, .lane-group-picker .lane-tab small { display: inline; white-space: nowrap; }
-.lane-group-picker .lane-tab span { font: 500 11px/1.1 "Space Grotesk", sans-serif; }
-.lane-group-picker .lane-tab small { margin-left: 3px; color: #819b90; font: 500 10px/1.1 "Space Grotesk", sans-serif; }
+.lane-group-picker .lane-tab { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; column-gap: 4px; row-gap: 2px; text-align: left; }
+.lane-group-picker .lane-tab span, .lane-group-picker .lane-tab small { white-space: nowrap; }
+.lane-group-picker .lane-tab .lane-tab-gender { grid-column: 1 / -1; overflow: hidden; color: #a9c0b6; font: 600 10px/1.05 "Space Grotesk", sans-serif; text-overflow: ellipsis; }
+.lane-group-picker .lane-tab .lane-tab-age { grid-column: 1; color: inherit; font: 500 11px/1.05 "Space Grotesk", sans-serif; }
+.lane-group-picker .lane-tab small { grid-column: 2; margin: 0; justify-self: end; color: #819b90; font: 500 10px/1.05 "Space Grotesk", sans-serif; }
+.lane-group-picker .lane-tab.active .lane-tab-gender, .lane-group-picker .lane-tab.active small { color: inherit; opacity: .75; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
 .lane-card .lane-athlete { margin-top: 24px; }

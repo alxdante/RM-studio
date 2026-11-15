@@ -284,12 +284,12 @@ body { background: #eef0ea; }
 @media (max-width: 900px) { .topbar { flex-wrap: wrap; } .event-fields { order: 3; width: 100%; } .main-content { padding: 14px; } }
 
 /* Inline lane group selector */
-.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 8px; background: transparent; color: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 8px; text-align: left; cursor: pointer; }
+.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 5px; background: transparent; color: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 7px; text-align: left; }
 .lane-top.lane-group-toggle:hover .lane-top-group { color: var(--mint); }
 .lane-top-group { min-width: 0; overflow: hidden; color: #cfe0d6; font: 10px "DM Mono", monospace; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .lane-top-status { color: #8aa29b; font: 8px "DM Mono", monospace; text-transform: uppercase; white-space: nowrap; }
 .lane-top.lane-group-toggle > b { color: var(--mint); font-size: 15px; line-height: 1; font-weight: 400; transition: transform .18s ease; }
-.lane-group-picker { margin: 0 -5px 4px; padding: 8px 7px 7px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); }
+.lane-group-picker { margin: 0 -5px 1px; padding: 6px 7px 5px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); }
 .lane-group-picker .lane-tab-row { display: block; }
 .lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 5px; }
 .lane-group-picker .lane-gender-headings { gap: 4px; margin-bottom: 3px; }
@@ -306,5 +306,6 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active .lane-tab-gender, .lane-group-picker .lane-tab.active small { color: inherit; opacity: .75; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
-.lane-card .lane-athlete { margin-top: 24px; }
+.lane-card { padding-top: 12px; }
+.lane-card .lane-athlete { margin-top: 10px; }
 .lane-card .lane-athlete strong { display: block; }

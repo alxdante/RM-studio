@@ -107,6 +107,11 @@ function qualificationOrder(categoryId, attempt = categoryState(categoryId).atte
     const finished = baseOrder.filter((athlete) => Number.isFinite(getTime(categoryId, athlete.id, 1))).sort((a, b) => getTime(categoryId, b.id, 1) - getTime(categoryId, a.id, 1) || a.name.localeCompare(b.name, 'ru'));
     return [...waiting, ...finished];
   }
+  if (attempt === 2) {
+    const waiting = baseOrder.filter((athlete) => !Number.isFinite(getTime(categoryId, athlete.id, 2)));
+    const finished = baseOrder.filter((athlete) => Number.isFinite(getTime(categoryId, athlete.id, 2))).sort((a, b) => getTime(categoryId, b.id, 2) - getTime(categoryId, a.id, 2) || a.name.localeCompare(b.name, 'ru'));
+    return [...waiting, ...finished];
+  }
   const athletes = baseOrder;
   return athletes.sort((a, b) => { const aTime = getTime(categoryId, a.id, 1); const bTime = getTime(categoryId, b.id, 1); if (!Number.isFinite(aTime) && Number.isFinite(bTime)) return -1; if (Number.isFinite(aTime) && !Number.isFinite(bTime)) return 1; return (bTime ?? Infinity) - (aTime ?? Infinity) || Number(a.rating) - Number(b.rating); });
 }
@@ -207,7 +212,7 @@ function resultCell(categoryId, athleteId, attempt) {
 function waitingListHtml(lane, index) {
   const athletes = lane.categoryId ? qualificationOrder(lane.categoryId, categoryState(lane.categoryId).attempt) : [];
   const attempt = categoryState(lane.categoryId).attempt;
-  return athletes.map((athlete, position) => { const completedFirstAttempt = Number.isFinite(getTime(lane.categoryId, athlete.id, 1)); return `<div class="queue-result-row ${attempt === 1 && completedFirstAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${athletes.length - position}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
+  return athletes.map((athlete, position) => { const completedAttempt = Number.isFinite(getTime(lane.categoryId, athlete.id, attempt)); return `<div class="queue-result-row ${completedAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${athletes.length - position}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
 }
 function renderLanes() {
   const now = Date.now();

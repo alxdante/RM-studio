@@ -46,7 +46,7 @@ function categoryForAthlete(athlete) { const age = ageGroupForAge(athlete.age); 
 function categoryLabelForAthlete(athlete) { return categoryForAthlete(athlete).label; }
 function activeCategoryIds() { return CATEGORIES.filter((category) => athletesForCategory(category.id).length > 0 || state.enabledAgeGroups?.includes(category.ageId)).map((category) => category.id); }
 
-function emptyCategoryState() { return { attempt: 1, attempts: { 1: {}, 2: {} }, penalties: { 1: {}, 2: {} }, finalSize: 4, bracket: null, selectedMatchId: null, standings: [] }; }
+function emptyCategoryState() { return { attempt: 1, attempts: { 1: {}, 2: {} }, rawAttempts: { 1: {}, 2: {} }, penalties: { 1: {}, 2: {} }, finalSize: 4, bracket: null, selectedMatchId: null, standings: [] }; }
 function createCategoryStates() { return Object.fromEntries(CATEGORIES.map((category) => [category.id, emptyCategoryState()])); }
 function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, running: false, startedAt: null, error: null, queueHistory: [] }; }
 function firstActiveCategory(exclude = [], roster = DEMO_ROSTER) { const ids = CATEGORIES.filter((category) => roster.some((athlete) => categoryForAthlete(athlete).id === category.id)).map((category) => category.id); return ids.find((id) => !exclude.includes(id)) || ids[0] || CATEGORIES[0].id; }
@@ -65,7 +65,7 @@ function migrateState(saved) {
   const roster = normalizeRoster(saved.roster || DEMO_ROSTER);
   const categories = createCategoryStates();
   if (saved.categories) {
-    CATEGORIES.forEach((category) => { const old = saved.categories[category.id] || {}; categories[category.id] = { ...categories[category.id], ...old, attempts: { 1: {}, 2: {}, ...(old.attempts || {}) }, penalties: { 1: {}, 2: {}, ...(old.penalties || {}) }, finalSize: FINAL_SIZES.includes(Number(old.finalSize)) ? Number(old.finalSize) : 4 }; });
+    CATEGORIES.forEach((category) => { const old = saved.categories[category.id] || {}; categories[category.id] = { ...categories[category.id], ...old, attempts: { 1: {}, 2: {}, ...(old.attempts || {}) }, rawAttempts: { 1: {}, 2: {}, ...(old.rawAttempts || {}) }, penalties: { 1: {}, 2: {}, ...(old.penalties || {}) }, finalSize: FINAL_SIZES.includes(Number(old.finalSize)) ? Number(old.finalSize) : 4 }; });
   } else if (saved.groups) {
     AGE_GROUPS.forEach((age) => { const old = saved.groups[age.id]; if (!old) return; const target = categories[`${age.id}-boys`]; target.attempts = { 1: { ...(old.attempts?.[1] || {}) }, 2: { ...(old.attempts?.[2] || {}) } }; });
   }
@@ -135,11 +135,27 @@ function addAgeGroup(ageId) { state.enabledAgeGroups = [...new Set([...(state.en
 function setLaneCategory(index, categoryId) {
   state.lanes[index].categoryId = categoryId; state.lanes[index].athleteId = null; state.lanes[index].time = null; state.lanes[index].penalties = 0; state.lanes[index].dq = false; state.lanes[index].running = false; autoAssignLanes(); persist(); renderAll();
 }
+function recalculateLanePenalty(index) {
+  const lane = state.lanes[index];
+  if (state.phase === 'qualification' && lane?.athleteId && lane.categoryId) {
+    const category = categoryState(lane.categoryId); const attempt = [category.attempt, 1, 2].find((candidate) => candidate <= 2 && Number.isFinite(category.attempts[candidate]?.[lane.athleteId]));
+    if (attempt) {
+      category.rawAttempts ||= { 1: {}, 2: {} };
+      category.rawAttempts[attempt] ||= {};
+      const rawTime = category.rawAttempts[attempt][lane.athleteId] ?? category.attempts[attempt][lane.athleteId];
+      category.rawAttempts[attempt][lane.athleteId] = rawTime;
+      category.attempts[attempt][lane.athleteId] = Number((rawTime + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
+      category.penalties[attempt][lane.athleteId] = lane.penalties;
+      lane.time = lane.dq ? null : category.attempts[attempt][lane.athleteId];
+    }
+  }
+  persist(); renderAll();
+}
 function setLanePenalties(index, value) {
-  const lane = state.lanes[index]; const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; persist(); renderLanes();
+  const lane = state.lanes[index]; const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
 }
 function setLaneDQ(index) {
-  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true; persist(); renderLanes();
+  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true; recalculateLanePenalty(index);
 }
 function promoteNextAthlete(index) {
   const lane = state.lanes[index];
@@ -252,6 +268,8 @@ function applyLaneResult(index, time, source = 'ble') {
     }
     lane.time = lane.dq ? null : adjustedTime;
     lane.queueHistory = [];
+    category.rawAttempts[attempt] ||= {};
+    category.rawAttempts[attempt][lane.athleteId] = result;
     category.attempts[attempt][lane.athleteId] = adjustedTime;
     category.penalties[attempt][lane.athleteId] = lane.penalties;
     addActivity(`${source === 'ble' ? 'BLE / laser' : 'Ручной ввод'} · ${categoryById(lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${lane.dq ? 'DQ' : formatTime(adjustedTime)}`);

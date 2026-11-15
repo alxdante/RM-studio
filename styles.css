@@ -59,3 +59,76 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 1180px) { .page-layout { grid-template-columns: 1fr; } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; } .rules-card { grid-column: span 3; } }
 @media (max-width: 850px) { .topbar { padding: 12px 20px; flex-wrap: wrap; gap: 12px 18px; } .event-fields { order: 3; flex-basis: 100%; } .top-actions { margin-left: auto; } .main-content { padding: 0 20px 35px; } .hero-row { min-height: 170px; } .hero-metrics { gap: 14px; } .hero-metrics strong { font-size: 28px; } .status-strip { grid-template-columns: 1fr 1fr; } .ble-inline { grid-column: span 2; } .qual-lower-grid { grid-template-columns: 1fr; } .category-row { grid-template-columns: minmax(150px, 1fr) minmax(90px, .7fr) auto; } .category-row .text-button { grid-column: 3; } }
 @media (max-width: 620px) { .topbar { padding: 12px 14px; } .brand-lockup h1 { font-size: 17px; } .top-actions { width: 100%; } .top-actions .save-status { display: none; } .top-actions .btn { flex: 1; } .main-content { padding: 0 14px 28px; } .hero-row { min-height: 155px; } .hero-row h2 { font-size: 32px; } .hero-metrics { display: none; } .status-strip { display: block; padding: 12px; } .status-progress, .ble-inline { margin-top: 10px; } .ble-inline { display: flex !important; } .section-head { display: block; } .phase-switch { margin-top: 16px; width: max-content; } .automation-banner { align-items: flex-start; flex-wrap: wrap; } .automation-banner > div:nth-child(2) { width: calc(100% - 42px); } .automation-banner .automation-actions { width: 100%; } .automation-banner .btn { flex: 1; } .lane-grid { grid-template-columns: 1fr; } .lane-card { min-height: 320px; } .lane-athlete { grid-template-columns: 1fr; } .lane-actions { grid-template-columns: auto auto; } .manual-result { grid-column: span 2; justify-content: flex-start; } .right-rail { display: flex; } .rail-card { width: 100%; } .category-row { grid-template-columns: 1fr auto; } .category-progress { grid-column: 1 / 2; } .category-row select { grid-column: 2; grid-row: 1 / span 2; } .category-row .text-button { grid-column: 1; text-align: left; } .finals-toolbar { align-items: stretch; flex-wrap: wrap; } .finals-toolbar > div { flex-basis: 100%; } .finals-toolbar .bracket-choice { flex: 1; } .finals-toolbar .btn { width: 100%; } .finals-progress { display: block; line-height: 1.6; } .standings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .modal-card { padding: 16px; } }
+
+/* Race-deck redesign: category tabs, large timing windows and waiting queues. */
+@font-face { font-family: "DSEG7"; src: url("/DSEG7Classic-BoldItalic.ttf") format("truetype"); font-style: italic; font-weight: 700; font-display: swap; }
+.lane-category-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.lane-tab-panel { background: #fff; border: 1px solid var(--line); padding: 11px 12px 10px; }
+.lane-tab-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 9px; }
+.lane-tab-heading span { color: var(--orange); font: 9px "DM Mono", monospace; letter-spacing: .1em; }
+.lane-tab-heading b { color: var(--ink); font-size: 11px; font-weight: 600; text-align: right; }
+.lane-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+.lane-tab { min-height: 31px; padding: 4px 8px; border: 1px solid var(--line); background: #fff; color: var(--muted); text-align: left; transition: .18s ease; }
+.lane-tab span, .lane-tab small { display: block; }
+.lane-tab span { font-size: 9px; line-height: 1.1; }
+.lane-tab small { color: #9aa49f; font: 8px "DM Mono", monospace; margin-top: 3px; }
+.lane-tab:hover:not(:disabled) { border-color: var(--orange); color: var(--ink); transform: translateY(-1px); }
+.lane-tab.active { background: var(--ink); border-color: var(--ink); color: var(--mint); }
+.lane-tab.active small { color: #afc3ba; }
+.lane-tab:disabled { opacity: .32; cursor: not-allowed; }
+.lane-card-wrap { min-width: 0; }
+.lane-card { min-height: 312px; padding: 16px 17px 14px; }
+.lane-card .lane-athlete { margin: 17px 0 0; grid-template-columns: minmax(0, 1fr) 155px; align-items: end; }
+.lane-card .lane-athlete strong { font-size: 19px; letter-spacing: -.04em; }
+.lane-card .lane-athlete > div > span:last-child { color: #a6bbb2; }
+.lane-card .lane-athlete select { color: #8aa59c; font-size: 9px; }
+.lane-timer-block { min-height: 116px; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
+.timer-caption { color: #7d9a91; font: 8px "DM Mono", monospace; letter-spacing: .12em; }
+.lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 8px 0 5px; text-shadow: 0 0 12px rgba(183,245,141,.08); }
+.lane-card.dq .lane-time { color: var(--orange); font-family: "Space Grotesk", sans-serif; font-size: 48px; font-style: normal; letter-spacing: .02em; }
+.lane-state { color: #81988f; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
+.lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }
+.penalty-field { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7px; align-items: center; }
+.penalty-field span { grid-column: 1 / -1; color: #809a91; font: 8px "DM Mono", monospace; letter-spacing: .1em; margin-bottom: 4px; }
+.penalty-field input { width: 55px; border: 1px solid #4d6a62; background: rgba(0,0,0,.12); color: var(--paper); padding: 6px 7px; outline: none; font: 13px "DM Mono", monospace; }
+.penalty-field input:focus { border-color: var(--mint); }
+.penalty-field em { color: #77928a; font: 8px "DM Mono", monospace; font-style: normal; }
+.lane-actions { grid-template-columns: auto auto 1fr; }
+.lane-waiting { margin-top: 8px; padding: 11px 12px 10px; background: #fff; border: 1px solid var(--line); }
+.waiting-head { display: flex; justify-content: space-between; color: var(--muted); font: 8px "DM Mono", monospace; letter-spacing: .1em; margin-bottom: 7px; }
+.waiting-head b { color: var(--orange); font-weight: 500; }
+.waiting-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; }
+.waiting-athlete { display: grid; grid-template-columns: 21px minmax(0, 1fr); align-items: baseline; gap: 5px; padding: 6px 0; border-top: 1px solid var(--line); min-width: 0; }
+.waiting-athlete b { color: var(--orange); font: 9px "DM Mono", monospace; }
+.waiting-athlete span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.waiting-athlete small { grid-column: 2; color: var(--muted); font: 8px "DM Mono", monospace; margin-top: -3px; }
+.waiting-empty { grid-column: 1 / -1; color: var(--muted); padding: 9px 0 2px; font: 9px "DM Mono", monospace; }
+@media (max-width: 760px) {
+  .lane-category-tabs { grid-template-columns: 1fr; }
+  .lane-grid { grid-template-columns: 1fr; }
+  .lane-time { font-size: 51px; }
+}
+@media (max-width: 520px) {
+  .lane-card .lane-athlete { grid-template-columns: 1fr; gap: 8px; }
+  .lane-control-row { grid-template-columns: 1fr; }
+  .lane-actions { grid-template-columns: auto auto; }
+  .lane-actions .manual-result { grid-column: span 2; justify-content: flex-start; }
+  .waiting-list { grid-template-columns: 1fr; }
+}
+/* Penalty input sits beside the timing display, like a race-control console. */
+.lane-timer-row { display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 10px; align-items: stretch; margin: 16px 0 12px; }
+.lane-timer-row .lane-timer-block { margin: 0; }
+.penalty-panel { padding: 11px 9px; background: rgba(255,116,69,.08); border: 1px solid rgba(255,116,69,.35); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.penalty-panel span { color: #ffb39e; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
+.penalty-panel input { width: 68px; margin: 8px 0 6px; border: 1px solid rgba(255,179,158,.5); background: rgba(0,0,0,.12); color: var(--paper); padding: 7px 6px; outline: none; font: 18px "DM Mono", monospace; }
+.penalty-panel input:focus { border-color: var(--orange); }
+.penalty-panel em { color: #ffb39e; font: 8px "DM Mono", monospace; font-style: normal; }
+.lane-control-row { display: block; }
+@media (max-width: 520px) { .lane-timer-row { grid-template-columns: minmax(0, 1fr) 88px; } .penalty-panel input { width: 58px; } }
+
+.next-athlete-trigger { width: 100%; min-height: 41px; margin: 0 0 10px; padding: 7px 11px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; border: 1px solid rgba(183,245,141,.32); background: rgba(183,245,141,.09); color: var(--paper); text-align: left; transition: .18s ease; }
+.next-athlete-trigger:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); transform: translateY(-1px); }
+.next-athlete-trigger span { color: var(--mint); font: 8px "DM Mono", monospace; letter-spacing: .1em; }
+.next-athlete-trigger strong { overflow: hidden; color: #e4eee5; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.next-athlete-trigger b { color: var(--mint); font-size: 17px; font-weight: 400; }
+.next-athlete-trigger:disabled { opacity: .42; }

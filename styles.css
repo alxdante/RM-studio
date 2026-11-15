@@ -119,7 +119,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .finals-group-tiles .lane-tab.active small { color: var(--ink); opacity: .7; }
 .match-race-head, .match-athlete { display: grid; gap: 5px; align-items: center; }
 .match-race-head { padding: 5px 8px 3px; color: var(--muted); font: 10px "DM Mono", monospace; text-align: center; }
-.match-race-button { border: 0; padding: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; text-transform: uppercase; }
+.match-race-button { position: relative; z-index: 2; border: 0; padding: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; pointer-events: auto; text-transform: uppercase; }
 .match-race-button:hover, .match-race-button.active { color: var(--orange); text-decoration: underline; }
 .match-race-head span:first-child { text-align: left; }
 .match-athlete { justify-content: initial; padding: 6px 8px; }

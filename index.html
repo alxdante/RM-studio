@@ -27,7 +27,10 @@
           <span id="saveStatus" class="save-status">Сохранено только что</span>
           <button id="importBtn" class="btn btn-ghost"><span class="btn-icon">＋</span> Загрузить Excel</button>
           <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" hidden />
+          <button id="demoBtn" class="btn btn-ghost top-utility">Демо</button>
+          <button id="clearRosterBtn" class="icon-btn top-utility-clear" title="Очистить список спортсменов">⌫</button>
           <button id="bleBtn" class="btn btn-ble"><span id="bleDot" class="status-dot"></span><span id="bleBtnText">Подключить BLE</span></button>
+          <span class="ble-signal" title="Состояние BLE-соединения"><i></i><i></i><i></i><small id="bleSignalLabel">offline</small></span>
           <button id="disconnectBtn" class="text-button top-disconnect" disabled>отключить</button>
         </div>
       </header>
@@ -55,11 +58,6 @@
             </div>
           </section>
 
-          <aside class="right-rail">
-            <section class="rail-card roster-card"><div class="card-head"><div><span class="eyebrow">02 / Протокол</span><h3>Категории</h3></div><button id="clearRosterBtn" class="icon-btn" title="Очистить список">⌫</button></div><div class="roster-count"><strong id="rosterTotal">00</strong><span>всего<br />в заявке</span></div><div id="rosterGroupStats" class="group-stats"></div><button id="demoBtn" class="btn btn-full btn-ghost">Загрузить демо-состав</button></section>
-            <section class="rail-card ble-card"><div class="card-head"><div><span class="eyebrow">03 / Техника</span><h3>BLE-UART / LoRa</h3></div><span id="railBleStatusCopy" class="status-pill offline">offline</span></div><div class="device-line"><div class="device-icon">⌁</div><div><strong id="deviceNameCopy">ESP32-BLE-UART</strong><span id="deviceHint">Ожидает подключения</span></div></div><div class="ble-specs"><div><span>service</span><code>…406e</code></div><div><span>notify</span><code>…0406e</code></div><div><span>событие</span><code>JSON / laser</code></div></div></section>
-            <section class="rail-card rules-card"><div class="card-head"><div><span class="eyebrow">04 / Сценарий</span><h3>Автоматика</h3></div><span class="rule-index">01—05</span></div><div class="rule-list"><div><b>01</b><span>Две дорожки<br /><strong>свои категории</strong></span></div><div><b>02</b><span>Финиш лазера<br /><strong>следующий в очереди</strong></span></div><div><b>03</b><span>Группа закончила 01<br /><strong>открывается 02</strong></span></div><div><b>04</b><span>Лучшее время<br /><strong>готовит финальный посев</strong></span></div><div><b>05</b><span>Судья выбирает<br /><strong>следующую категорию</strong></span></div></div></section>
-          </aside>
         </div>
       </main>
     </div>

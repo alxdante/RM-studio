@@ -191,3 +191,19 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab-row .lane-tabs { width: 100%; gap: 5px; }
 .lane-tab-row .lane-tab { flex: 1 1 0; max-width: 180px; min-width: 118px; min-height: 43px; padding: 6px 5px; }
 @media (max-width: 620px) { .lane-category-tabs { grid-template-columns: 1fr; } .lane-tab-row .lane-tab { max-width: none; } }
+
+/* Full-width race console after removing the side rail. */
+.page-layout { grid-template-columns: minmax(0, 1fr); }
+.workspace { width: 100%; }
+.top-utility { min-height: 30px; padding: 0 9px; font-size: 9px; }
+.top-utility-clear { color: var(--muted); font-size: 16px; padding: 2px 4px; }
+.top-utility-clear:hover { color: var(--orange); }
+.ble-signal { display: inline-flex; align-items: flex-end; gap: 2px; min-width: 54px; height: 25px; color: var(--muted); }
+.ble-signal i { display: block; width: 4px; background: var(--muted); opacity: .35; }
+.ble-signal i:nth-child(1) { height: 6px; }
+.ble-signal i:nth-child(2) { height: 10px; }
+.ble-signal i:nth-child(3) { height: 14px; }
+.ble-signal small { align-self: center; margin-left: 3px; font: 8px "DM Mono", monospace; text-transform: uppercase; }
+.ble-signal.online i { background: var(--mint-2); opacity: 1; }
+@media (max-width: 850px) { .top-utility { flex: 0 0 auto !important; } .ble-signal { margin-left: auto; } }
+@media (max-width: 620px) { .top-utility-clear { display: none; } .ble-signal { margin-left: 0; } .ble-signal small { display: none; } }

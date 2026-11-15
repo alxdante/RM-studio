@@ -145,7 +145,7 @@ function pendingForCategory(categoryId, laneIndex = -1, sourceState = state) { c
 function finishedCount(categoryId, attempt) { return athletesForCategory(categoryId).filter((athlete) => hasRecordedResult(categoryId, athlete.id, attempt)).length; }
 function categoryComplete(categoryId, attempt) { const total = athletesForCategory(categoryId).length; return total > 0 && finishedCount(categoryId, attempt) >= total; }
 function autoAssignLanes() { state.lanes.forEach((lane, index) => { if (!lane.categoryId || lane.athleteId || categoryState(lane.categoryId).attempt > 2) return; lane.athleteId = pendingForCategory(lane.categoryId, index)[0]?.id || null; }); }
-function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { commitFinalLaneResult(index); return; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
+function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); if (match?.winnerId) { showToast('Пара завершена — выберите другую плитку'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
 function advanceCategoryIfComplete(categoryId) { const category = categoryState(categoryId); if (category.attempt === 1 && categoryComplete(categoryId, 1)) { category.attempt = 2; addActivity(`${categoryById(categoryId).label} · попытка 01 завершена, очередь 02 готова`); } if (category.attempt === 2 && categoryComplete(categoryId, 2)) { category.attempt = 3; addActivity(`${categoryById(categoryId).label} · квалификация завершена, финальный посев готов`); } }
 
 function renderSummary() {
@@ -315,7 +315,7 @@ function startTicker() { clearInterval(timerHandle); timerHandle = setInterval((
 function startAllLanes() {
   let started = 0;
   state.lanes.forEach((lane, index) => {
-    prepareLaneForStart(index);
+    if (prepareLaneForStart(index) === false) return;
     if (!lane.athleteId) return;
     lane.running = true;
     lane.startedAt = Date.now();
@@ -375,9 +375,10 @@ function recordFinalDQ(index) {
   if (!match) return false;
   const raceIndex = Number.isInteger(category.selectedRaceIndex) ? category.selectedRaceIndex : finalRaceForAthlete(match, lane.athleteId);
   if (raceIndex < 0) return false;
+  if (match.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
   lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: 5, dq: true, source: 'manual-dq' };
   lane.running = false; lane.startedAt = null; lane.time = null; lane.finalRawTime = null;
-  persist(); renderAll();
+  commitFinalLaneResult(index); persist(); renderAll();
   return true;
 }
 function applyLaneResult(index, time, source = 'ble') {
@@ -409,16 +410,17 @@ function applyLaneResult(index, time, source = 'ble') {
     lane.queueHistory = [];
     const cat = categoryState(state.selectedFinalCategory);
     const match = cat.bracket?.matches?.find((item) => item.id === cat.selectedMatchId);
+    if (match?.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
     if (match) {
-      if (lane.pendingFinalResult) return showToast('Сначала начните следующий заезд или выберите новую пару');
-    lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: categoryState(state.selectedFinalCategory).selectedRaceIndex, athleteId: lane.athleteId, rawTime: result, adjustedTime: lane.dq ? null : adjustedTime, penalties: lane.penalties, dq: lane.dq, source };
+      lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: categoryState(state.selectedFinalCategory).selectedRaceIndex, athleteId: lane.athleteId, rawTime: result, adjustedTime: lane.dq ? null : adjustedTime, penalties: lane.penalties, dq: lane.dq, source };
+      commitFinalLaneResult(index);
     }
   }
   if (!state.lanes.some((item) => item.running)) clearInterval(timerHandle);
   persist();
   renderAll();
 }
-function parseBleLine(line) { let payload; try { payload = JSON.parse(line); } catch (error) { addActivity(`BLE · неизвестная строка: ${line.slice(0, 35)}`); return; } const type = payload.type; if (type === 'start') { const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1]; indices.forEach((index) => { if (!state.lanes[index]) return; prepareLaneForStart(index); if (state.lanes[index].athleteId) { state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); } }); persist(); renderLanes(); startTicker(); } else if (type === 'reset') { clearInterval(timerHandle); state.lanes.forEach((lane) => { lane.running = false; lane.startedAt = null; lane.time = null; if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; } lane.error = null; }); persist(); renderLanes(); } else if (['qualification', 'race', 'laser', 'finish'].includes(type)) { const index = Number(payload.lane) - 1; const time = Number(payload.time ?? payload.result ?? payload.seconds); if (index >= 0 && index < 2 && Number.isFinite(time)) applyLaneResult(index, time, 'ble'); } }
+function parseBleLine(line) { let payload; try { payload = JSON.parse(line); } catch (error) { addActivity(`BLE · неизвестная строка: ${line.slice(0, 35)}`); return; } const type = payload.type; if (type === 'start') { const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1]; indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false) return; if (state.lanes[index].athleteId) { state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); } }); persist(); renderLanes(); startTicker(); } else if (type === 'reset') { clearInterval(timerHandle); state.lanes.forEach((lane) => { lane.running = false; lane.startedAt = null; lane.time = null; if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; } lane.error = null; }); persist(); renderLanes(); } else if (['qualification', 'race', 'laser', 'finish'].includes(type)) { const index = Number(payload.lane) - 1; const time = Number(payload.time ?? payload.result ?? payload.seconds); if (index >= 0 && index < 2 && Number.isFinite(time)) applyLaneResult(index, time, 'ble'); } }
 function handleBleNotification(event) { const text = new TextDecoder().decode(event.target.value); ble.buffer += text; const lines = ble.buffer.split(/\r?\n/); ble.buffer = lines.pop() || ''; lines.filter(Boolean).forEach(parseBleLine); }
 async function connectToBleDevice(device, isReconnect = false) { ble.device = device; $('#bleBtnText').textContent = 'Подключение…'; const connectPromise = device.gatt.connect(); const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('тайм-аут GATT-подключения')), 10000)); ble.server = await Promise.race([connectPromise, timeoutPromise]); let lastError; for (const profile of BLE_PROFILES) { try { const service = await ble.server.getPrimaryService(profile.service); ble.rx = await service.getCharacteristic(profile.rx); ble.tx = await service.getCharacteristic(profile.tx); break; } catch (error) { lastError = error; ble.rx = null; ble.tx = null; } } if (!ble.rx || !ble.tx) throw lastError || new Error('BLE service/characteristics not found'); await ble.tx.startNotifications(); ble.tx.addEventListener('characteristicvaluechanged', handleBleNotification); ble.connected = true; ble.reconnectAttempt = 0; renderBle(); addActivity(`BLE · ${isReconnect ? 'переподключено к' : 'подключено к'} ${device.name || 'ESP32-BLE-UART'}`); showToast(isReconnect ? 'BLE снова подключён' : 'BLE подключён. События laser готовы.'); }
 function scheduleBleReconnect() { if (!ble.device || ble.manualDisconnect || ble.reconnectTimer || ble.reconnectAttempt >= 5) return; const delay = Math.min(8000, 900 * (2 ** ble.reconnectAttempt)); ble.reconnectTimer = setTimeout(async () => { ble.reconnectTimer = null; ble.reconnectAttempt += 1; try { await connectToBleDevice(ble.device, true); } catch (error) { renderBle(); scheduleBleReconnect(); } }, delay); }

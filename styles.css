@@ -173,10 +173,10 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }
 .penalty-panel input:focus { border-color: var(--orange); }
-.lane-athlete-name { display: inline-flex; width: calc(100% - 76px); min-height: 34px; margin: 8px 0 0; align-items: center; justify-content: space-between; gap: 8px; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
+.lane-athlete-name { display: inline-flex; width: calc(100% - 155px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
 .lane-athlete-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lane-win-crowns { flex: 0 0 auto; margin-left: auto; color: var(--mint); font: 700 22px/1 "Space Grotesk", sans-serif; letter-spacing: .08em; white-space: nowrap; }
-.lane-fs-controls { display: inline-flex; width: 76px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
+.lane-win-crowns { flex: 0 0 auto; margin-left: 18px; color: var(--mint); font: 700 22px/1 "Space Grotesk", sans-serif; letter-spacing: .08em; white-space: nowrap; }
+.lane-fs-controls { display: inline-flex; width: 155px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
 .fs-button { width: 34px; height: 34px; border: 1px solid rgba(255,179,158,.45); background: rgba(255,116,69,.1); color: #ffb39e; padding: 0; font: 700 12px "Space Grotesk", sans-serif; }
 .fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
 .fs-button.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }

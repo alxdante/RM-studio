@@ -95,6 +95,13 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-waiting .waiting-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
 .lane-grid.finals-mode .lane-waiting { display: none; }
 #qualificationPanel, #finalsPanel { margin-top: 12px; }
+.match-race-head, .match-athlete { display: grid; gap: 5px; align-items: center; }
+.match-race-head { padding: 5px 8px 3px; color: var(--muted); font: 8px "DM Mono", monospace; text-align: center; }
+.match-race-head span:first-child { text-align: left; }
+.match-athlete { justify-content: initial; padding: 6px 8px; }
+.match-athlete strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.match-athlete input { width: 100%; min-width: 0; border: 1px solid var(--line); background: var(--paper); padding: 4px 2px; font: 10px "DM Mono", monospace; text-align: center; }
+.match-athlete input:focus { border-color: var(--orange); outline: none; }
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
 .lane-timer-block { height: 132px; min-height: 132px; box-sizing: border-box; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }

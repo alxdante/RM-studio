@@ -139,8 +139,12 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 520px) { .lane-timer-row { grid-template-columns: minmax(0, 1fr) 88px; } .penalty-panel input { width: 58px; } }
 
 .next-athlete-trigger { width: 100%; min-height: 41px; margin: 0 0 10px; padding: 7px 11px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; border: 1px solid rgba(183,245,141,.32); background: rgba(183,245,141,.09); color: var(--paper); text-align: left; transition: .18s ease; }
-.lane-next-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) 86px; gap: 6px; align-items: center; margin: 0 0 10px; }
-.lane-next-row .next-athlete-trigger { min-width: 0; min-height: 35px; margin: 0; padding: 5px 8px; gap: 6px; }
+.lane-next-row { display: grid; grid-template-columns: 30px minmax(150px, 220px) 86px; gap: 6px; align-items: center; margin: 0 0 10px; }
+.lane-next-row .next-athlete-trigger { min-width: 0; min-height: 35px; margin: 0; padding: 5px 8px; gap: 6px; border: 1px solid rgba(183,245,141,.25); background: rgba(183,245,141,.08); color: var(--mint); }
+.lane-next-row .next-athlete-trigger:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); transform: none; }
+.lane-next-row .next-athlete-trigger span { display: none; }
+.lane-next-row .next-athlete-trigger strong { color: #dce8df; font-size: 13px; font-weight: 600; }
+.lane-next-row .next-athlete-trigger b { color: var(--mint); font-size: 17px; }
 .queue-arrow { min-height: 35px; border: 1px solid rgba(183,245,141,.25); background: rgba(183,245,141,.08); color: var(--mint); font-size: 17px; line-height: 1; }
 .queue-arrow:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); }
 .queue-arrow:disabled { opacity: .28; cursor: not-allowed; }
@@ -330,5 +334,5 @@ body { background: #eef0ea; }
 .lane-card .lane-athlete strong { display: block; }
 
 @media (max-width: 620px) {
-  .lane-next-row { grid-template-columns: 28px minmax(0, 1fr) 78px; gap: 4px; }
+  .lane-next-row { grid-template-columns: 28px minmax(120px, 1fr) 78px; gap: 4px; }
 }

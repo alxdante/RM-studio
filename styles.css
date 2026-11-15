@@ -128,7 +128,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .match-athlete input:focus { border-color: var(--orange); outline: none; }
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
-.lane-timer-block { height: 132px; min-height: 132px; box-sizing: border-box; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
+.lane-timer-block { position: relative; height: 132px; min-height: 132px; box-sizing: border-box; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
 .lane-card.dq .lane-time { color: var(--orange); font-family: "DSEG7", "DM Mono", monospace; font-style: italic; font-weight: 700; letter-spacing: .02em; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }
@@ -173,10 +173,10 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }
 .penalty-panel input:focus { border-color: var(--orange); }
-.lane-athlete-name { display: inline-flex; width: calc(100% - 155px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
+.lane-athlete-name { display: inline-flex; width: calc(100% - 76px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
 .lane-athlete-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lane-win-crowns { flex: 0 0 auto; margin-left: 18px; color: var(--mint); font: 700 22px/1 "Space Grotesk", sans-serif; letter-spacing: .08em; white-space: nowrap; }
-.lane-fs-controls { display: inline-flex; width: 155px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
+.lane-win-crowns { position: absolute; top: -28px; right: 0; color: var(--mint); font: 700 22px/1 "Space Grotesk", sans-serif; letter-spacing: .08em; white-space: nowrap; }
+.lane-fs-controls { display: inline-flex; width: 76px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
 .fs-button { width: 34px; height: 34px; border: 1px solid rgba(255,179,158,.45); background: rgba(255,116,69,.1); color: #ffb39e; padding: 0; font: 700 12px "Space Grotesk", sans-serif; }
 .fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
 .fs-button.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }

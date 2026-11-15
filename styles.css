@@ -286,6 +286,10 @@ body { background: #eef0ea; }
 .lane-waiting { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
 .qual-lower-grid { display: none; }
 @media (max-width: 900px) { .topbar { flex-wrap: wrap; } .event-fields { order: 3; width: 100%; } .main-content { padding: 14px; } }
+.top-phase-switch { flex: 0 0 auto; margin-left: auto; border-bottom: 0; align-self: center; }
+.top-phase-switch .phase-tab { margin-left: 12px; padding-bottom: 4px; font-size: 10px; }
+.main-content { padding-top: 0; }
+#laneCategoryTabs { display: none; }
 
 /* Inline lane group selector */
 .lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 3px; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; min-height: 15px; text-align: center; }

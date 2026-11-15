@@ -23,6 +23,7 @@
           <label><input id="eventName" value="Urban Flow Open" aria-label="Название соревнования" /></label>
           <label><input id="eventDate" type="date" aria-label="Дата соревнования" /></label>
         </div>
+        <div class="phase-switch top-phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Квалификация</button><button class="phase-tab" data-phase="finals">Финалы</button></div>
         <div class="top-actions">
           <span id="saveStatus" class="save-status">Сохранено только что</span>
           <button id="listsBtn" class="btn btn-lists">Списки</button>
@@ -34,11 +35,6 @@
       <main class="main-content">
         <div class="page-layout">
           <section class="workspace">
-            <div class="section-head">
-              <div><p class="eyebrow">01 / Управление заездами</p><h3 id="qualTitle">Квалификация</h3></div>
-              <div class="phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Квалификация</button><button class="phase-tab" data-phase="finals">Финалы</button></div>
-            </div>
-
             <div id="qualificationPanel">
               <div id="laneCategoryTabs" class="lane-category-tabs"></div>
               <div id="laneCards" class="lane-grid"></div>

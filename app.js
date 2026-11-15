@@ -202,7 +202,9 @@ function setLanePenalties(index, value) {
   const lane = state.lanes[index]; const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
 }
 function setLaneDQ(index) {
-  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true; recalculateLanePenalty(index);
+  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true;
+  if (state.phase === 'finals' && recordFinalDQ(index)) return;
+  recalculateLanePenalty(index);
 }
 function handleFalseStart(index, number) {
   const lane = state.lanes[index];
@@ -262,7 +264,7 @@ function renderLanes() {
   $$('[data-promote-prev]').forEach((button) => button.addEventListener('click', () => promotePreviousAthlete(Number(button.dataset.promotePrev))));
   $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { const raw = input.value.toUpperCase(); input.value = raw.includes('D') ? 'DQ' : raw.replace(/\D/g, '').replace(/^0+/, '').slice(0, 1); }); input.addEventListener('change', () => setLanePenalties(Number(input.dataset.lanePenalties), input.value === 'DQ' ? 5 : input.value)); });
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
-  $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (lane.dq) setLanePenalties(index, 0); else setLaneDQ(index); }));
+  $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (!lane.dq) setLaneDQ(index); return; } if (lane.dq) setLanePenalties(index, 0); else setLaneDQ(index); }));
   $$('[data-false-start]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.falseStart); const lane = state.lanes[index]; const number = Number(button.dataset.fsNumber); if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number); }));
   $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const index = Number(input.dataset.manualTime); const time = Number(input.value); if (!Number.isFinite(time) || time <= 0) return showToast('Введите время больше нуля'); applyLaneResult(index, time, 'manual'); input.value = ''; input.dataset.rawDigits = ''; return; } if (/^\d$/.test(event.key)) { event.preventDefault(); const digits = `${input.dataset.rawDigits || ''}${event.key}`.slice(0, 5); input.dataset.rawDigits = digits; const padded = digits.padStart(4, '0'); input.value = `${padded.slice(0, -3)}.${padded.slice(-3)}`; return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); input.dataset.rawDigits = (input.dataset.rawDigits || '').slice(0, -1); const digits = input.dataset.rawDigits; if (!digits) { input.value = ''; return; } const padded = digits.padStart(4, '0'); input.value = `${padded.slice(0, -3)}.${padded.slice(-3)}`; } }); });
 }
@@ -312,6 +314,21 @@ function resetAllLanes() {
   renderAll();
 }
 
+function recordFinalDQ(index) {
+  const lane = state.lanes[index];
+  if (!lane?.athleteId) return false;
+  const category = categoryState(state.selectedFinalCategory);
+  const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId);
+  if (!match) return false;
+  const raceIndex = finalRaceForAthlete(match, lane.athleteId);
+  if (raceIndex < 0) return false;
+  ensureMatchRaces(match)[raceIndex][match.athlete1 === lane.athleteId ? 'time1' : 'time2'] = 'DQ';
+  lane.running = false; lane.startedAt = null; lane.time = null;
+  resolveMatch(state.selectedFinalCategory, match.id);
+  addActivity(`Финал · ${athleteById(lane.athleteId)?.name || ''} · DQ`);
+  persist(); renderAll();
+  return true;
+}
 function applyLaneResult(index, time, source = 'ble') {
   const lane = state.lanes[index];
   if (!lane || !lane.athleteId) return showToast(`На дорожке ${index + 1} не выбран спортсмен`);

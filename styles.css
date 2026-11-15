@@ -180,3 +180,14 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab-row .lane-tab { flex: 0 0 calc((100% - 15px) / 4); min-width: 142px; }
 .lane-tab-row .lane-tab span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 760px) { .lane-tab-row .lane-tab { flex-basis: 142px; } }
+
+/* Keep group selectors exactly aligned with the two timing cards. */
+.lane-category-tabs { width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lane-tab-panel { width: 100%; min-width: 0; padding: 9px 10px 10px; }
+.lane-tab-heading { min-height: 28px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.lane-tab-heading span { flex: 0 0 auto; }
+.lane-tab-heading b { min-width: 0; flex: 1 1 auto; overflow: hidden; margin: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.add-group-button { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; }
+.lane-tab-row .lane-tabs { width: 100%; gap: 5px; }
+.lane-tab-row .lane-tab { flex: 1 1 0; max-width: 180px; min-width: 118px; min-height: 43px; padding: 6px 5px; }
+@media (max-width: 620px) { .lane-category-tabs { grid-template-columns: 1fr; } .lane-tab-row .lane-tab { max-width: none; } }

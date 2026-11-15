@@ -315,12 +315,7 @@ function renderFinalGroupPanel() { const host = $('#finalsGroupPanel'); if (!hos
 function renderPanels() { $$('.phase-tab').forEach((button) => button.classList.toggle('active', button.dataset.phase === state.phase)); $('#qualificationPanel').classList.toggle('hidden', state.phase !== 'qualification'); $('#finalsPanel').classList.toggle('hidden', state.phase !== 'finals'); $('#laneCards').classList.toggle('finals-mode', state.phase === 'finals'); }
 function renderBle() { const online = ble.connected; $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#disconnectBtn').disabled = !online; $('#startAllBtn').disabled = !online; $('#resetAllBtn').disabled = false; }
 function renderFinals() { const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
-function syncFinalsStickyState() {
-  const grid = $('.lane-grid.finals-mode'); const panel = $('#finalsPanel'); if (!grid || !panel || state.phase !== 'finals') return;
-  const panelDocumentTop = panel.getBoundingClientRect().top + window.scrollY; const stickyTop = 104; const threshold = stickyTop + grid.offsetHeight;
-  grid.classList.toggle('overlap-guard', window.scrollY > panelDocumentTop - threshold);
-}
-function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); syncFinalsStickyState(); }
+function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); }
 
 function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 70); }
 
@@ -582,8 +577,6 @@ function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(f
 function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#disconnectBtn').addEventListener('click', disconnectBle); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', exportRosterWorkbook); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#loadTestRosterBtn').addEventListener('click', loadTestRosterForImport); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $$('[data-add-age-group]').forEach((button) => button.addEventListener('click', () => addAgeGroup(button.dataset.addAgeGroup))); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
 
 wireEvents();
-window.addEventListener('scroll', syncFinalsStickyState, { passive: true });
-window.addEventListener('resize', syncFinalsStickyState);
 renderAll();
 loadTestRosterOnStartup();
 setInterval(() => { if (state.lanes.some((lane) => lane.running)) renderLanes(); }, 500);

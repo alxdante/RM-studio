@@ -32,8 +32,8 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 function ageGroupForAge(age) { return AGE_GROUPS.slice().sort((a, b) => b.min - a.min).find((group) => Number(age) >= group.min && Number(age) <= group.max) || AGE_GROUPS[AGE_GROUPS.length - 1]; }
 function normalizeGenderKey(value, age) {
   const text = String(value ?? '').trim().toLowerCase().replace(/ё/g, 'е');
-  const female = /жен|дев|girl|female|woman|women|(^|\s)ж($|\s)/i.test(text);
-  const male = /муж|маль|юнош|boy|male|man|men|(^|\s)м($|\s)/i.test(text);
+  const female = /жен|дев|girl|female|woman|women|(^|[\s./_-])[ждf](?=$|[\s./_-])/i.test(text);
+  const male = /муж|маль|юнош|boy|male|man|men|(^|[\s./_-])[мm](?=$|[\s./_-])/i.test(text);
   if (female) return Number(age) >= 19 ? 'women' : 'girls';
   if (male) return Number(age) >= 19 ? 'men' : 'boys';
   return Number(age) >= 19 ? 'men' : 'boys';
@@ -94,7 +94,7 @@ function bestTime(categoryId, athleteId) { const values = [1, 2].map((attempt) =
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
 function formatDate(value) { return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(value)); }
-function parseBirthDateValue(value) { if (value instanceof Date) return new Date(value.getTime()); if (typeof value === 'number' && Number.isFinite(value)) return new Date(Date.UTC(1899, 11, 30) + value * 86400000); const raw = String(value ?? '').trim(); if (!raw) return null; const rus = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/); const parsed = rus ? new Date(Number(rus[3]), Number(rus[2]) - 1, Number(rus[1])) : new Date(raw); return Number.isNaN(parsed.getTime()) ? null : parsed; }
+function parseBirthDateValue(value) { if (value instanceof Date) return new Date(value.getTime()); if (typeof value === 'number' && Number.isFinite(value)) return new Date(Date.UTC(1899, 11, 30) + value * 86400000); const raw = String(value ?? '').trim(); if (!raw) return null; if (/^\d{4,6}(?:\.0+)?$/.test(raw)) return new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000); const rus = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+.*)?$/); const parsed = rus ? new Date(Number(rus[3]), Number(rus[2]) - 1, Number(rus[1])) : new Date(raw); return Number.isNaN(parsed.getTime()) ? null : parsed; }
 function normalizeBirthDate(value) { const parsed = parseBirthDateValue(value); return parsed ? `${String(parsed.getDate()).padStart(2, '0')}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${parsed.getFullYear()}` : String(value ?? '').trim(); }
 function formatBirthDate(value) { if (!value) return 'дата не указана'; const parsed = parseBirthDateValue(value); return parsed ? new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(parsed) : String(value); }
 function ageFromBirthDate(value, referenceDate = state?.eventDate || new Date().toISOString().slice(0, 10)) { const birth = parseBirthDateValue(value); const reference = new Date(`${referenceDate}T12:00:00`); if (!birth || Number.isNaN(reference.getTime())) return NaN; let age = reference.getFullYear() - birth.getFullYear(); const birthdayPassed = reference.getMonth() > birth.getMonth() || (reference.getMonth() === birth.getMonth() && reference.getDate() >= birth.getDate()); if (!birthdayPassed) age -= 1; return age; }
@@ -199,8 +199,48 @@ async function connectBle() { if (!window.isSecureContext) { $('#bleSignalLabel'
 function sendBleCommand(command) { if (!ble.connected || !ble.rx) return; ble.rx.writeValue(new TextEncoder().encode(command)).catch(() => showToast('Команду BLE не удалось отправить')); }
 function disconnectBle() { ble.manualDisconnect = true; clearTimeout(ble.reconnectTimer); ble.reconnectTimer = null; if (ble.device?.gatt?.connected) ble.device.gatt.disconnect(); ble.connected = false; renderBle(); }
 
-function normalizeHeader(value) { return String(value ?? '').trim().toLowerCase().replace(/ё/g, 'е').replace(/[\s_./-]+/g, ''); }
-function parseRosterRows(rows) { const headers = rows[0] ? Object.keys(rows[0]) : []; const find = (aliases) => headers.find((header) => aliases.includes(normalizeHeader(header))); const nameKey = find(['фио', 'имя', 'спортсмен', 'name', 'athlete', 'fullname']); const ageKey = find(['возраст', 'лет', 'age']); const ratingKey = find(['рейтинг', 'rating', 'rank', 'elo']); const genderKey = find(['пол', 'мж', 'gender', 'sex', 'категория']); const birthKey = find(['датарождения', 'датарожд', 'birthdate', 'birthday']); const regionKey = find(['регион', 'region', 'область']); const cityKey = find(['город', 'city']); const clubKey = find(['клуб', 'команда', 'club', 'team']); const errors = []; if (!nameKey) errors.push('Не найдена колонка ФИО / Name'); if (!ageKey && !birthKey) errors.push('Не найдена колонка Возраст / Age или Дата рождения / Birth date'); if (!nameKey || (!ageKey && !birthKey)) return { roster: [], errors }; const roster = rows.map((row, index) => { const birthDate = normalizeBirthDate(birthKey ? row[birthKey] : ''); const parsedAge = ageKey ? Number.parseInt(String(row[ageKey]).replace(/[^0-9]/g, ''), 10) : NaN; const age = Number.isFinite(parsedAge) ? parsedAge : ageFromBirthDate(birthKey ? row[birthKey] : birthDate); const rating = ratingKey ? Number.parseInt(String(row[ratingKey]).replace(/[^0-9]/g, ''), 10) || 0 : 0; if (!String(row[nameKey] || '').trim() || !Number.isFinite(age) || age < 1 || age > 120) { errors.push(`Строка ${index + 2}: проверьте ФИО, дату рождения и возраст`); return null; } if (!genderKey) errors.push('Пол не найден: строки без пола попадут в мужскую/юношескую категорию'); return { id: `import-${Date.now()}-${index}`, name: String(row[nameKey]).trim(), age, rating, gender: normalizeGenderKey(genderKey ? row[genderKey] : '', age), birthDate, region: String(regionKey ? row[regionKey] : cityKey ? row[cityKey] : '').trim(), city: String(cityKey ? row[cityKey] : '').trim(), club: String(clubKey ? row[clubKey] : '').trim(), source: 'import' }; }).filter(Boolean); return { roster, errors }; }
+function normalizeHeader(value) { return String(value ?? '').replace(/^\uFEFF/, '').trim().toLowerCase().replace(/ё/g, 'е').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, ''); }
+function parseRosterRows(rows) {
+  const headers = rows[0] ? Object.keys(rows[0]) : [];
+  const normalizedHeaders = headers.map((header) => [header, normalizeHeader(header)]);
+  const find = (aliases) => {
+    const normalizedAliases = aliases.map(normalizeHeader).filter(Boolean);
+    const exact = normalizedHeaders.find(([, header]) => normalizedAliases.includes(header));
+    if (exact) return exact[0];
+    const partial = normalizedHeaders.find(([, header]) => normalizedAliases.some((alias) => header.includes(alias) || alias.includes(header)));
+    return partial?.[0];
+  };
+  const nameKey = find(['фио', 'фамилия имя', 'фамилия имя отчество', 'имя спортсмена', 'спортсмен', 'участник', 'name', 'full name', 'full_name', 'athlete', 'participant']);
+  const surnameKey = find(['фамилия', 'last name', 'surname']);
+  const firstNameKey = find(['имя', 'first name', 'given name']);
+  const patronymicKey = find(['отчество', 'middle name', 'patronymic']);
+  const ageKey = find(['возраст', 'возраст участника', 'лет', 'age', 'years', 'years old']);
+  const ratingKey = find(['рейтинг', 'спортивный рейтинг', 'rating', 'rank', 'elo']);
+  const genderKey = find(['пол', 'пол участника', 'мж', 'gender', 'sex']);
+  const birthKey = find(['дата рождения', 'день рождения', 'дата рожд', 'датарожд', 'birth date', 'birthdate', 'birthday', 'dob']);
+  const regionKey = find(['регион', 'субъект рф', 'субъект российской федерации', 'область', 'край', 'республика', 'region', 'oblast', 'area']);
+  const cityKey = find(['город', 'населенный пункт', 'место проживания', 'city', 'town']);
+  const clubKey = find(['клуб', 'команда', 'спортивная школа', 'club', 'team']);
+  const errors = [];
+  if (!nameKey && !(surnameKey && firstNameKey)) errors.push('Не найдена колонка ФИО / Name или отдельные колонки Фамилия + Имя');
+  if (!ageKey && !birthKey) errors.push('Не найдена колонка Возраст / Age или Дата рождения / Birth date');
+  if ((!nameKey && !(surnameKey && firstNameKey)) || (!ageKey && !birthKey)) return { roster: [], errors };
+  const roster = rows.map((row, index) => {
+    const rawBirthDate = birthKey ? row[birthKey] : '';
+    const birthDate = normalizeBirthDate(rawBirthDate);
+    const parsedAge = ageKey ? Number.parseInt(String(row[ageKey] ?? '').replace(/[^0-9]/g, ''), 10) : NaN;
+    const age = Number.isFinite(parsedAge) ? parsedAge : ageFromBirthDate(rawBirthDate || birthDate);
+    const rating = ratingKey ? Number.parseInt(String(row[ratingKey] ?? '').replace(/[^0-9]/g, ''), 10) || 0 : 0;
+    const name = nameKey ? String(row[nameKey] ?? '').trim() : [row[surnameKey], row[firstNameKey], patronymicKey ? row[patronymicKey] : ''].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
+    if (!name || !Number.isFinite(age) || age < 1 || age > 120) {
+      errors.push(`Строка ${index + 2}: проверьте ФИО, дату рождения и возраст`);
+      return null;
+    }
+    return { id: `import-${Date.now()}-${index}`, name, age, rating, gender: normalizeGenderKey(genderKey ? row[genderKey] : '', age), birthDate, region: String(regionKey ? row[regionKey] ?? '' : cityKey ? row[cityKey] ?? '' : '').trim(), city: String(cityKey ? row[cityKey] ?? '' : '').trim(), club: String(clubKey ? row[clubKey] ?? '' : '').trim(), source: 'import' };
+  }).filter(Boolean);
+  if (!genderKey) errors.push('Колонка пола не найдена: строки без пола попадут в мужскую/юношескую категорию');
+  return { roster, errors };
+}
 function openImportPreview(fileName, parsed) { pendingImport = { fileName, roster: parsed.roster }; $('#importModalMeta').textContent = `${fileName} · корректных строк: ${parsed.roster.length}${parsed.errors.length ? ` · замечаний: ${parsed.errors.length}` : ''}`; $('#importErrors').classList.toggle('hidden', !parsed.errors.length); $('#importErrors').textContent = parsed.errors.slice(0, 7).join(' · '); $('#importPreviewRows').innerHTML = parsed.roster.slice(0, 15).map((athlete) => `<tr><td>${escapeHtml(athlete.name)}</td><td>${escapeHtml(formatBirthDate(athlete.birthDate))}</td><td>${escapeHtml(categoryById(categoryForAthlete(athlete).id).label.split(' · ')[1])}</td><td>${escapeHtml(categoryLabelForAthlete(athlete))}</td><td>${escapeHtml(athlete.region || athlete.city || '—')}</td></tr>`).join('') || '<tr><td colspan="5">Нет корректных строк</td></tr>'; $('#importModal').classList.remove('hidden'); }
 function importWorkbook(file) { const reader = new FileReader(); reader.onload = (event) => { try { const workbook = XLSX.read(event.target.result, { type: 'array', cellDates: true }); const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' }); const parsed = parseRosterRows(rows); if (!parsed.roster.length) return showToast(parsed.errors[0] || 'Не найдено корректных строк'); openImportPreview(file.name, parsed); } catch (error) { showToast('Не удалось прочитать файл Excel'); } }; reader.readAsArrayBuffer(file); }
 function confirmImport() { if (!pendingImport?.roster?.length) return; const roster = normalizeRoster(pendingImport.roster); state = { eventName: state.eventName, eventDate: state.eventDate, phase: 'qualification', roster, enabledAgeGroups: [...new Set(roster.map((athlete) => ageGroupForAge(athlete.age).id))], categories: createCategoryStates(), lanes: [], selectedFinalCategory: null, activity: [] }; state.lanes = lanesForRoster(state.roster); autoAssignLanes(); state.selectedFinalCategory = firstActiveCategory([], state.roster); addActivity(`Импортировано ${state.roster.length} спортсменов из ${pendingImport.fileName}`); pendingImport = null; $('#importModal').classList.add('hidden'); closeListsModal(); renderAll(); showToast(`Загружено ${state.roster.length} спортсменов`); }

@@ -307,19 +307,19 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
 .queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(0, 28px) minmax(140px, 1.45fr) minmax(0, 92px) minmax(0, .8fr) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
-.queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
+.queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 10px "DM Mono", monospace; letter-spacing: .08em; }
 .queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
-.queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 13px; }
+.queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 14px; }
 .queue-result-row.attempt-complete { background: rgba(143, 163, 154, .12); color: #a8b9b1; }
 .queue-result-row.attempt-complete strong { color: #b7c8bf; }
-.queue-result-number { color: var(--orange); font: 12px "DM Mono", monospace; }
+.queue-result-number { color: var(--orange); font: 13px "DM Mono", monospace; }
 .queue-result-row span:nth-of-type(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queue-result-row span:nth-of-type(n+3), .queue-result-row strong { color: var(--muted); font: 11px "DM Mono", monospace; }
+.queue-result-row span:nth-of-type(n+3), .queue-result-row strong { color: var(--muted); font: 12px "DM Mono", monospace; }
 .queue-result-row strong { color: var(--ink); font-weight: 500; }
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
 @media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 28px minmax(140px, 1.3fr) 95px minmax(85px, .8fr) 72px 72px 78px; min-width: 760px; gap: 6px; } }
-@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 26px) minmax(140px, 1.3fr) minmax(0, 95px) minmax(0, 85px) 68px 68px 74px; gap: 6px; } .queue-result-row { font-size: 11px; } }
+@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 26px) minmax(140px, 1.3fr) minmax(0, 95px) minmax(0, 85px) 68px 68px 74px; gap: 6px; } .queue-result-row { font-size: 12px; } }
 
 /* App-like presentation: focus on controls, lanes and queues. */
 body { background: #eef0ea; }

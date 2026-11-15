@@ -406,11 +406,3 @@ body { background: #eef0ea; }
 @media (max-width: 620px) {
   .lane-next-row { grid-template-columns: 28px 150px minmax(0, 1fr) 110px 110px; gap: 4px; }
 }
-
-.final-size-card { width: min(430px, 100%); padding: 20px; }
-.final-size-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin-top: 18px; }
-.final-size-option { min-height: 76px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); display: grid; place-items: center; align-content: center; gap: 3px; cursor: pointer; transition: .18s ease; }
-.final-size-option strong { font: 600 25px/.9 "Space Grotesk", sans-serif; }
-.final-size-option span { color: var(--muted); font: 8px "DM Mono", monospace; text-transform: uppercase; }
-.final-size-option:hover { border-color: var(--orange); background: #fff; transform: translateY(-2px); }
-.final-size-option:active { transform: translateY(0); background: var(--mint); border-color: var(--mint); }

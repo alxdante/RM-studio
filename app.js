@@ -323,7 +323,7 @@ function startAllLanes() {
     lane.error = null;
     started += 1;
   });
-  if (!started) { if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); return showToast(match?.winnerId ? 'Выберите другую плитку' : 'Выберите следующий заезд'); } return showToast('На дорожках нет спортсменов'); }
+  if (!started) { if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); return showToast(match?.winnerId ? 'Выберите другую пару' : 'Выберите следующий заезд'); } return showToast('На дорожках нет спортсменов'); }
   sendBleCommand('start');
   addActivity(`Старт · запущено дорожек: ${started}`);
   persist();

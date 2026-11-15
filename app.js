@@ -431,14 +431,14 @@ function resolveAutoAdvances(bracket, categoryId) {
     if (round > 0) {
       const feederA = getMatch(bracket, `r${round - 1}m${match.index * 2}`);
       const feederB = getMatch(bracket, `r${round - 1}m${match.index * 2 + 1}`);
-      if (!matchReadyForAdvance(feederA) || !matchReadyForAdvance(feederB)) {
-        match.athlete1 = null; match.athlete2 = null; match.winnerId = null; match.loserId = null; match.time1 = null; match.time2 = null; match.races = emptyFinalRaces();
-        return;
-      }
       const athlete1 = feederA?.winnerId || null;
       const athlete2 = feederB?.winnerId || null;
       if (match.athlete1 !== athlete1 || match.athlete2 !== athlete2) {
         match.athlete1 = athlete1; match.athlete2 = athlete2; match.time1 = null; match.time2 = null; match.races = emptyFinalRaces(); match.winnerId = null; match.loserId = null;
+      }
+      if (!matchReadyForAdvance(feederA) || !matchReadyForAdvance(feederB)) {
+        match.winnerId = null; match.loserId = null;
+        return;
       }
     }
     const only = match.athlete1 && !match.athlete2 ? match.athlete1 : !match.athlete1 && match.athlete2 ? match.athlete2 : null;

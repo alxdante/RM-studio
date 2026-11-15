@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d2224" />
+    <meta name="description" content="Локальная панель хронометража и турнирной сетки скоростного слалома" />
+    <title>Slalom Timing Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-lockup">
+          <div class="brand-mark"><span>ST</span><i></i></div>
+          <div><p class="eyebrow">race control / 01</p><h1>Slalom<br /><strong>Timing</strong></h1></div>
+        </div>
+        <div class="sidebar-rule"></div>
+        <section class="side-section">
+          <div class="side-label"><span>Соревнование</span><span class="mono">LIVE</span></div>
+          <label class="field-label" for="eventName">Название</label>
+          <input id="eventName" class="input input-dark" value="Urban Flow Open" aria-label="Название соревнования" />
+          <label class="field-label" for="eventDate">Дата</label>
+          <input id="eventDate" class="input input-dark" type="date" aria-label="Дата соревнования" />
+        </section>
+        <section class="side-section">
+          <div class="side-label"><span>Возрастные группы</span><span id="groupCount" class="mono">04</span></div>
+          <div id="groupNav" class="group-nav"></div>
+        </section>
+        <section class="side-section side-note">
+          <div class="note-mark">↗</div>
+          <p><strong>Скоростной слалом</strong><br />Время меньше — место выше. Рейтинг задаёт порядок старта: фавориты выходят последними.</p>
+        </section>
+        <div class="sidebar-footer"><span class="mono">v0.1 / LOCAL</span><span class="save-dot"><i></i> autosave</span></div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="breadcrumb"><span>RACE CONTROL</span><b>/</b><span id="crumbGroup">8–9 лет</span></div>
+          <div class="top-actions">
+            <span id="saveStatus" class="save-status">Сохранено только что</span>
+            <button id="importBtn" class="btn btn-ghost"><span class="btn-icon">＋</span> Загрузить Excel</button>
+            <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" hidden />
+            <button id="bleBtn" class="btn btn-ble"><span id="bleDot" class="status-dot"></span><span id="bleBtnText">Подключить BLE</span></button>
+          </div>
+        </header>
+
+        <section class="hero-row">
+          <div><p class="eyebrow accent">Пульт главного судьи</p><h2>Проведение заездов<br /><em>без лишнего шума.</em></h2></div>
+          <div class="hero-summary"><span class="summary-number" id="heroAthletes">00</span><span class="summary-caption">спортсменов<br />в протоколе</span></div>
+        </section>
+
+        <div class="content-grid">
+          <section class="workspace">
+            <div class="section-head">
+              <div><p class="eyebrow">01 / Квалификация</p><h3 id="qualTitle">Группа 8–9 лет</h3></div>
+              <div class="phase-switch" role="tablist" aria-label="Этап соревнования">
+                <button class="phase-tab active" data-phase="qualification">Квалификация</button>
+                <button class="phase-tab" data-phase="finals">Финалы</button>
+              </div>
+            </div>
+
+            <div id="qualificationPanel">
+              <div class="qual-banner">
+                <div class="attempt-select"><span class="mini-label">Текущая попытка</span><div class="attempt-tabs"><button data-attempt="1" class="attempt-tab active">01</button><button data-attempt="2" class="attempt-tab">02</button></div></div>
+                <div class="qual-order"><span class="mini-label">Порядок старта</span><strong id="orderCaption">По рейтингу · от низкого к высокому</strong></div>
+                <button id="advanceAttemptBtn" class="btn btn-small btn-outline">Открыть попытку 02 <span>→</span></button>
+              </div>
+              <div class="timing-deck">
+                <div class="deck-head"><div><span class="eyebrow">Стартовая зона</span><h4>Дорожки хронометража</h4></div><div class="deck-controls"><button id="resetBtn" class="btn btn-small btn-muted">Сбросить</button><button id="startBtn" class="btn btn-small btn-start"><span>▶</span> Старт заезда</button></div></div>
+                <div id="laneCards" class="lane-grid"></div>
+                <div id="eventLog" class="event-log"></div>
+              </div>
+              <div class="list-head"><div><span class="eyebrow">Старт-лист</span><h4 id="startListTitle">Порядок выхода · попытка 01</h4></div><span id="startListMeta" class="mono muted">0 / 0 готовы</span></div>
+              <div class="table-wrap"><table class="athlete-table"><thead><tr><th>#</th><th>Спортсмен</th><th>Город / клуб</th><th>Рейтинг</th><th>Попытка 01</th><th>Попытка 02</th><th>Лучшее</th></tr></thead><tbody id="athleteRows"></tbody></table></div>
+            </div>
+
+            <div id="finalsPanel" class="hidden">
+              <div class="finals-toolbar"><div><span class="mini-label">Финальная сетка</span><strong>Посев: 1 ↔ последний · 2 ↔ предпоследний</strong></div><label class="bracket-choice">Размер <select id="bracketSize"><option value="4">1/4 финала · 4</option><option value="8">1/8 финала · 8</option></select></label><button id="generateBracketBtn" class="btn btn-small btn-start">Собрать сетку <span>→</span></button></div><div id="bracketBoard" class="bracket-board"></div><div id="finalStandings" class="final-standings hidden"></div>
+            </div>
+          </section>
+
+          <aside class="right-rail">
+            <section class="rail-card roster-card"><div class="card-head"><div><span class="eyebrow">02 / Протокол</span><h3>Спортсмены</h3></div><button id="clearRosterBtn" class="icon-btn" title="Очистить список">⌫</button></div><div class="roster-count"><strong id="rosterTotal">00</strong><span>всего<br />в заявке</span></div><div id="rosterGroupStats" class="group-stats"></div><button id="demoBtn" class="btn btn-full btn-ghost">Загрузить демо-состав</button></section>
+            <section class="rail-card ble-card"><div class="card-head"><div><span class="eyebrow">03 / Техника</span><h3>BLE-UART</h3></div><span id="railBleStatus" class="status-pill offline">offline</span></div><div class="device-line"><div class="device-icon">⌁</div><div><strong id="deviceName">ESP32-BLE-UART</strong><span id="deviceHint">Ожидает подключения</span></div></div><div class="ble-specs"><div><span>service</span><code>…406e</code></div><div><span>notify</span><code>…0406e</code></div><div><span>режим</span><code>JSON / 20B</code></div></div><button id="disconnectBtn" class="btn btn-full btn-muted" disabled>Отключить устройство</button></section>
+            <section class="rail-card rules-card"><div class="card-head"><div><span class="eyebrow">04 / Регламент</span><h3>Логика гонки</h3></div><span class="rule-index">01—04</span></div><div class="rule-list"><div><b>01</b><span>Одна квалификация<br /><strong>× 2 попытки</strong></span></div><div><b>02</b><span>Вторая попытка<br /><strong>худшие → лучшие</strong></span></div><div><b>03</b><span>Лучшее из двух<br /><strong>формирует посев</strong></span></div><div><b>04</b><span>Победители — <strong>большой</strong><br />проигравшие — малый финал</span></div></div></section>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <div id="importModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+      <div class="modal-card"><div class="card-head"><div><span class="eyebrow">Проверка файла</span><h3 id="importModalTitle">Предпросмотр состава</h3></div><button id="cancelImportBtn" class="icon-btn" aria-label="Закрыть">×</button></div><p id="importModalMeta" class="modal-meta"></p><div id="importErrors" class="import-errors hidden"></div><div class="preview-table-wrap"><table class="preview-table"><thead><tr><th>Спортсмен</th><th>Возраст</th><th>Группа</th><th>Рейтинг</th><th>Клуб</th></tr></thead><tbody id="importPreviewRows"></tbody></table></div><div class="modal-actions"><button id="cancelImportBtnBottom" class="btn btn-ghost">Отмена</button><button id="confirmImportBtn" class="btn btn-start">Заменить состав <span>→</span></button></div></div>
+    </div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

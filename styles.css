@@ -207,3 +207,24 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .ble-signal.online i { background: var(--mint-2); opacity: 1; }
 @media (max-width: 850px) { .top-utility { flex: 0 0 auto !important; } .ble-signal { margin-left: auto; } }
 @media (max-width: 620px) { .top-utility-clear { display: none; } .ble-signal { margin-left: 0; } .ble-signal small { display: none; } }
+
+/* Race-control foundation: stable lanes and result queues, with larger type after rail removal. */
+.lane-tab-panel { padding: 14px 16px 15px; }
+.lane-tab-row .lane-tab span { font-size: 11px; }
+.lane-tab-row .lane-tab small { font-size: 9px; }
+.lane-card { min-height: 350px; padding: 20px 21px 17px; }
+.lane-card .lane-athlete strong { font-size: 23px; }
+.lane-time { font-size: 76px; }
+.lane-waiting { margin-top: 10px; padding: 14px 15px 15px; }
+.waiting-head { font-size: 10px; margin-bottom: 9px; }
+.queue-result-header, .queue-result-row { display: grid; grid-template-columns: 40px minmax(180px, 1fr) 100px 100px 120px; gap: 10px; align-items: center; }
+.queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
+.queue-result-header span:nth-child(n+3), .queue-result-row span:nth-child(n+3), .queue-result-row strong { text-align: right; }
+.queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 13px; }
+.queue-result-row b { color: var(--orange); font: 12px "DM Mono", monospace; }
+.queue-result-row span:first-of-type { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-result-row span:nth-of-type(n+2), .queue-result-row strong { color: var(--muted); font: 12px "DM Mono", monospace; }
+.queue-result-row strong { color: var(--ink); font-weight: 500; }
+.queue-result-empty { background: rgba(234,236,228,.35); }
+.queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
+@media (max-width: 760px) { .lane-time { font-size: 62px; } .queue-result-header, .queue-result-row { grid-template-columns: 30px minmax(120px, 1fr) 65px 65px 78px; gap: 6px; } .queue-result-row { font-size: 11px; } }

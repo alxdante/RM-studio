@@ -174,3 +174,9 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }
+
+/* Extra age groups (for example 5–7 and 40+) stay in one row and scroll horizontally. */
+.lane-tab-row .lane-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--orange) #e8ebe3; padding-bottom: 4px; }
+.lane-tab-row .lane-tab { flex: 0 0 calc((100% - 15px) / 4); min-width: 142px; }
+.lane-tab-row .lane-tab span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 760px) { .lane-tab-row .lane-tab { flex-basis: 142px; } }

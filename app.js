@@ -498,7 +498,38 @@ function roundLabel(size, round) { const rounds = Math.log2(size); if (round ===
 function buildBracket(categoryId, size) { const seeded = qualificationRanking(categoryId).filter((athlete) => Number.isFinite(bestTime(categoryId, athlete.id))).slice(0, size); const matches = []; const rounds = Math.log2(size); for (let index = 0; index < size / 2; index += 1) matches.push({ id: `r0m${index}`, round: 0, index, label: roundLabel(size, 0), athlete1: seeded[index]?.id || null, athlete2: seeded[size - index - 1]?.id || null, time1: null, time2: null, winnerId: null, loserId: null }); for (let round = 1; round < rounds; round += 1) for (let index = 0; index < size / (2 ** (round + 1)); index += 1) matches.push({ id: `r${round}m${index}`, round, index, label: roundLabel(size, round), athlete1: null, athlete2: null, time1: null, time2: null, winnerId: null, loserId: null }); matches.push({ id: 'small-final', round: rounds, index: 0, label: 'Малый финал', athlete1: null, athlete2: null, time1: null, time2: null, winnerId: null, loserId: null, isSmall: true }); const bracket = { size, matches, selectedMatchId: matches[0]?.id || null }; resolveAutoAdvances(bracket, categoryId); return bracket; }
 function getMatch(bracket, id) { return bracket.matches.find((match) => match.id === id); }
 function emptyFinalRaces(count = 2) { return Array.from({ length: count }, () => ({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null })); }
-function ensureMatchRaces(match) { if (!Array.isArray(match.races)) { match.races = []; if (match.time1 !== null || match.time2 !== null) match.races.push({ time1: match.time1 ?? null, time2: match.time2 ?? null, penalty1: 0, penalty2: 0, source1: null, source2: null }); } while (match.races.length < 2) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null }); match.races.forEach((race) => { race.penalty1 ??= 0; race.penalty2 ??= 0; race.source1 ??= null; race.source2 ??= null; }); return match.races; }
+function ensureMatchRaces(match) {
+  if (!Array.isArray(match.races)) {
+    match.races = [];
+    if (match.time1 !== null || match.time2 !== null) match.races.push({ time1: match.time1 ?? null, time2: match.time2 ?? null, penalty1: 0, penalty2: 0, source1: null, source2: null });
+  }
+  while (match.races.length < 2) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
+  match.races.forEach((race) => { race.penalty1 ??= 0; race.penalty2 ??= 0; race.source1 ??= null; race.source2 ??= null; });
+
+  // A previous recalculation could remove a trailing race from the live array.
+  // If that race has a persisted log entry, restore the missing slot without
+  // overwriting an intentionally cleared value in an existing slot.
+  const logged = new Map();
+  (state.raceLog || []).filter((entry) => entry.phase === 'finals' && entry.matchId === match.id && Number.isInteger(entry.raceIndex) && (entry.athleteId === match.athlete1 || entry.athleteId === match.athlete2)).forEach((entry) => {
+    const key = `${entry.raceIndex}|${entry.athleteId}`;
+    logged.set(key, entry);
+  });
+  const maxLoggedRace = [...logged.values()].reduce((max, entry) => Math.max(max, entry.raceIndex), -1);
+  const originalLength = match.races.length;
+  while (match.races.length <= maxLoggedRace) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
+  if (match.races.length > originalLength) {
+    logged.forEach((entry) => {
+      if (entry.raceIndex < originalLength) return;
+      const race = match.races[entry.raceIndex];
+      const side = entry.athleteId === match.athlete1 ? '1' : entry.athleteId === match.athlete2 ? '2' : null;
+      if (!side) return;
+      race[`time${side}`] = entry.dq ? 'DQ' : entry.adjustedTime;
+      race[`penalty${side}`] = entry.dq ? 5 : Number(entry.penalties || 0);
+      race[`source${side}`] = entry.source || null;
+    });
+  }
+  return match.races;
+}
 function finalRaceWinner(race, athlete1, athlete2) { const dq1 = race.time1 === 'DQ'; const dq2 = race.time2 === 'DQ'; if (dq1 && !dq2 && race.time2 !== null) return athlete2; if (dq2 && !dq1 && race.time1 !== null) return athlete1; if (Number.isFinite(race.time1) && Number.isFinite(race.time2)) return race.time1 <= race.time2 ? athlete1 : athlete2; return null; }
 function resolveMatchWinner(match, categoryId) { const races = ensureMatchRaces(match); const wins = { [match.athlete1]: 0, [match.athlete2]: 0 }; races.forEach((race) => { const winner = finalRaceWinner(race, match.athlete1, match.athlete2); if (winner) wins[winner] += 1; }); let winnerId = wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null; const allRacesComplete = races.every((race) => race.time1 !== null && race.time2 !== null); if (!winnerId && races.length >= 5 && allRacesComplete && categoryId) { const qualificationTime1 = bestTime(categoryId, match.athlete1); const qualificationTime2 = bestTime(categoryId, match.athlete2); if (Number.isFinite(qualificationTime1) && Number.isFinite(qualificationTime2) && qualificationTime1 !== qualificationTime2) winnerId = qualificationTime1 < qualificationTime2 ? match.athlete1 : match.athlete2; } if (winnerId) { while (races.length > 2 && races.at(-1).time1 === null && races.at(-1).time2 === null) races.pop(); if (categoryId) { const category = categoryState(categoryId); category.selectedRaceIndex = Math.min(Number(category.selectedRaceIndex) || 0, races.length - 1); } } match.winnerId = winnerId; match.loserId = winnerId ? (winnerId === match.athlete1 ? match.athlete2 : match.athlete1) : null; if (!winnerId && races.length < 5 && allRacesComplete) races.push({ time1: null, time2: null }); return winnerId; }
 function finalRaceForAthlete(match, athleteId) { return ensureMatchRaces(match).findIndex((race) => (athleteId === match.athlete1 ? race.time1 : race.time2) === null); }

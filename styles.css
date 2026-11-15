@@ -346,6 +346,7 @@ body { background: #eef0ea; }
 .main-content { padding-top: 0; }
 #laneCategoryTabs { display: none; }
 .run-controls { z-index: 10; flex: 0 0 auto; white-space: nowrap; }
+.finals-actions { display: flex; justify-content: flex-end; margin: 0 0 10px; }
 @media (max-width: 900px) {
   .event-control-cluster { order: 2; flex: 1 1 100%; width: 100%; max-width: none; }
   .run-controls { position: static; order: 2; margin-left: auto; transform: none; }

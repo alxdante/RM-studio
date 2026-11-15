@@ -271,7 +271,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 /* App-like presentation: focus on controls, lanes and queues. */
 body { background: #eef0ea; }
 .app-shell { max-width: 1600px; margin: 0 auto; background: #f7f8f3; }
-.topbar { position: sticky; top: 0; z-index: 20; min-height: 46px; padding: 4px 22px; background: rgba(247,248,243,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+.topbar { position: sticky; top: 0; z-index: 20; min-height: 46px; padding: 4px 22px; background: rgba(247,248,243,.97); border-bottom: 0; backdrop-filter: blur(12px); }
 .brand-lockup h1 { margin: 0; font-size: 19px; }
 .event-fields { gap: 10px; }
 .event-fields label span { font-size: 8px; }
@@ -292,8 +292,9 @@ body { background: #eef0ea; }
 #laneCategoryTabs { display: none; }
 
 /* Inline lane group selector */
-.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 3px; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; min-height: 15px; text-align: center; }
+.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 2px; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; min-height: 12px; text-align: center; }
 .lane-top.lane-group-toggle:hover .lane-top-group { color: var(--mint); }
+.lane-top .lane-number { color: var(--mint); font: 600 11px/1.1 "Space Grotesk", sans-serif; letter-spacing: .02em; }
 .lane-top-group { min-width: 0; overflow: hidden; color: #cfe0d6; font: 10px "DM Mono", monospace; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .lane-top-status { color: #8aa29b; font: 8px "DM Mono", monospace; text-transform: uppercase; white-space: nowrap; }
 .lane-top.lane-group-toggle > b { color: var(--mint); font-size: 15px; line-height: 1; font-weight: 400; transition: transform .18s ease; }
@@ -314,6 +315,6 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active .lane-tab-gender, .lane-group-picker .lane-tab.active small { color: inherit; opacity: .75; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
-.lane-card { padding-top: 12px; }
+.lane-card { padding-top: 7px; }
 .lane-card .lane-athlete { margin-top: 10px; }
 .lane-card .lane-athlete strong { display: block; }

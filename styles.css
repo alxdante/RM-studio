@@ -93,12 +93,13 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .topbar { position: sticky; top: 0; z-index: 50; }
 .lane-card { position: sticky; top: 58px; z-index: 20; }
 #finalsGroupPanel { position: sticky; top: 46px; z-index: 40; background: var(--paper); padding-bottom: 1px; }
+.lane-grid:not(.finals-mode) .lane-card { position: relative; top: auto; z-index: auto; }
 .lane-grid.finals-mode { position: sticky; top: 104px; z-index: 30; background: var(--paper); padding-bottom: 10px; }
 .lane-grid.finals-mode .lane-card { top: auto; }
 .lane-grid.finals-mode + #qualificationPanel { display: none; }
 .workspace > #finalsPanel .bracket-board { max-height: none; overflow: visible; overscroll-behavior: auto; }
-.lane-waiting .waiting-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
-.lane-grid:not(.finals-mode) { margin-bottom: 14px; }
+.lane-waiting .waiting-list { max-height: none; overflow: visible; }
+.lane-grid:not(.finals-mode) { margin-bottom: 24px; }
 .lane-grid.finals-mode .lane-waiting { display: none; }
 .lane-grid.finals-mode .lane-group-picker { display: none; }
 .workspace > #finalsPanel { width: 100%; min-width: 0; margin-top: 10px; }

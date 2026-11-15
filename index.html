@@ -24,10 +24,9 @@
           <label><input id="eventDate" type="date" aria-label="Дата соревнования" /></label>
         </div>
         <div class="phase-switch top-phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Квалификация</button><button class="phase-tab" data-phase="finals">Финалы</button></div>
+        <div class="run-controls"><button id="startAllBtn" class="btn run-start" disabled>Старт</button><button id="resetAllBtn" class="btn run-reset" disabled>Сброс</button></div>
         <div class="top-actions">
           <span id="saveStatus" class="save-status">Сохранено только что</span>
-          <button id="startAllBtn" class="btn btn-start">Старт</button>
-          <button id="resetAllBtn" class="btn btn-muted">Сброс</button>
           <button id="listsBtn" class="btn btn-lists">Списки</button>
           <button id="bleBtn" class="btn btn-ble"><span id="bleDot" class="status-dot"></span><span class="ble-button-signal" aria-hidden="true"><i></i><i></i><i></i></span><span id="bleBtnText">Подключить BLE</span></button>
           <button id="disconnectBtn" class="btn top-disconnect" disabled>Отключить</button>

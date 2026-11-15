@@ -23,7 +23,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .btn:hover:not(:disabled) { transform: translateY(-1px); } .btn-ghost { color: var(--ink); background: transparent; border: 1px solid var(--line); } .btn-ghost:hover:not(:disabled) { border-color: var(--ink); background: white; }
 .btn-ble { background: var(--ink); color: var(--paper); } .btn-ble:hover:not(:disabled) { background: var(--ink-2); } .btn-icon { font-size: 17px; line-height: 0; }
 .btn-lists { border: 1px solid var(--line); background: transparent; color: var(--ink); } .btn-lists:hover:not(:disabled) { border-color: var(--orange); background: #fff8f4; }
-.status-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; display: inline-block; } .status-dot.online { background: var(--mint); box-shadow: 0 0 0 4px rgba(183,245,141,.12); }
 .main-content { max-width: 1640px; margin: 0 auto; padding: 0 34px 54px; }
 .hero-row { min-height: 190px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 30px; }
 .hero-row h2 { font-size: clamp(31px, 4vw, 53px); line-height: .94; letter-spacing: -.07em; font-weight: 500; margin: 0; } .hero-row h2 em { color: #788782; font-style: normal; font-weight: 400; }
@@ -221,13 +220,12 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .run-controls .btn:disabled { background: #d7dad4; color: #9ca29b; border-color: transparent; opacity: .65; cursor: not-allowed; }
 .top-actions { gap: 7px; }
 .btn-ble { min-width: 146px; justify-content: center; gap: 7px; }
-.btn-ble .status-dot { flex: 0 0 auto; }
 .ble-button-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 13px; }
 .ble-button-signal i { display: block; width: 3px; background: currentColor; opacity: .35; }
 .ble-button-signal i:nth-child(1) { height: 5px; }
 .ble-button-signal i:nth-child(2) { height: 8px; }
 .ble-button-signal i:nth-child(3) { height: 11px; }
-.btn-ble:has(.status-dot.online) .ble-button-signal i { color: var(--mint-2); opacity: 1; }
+.btn-ble.connected .ble-button-signal i { color: var(--mint-2); opacity: 1; }
 .top-disconnect { min-width: 106px; border: 1px solid var(--line); background: transparent; color: var(--ink); margin-left: 0; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--ink); border-color: var(--orange); background: #fff8f4; }
 

@@ -189,6 +189,18 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }
+.topbar { min-height: 54px; padding: 6px 22px; gap: 18px; }
+.top-actions { gap: 7px; }
+.btn-ble { min-width: 146px; justify-content: center; gap: 7px; }
+.btn-ble .status-dot { flex: 0 0 auto; }
+.ble-button-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 13px; }
+.ble-button-signal i { display: block; width: 3px; background: currentColor; opacity: .35; }
+.ble-button-signal i:nth-child(1) { height: 5px; }
+.ble-button-signal i:nth-child(2) { height: 8px; }
+.ble-button-signal i:nth-child(3) { height: 11px; }
+.btn-ble:has(.status-dot.online) .ble-button-signal i { color: var(--mint-2); opacity: 1; }
+.top-disconnect { min-width: 106px; border: 1px solid var(--line); background: transparent; color: var(--ink); margin-left: 0; white-space: nowrap; }
+.top-disconnect:hover:not(:disabled) { color: var(--ink); border-color: var(--orange); background: #fff8f4; }
 
 /* Extra age groups (for example 5–7 and 40+) stay in one row and scroll horizontally. */
 .lane-tab-row .lane-tabs { display: flex; flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; scrollbar-color: var(--orange) #e8ebe3; padding-bottom: 4px; }

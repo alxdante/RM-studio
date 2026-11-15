@@ -91,10 +91,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
 .lane-timer-block { min-height: 116px; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
-.timer-caption { color: #7d9a91; font: 8px "DM Mono", monospace; letter-spacing: .12em; }
-.lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 8px 0 5px; text-shadow: 0 0 12px rgba(183,245,141,.08); }
+.lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
 .lane-card.dq .lane-time { color: var(--orange); font-family: "Space Grotesk", sans-serif; font-size: 48px; font-style: normal; letter-spacing: .02em; }
-.lane-state { color: #81988f; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }
 .penalty-field { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7px; align-items: center; }
 .penalty-field span { grid-column: 1 / -1; color: #809a91; font: 8px "DM Mono", monospace; letter-spacing: .1em; margin-bottom: 4px; }
@@ -124,6 +122,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 /* Penalty input sits beside the timing display, like a race-control console. */
 .lane-timer-row { display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: stretch; margin: 8px 0 12px; }
 .lane-timer-row .lane-timer-block { margin: 0; }
+.lane-timer-block { justify-items: center; text-align: center; }
 .penalty-panel { padding: 0; background: transparent; border: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; }
 .penalty-panel span { color: #ffb39e; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
 .penalty-panel input { width: 100%; height: 100%; min-height: 116px; margin: 0; border: 1px solid rgba(255,179,158,.5); background: rgba(0,0,0,.12); color: #ffb39e; padding: 4px 3px; outline: none; font: italic 700 76px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; appearance: textfield; caret-color: transparent; }
@@ -266,7 +265,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab-row .lane-tab span { font-size: 11px; }
 .lane-tab-row .lane-tab small { font-size: 9px; }
 .lane-card { min-height: 350px; padding: 20px 21px 17px; }
-.lane-time { font-size: 76px; }
+.lane-time { font-size: 84px; }
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }

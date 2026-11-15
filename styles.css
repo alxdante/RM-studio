@@ -135,7 +135,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }
 .penalty-panel input:focus { border-color: var(--orange); }
-.lane-athlete-name { display: inline-flex; width: calc(100% - 82px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
+.lane-athlete-name { display: inline-flex; width: calc(100% - 76px); min-height: 34px; margin: 8px 0 0; align-items: center; color: var(--paper); font: 500 23px/1.1 "Space Grotesk", sans-serif; letter-spacing: -.04em; vertical-align: middle; }
 .lane-fs-controls { display: inline-flex; width: 76px; min-height: 34px; justify-content: flex-end; align-items: center; gap: 5px; margin: 8px 0 0; vertical-align: middle; }
 .fs-button { width: 34px; height: 34px; border: 1px solid rgba(255,179,158,.45); background: rgba(255,116,69,.1); color: #ffb39e; padding: 0; font: 700 12px "Space Grotesk", sans-serif; }
 .fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
@@ -155,7 +155,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-arrow { min-height: 35px; border: 1px solid rgba(183,245,141,.25); background: rgba(183,245,141,.08); color: var(--mint); font-size: 17px; line-height: 1; }
 .queue-arrow:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); }
 .queue-arrow:disabled { opacity: .28; cursor: not-allowed; }
-.lane-next-row .manual-result { grid-column: 4; justify-content: stretch; justify-self: stretch; align-self: start; }
+.lane-next-row .manual-result { grid-column: 4; justify-content: stretch; justify-self: stretch; align-self: start; margin-right: 4px; }
 .lane-next-row .manual-result input { width: 100%; min-width: 0; height: 53px; padding: 4px 3px; appearance: textfield; font: italic 700 28px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; }
 .lane-next-row .manual-result input::-webkit-inner-spin-button, .lane-next-row .manual-result input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .lane-next-row .manual-result input::placeholder { color: #829b92; opacity: .9; font: italic 700 28px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .04em; }

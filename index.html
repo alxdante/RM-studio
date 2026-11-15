@@ -28,21 +28,11 @@
           <button id="importBtn" class="btn btn-ghost"><span class="btn-icon">＋</span> Загрузить Excel</button>
           <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" hidden />
           <button id="bleBtn" class="btn btn-ble"><span id="bleDot" class="status-dot"></span><span id="bleBtnText">Подключить BLE</span></button>
+          <button id="disconnectBtn" class="text-button top-disconnect" disabled>отключить</button>
         </div>
       </header>
 
       <main class="main-content">
-        <section class="hero-row">
-          <div><p class="eyebrow accent">Автоматический пульт главного судьи</p><h2>Система ведёт заезды,<br /><em>судья видит главное.</em></h2><p class="hero-note">Свободный старт: лазерное событие по LoRa фиксирует результат дорожки и сразу двигает очередь дальше.</p></div>
-          <div class="hero-metrics"><div><strong id="heroAthletes">00</strong><span>спортсменов</span></div><div><strong id="heroReady">00</strong><span>финалов готовы</span></div><div><strong id="heroActive">00</strong><span>категорий в работе</span></div></div>
-        </section>
-
-        <section class="status-strip">
-          <div><span class="status-kicker">СЕЙЧАС</span><strong id="nowStatus">Подготовка стартовых очередей</strong></div>
-          <div class="status-progress"><span id="globalProgressText">0 / 0 квалификаций завершено</span><i><b id="globalProgressBar"></b></i></div>
-          <div class="ble-inline"><span id="railBleStatus" class="status-pill offline">offline</span><span id="deviceName">ESP32-BLE-UART</span><button id="disconnectBtn" class="text-button" disabled>отключить</button></div>
-        </section>
-
         <div class="page-layout">
           <section class="workspace">
             <div class="section-head">

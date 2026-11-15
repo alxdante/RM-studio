@@ -171,3 +171,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .age-choice span { color: var(--muted); font: 9px "DM Mono", monospace; margin-top: 7px; }
 .age-choice b { position: absolute; right: 12px; top: 23px; color: var(--orange); font: 20px "DM Mono", monospace; font-weight: 400; }
 @media (max-width: 520px) { .age-choice-grid { grid-template-columns: 1fr; } .lane-tab-row .lane-tab span { font-size: 10px; } }
+
+.top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
+.top-disconnect:hover:not(:disabled) { color: var(--orange); }

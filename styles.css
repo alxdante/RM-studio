@@ -93,7 +93,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .topbar { position: sticky; top: 0; z-index: 50; }
 .lane-card { position: sticky; top: 58px; z-index: 20; }
 #finalsGroupPanel { position: sticky; top: 46px; z-index: 40; background: var(--paper); padding-bottom: 1px; }
-.lane-grid:not(.finals-mode) .lane-card { position: relative; top: auto; z-index: auto; }
+.lane-grid:not(.finals-mode) .lane-card { position: sticky; top: 58px; z-index: 20; }
 .lane-grid.finals-mode { position: sticky; top: 104px; z-index: 30; background: var(--paper); padding-bottom: 10px; }
 .lane-grid.finals-mode .lane-card { top: auto; }
 .lane-grid.finals-mode + #qualificationPanel { display: none; }

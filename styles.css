@@ -149,3 +149,25 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
   .lane-tab-row { grid-template-columns: 1fr; gap: 4px; }
   .lane-tab-row + .lane-tab-row { margin-top: 10px; }
 }
+
+/* Clean age matrix: full-width tiles, no left gender labels. */
+.lane-tab-heading { display: grid; grid-template-columns: 1fr auto; align-items: center; }
+.lane-tab-heading span { grid-column: 1; }
+.lane-tab-heading b { grid-column: 1; grid-row: 2; margin-top: 3px; text-align: left; font-size: 12px; }
+.add-group-button { grid-column: 2; grid-row: 1 / span 2; width: 28px; height: 28px; border: 1px solid var(--ink); background: #fff; color: var(--ink); font: 22px/1 "DM Mono", monospace; padding: 0; }
+.add-group-button:hover { border-color: var(--orange); color: var(--orange); background: #fff8f4; }
+.lane-tab-row { display: block; }
+.lane-tab-row + .lane-tab-row { margin-top: 7px; }
+.lane-tab-row .lane-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.lane-tab-row .lane-tab { min-height: 47px; display: grid; place-items: center; align-content: center; padding: 7px 6px; text-align: center; }
+.lane-tab-row .lane-tab span { color: inherit; font: 600 11px/1.15 "Space Grotesk", sans-serif; letter-spacing: -.02em; }
+.lane-tab-row .lane-tab small { color: var(--muted); font: 8px "DM Mono", monospace; margin-top: 4px; }
+.lane-tab-row .lane-tab.active small { color: #b5c8be; }
+.age-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 17px; }
+.age-choice { position: relative; min-height: 77px; padding: 13px 34px 12px 13px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); text-align: left; }
+.age-choice:hover { border-color: var(--orange); background: #fff8f4; }
+.age-choice strong, .age-choice span { display: block; }
+.age-choice strong { font-size: 14px; }
+.age-choice span { color: var(--muted); font: 9px "DM Mono", monospace; margin-top: 7px; }
+.age-choice b { position: absolute; right: 12px; top: 23px; color: var(--orange); font: 20px "DM Mono", monospace; font-weight: 400; }
+@media (max-width: 520px) { .age-choice-grid { grid-template-columns: 1fr; } .lane-tab-row .lane-tab span { font-size: 10px; } }

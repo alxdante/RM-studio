@@ -3,6 +3,7 @@ const RX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50200406e';
 const TX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50300406e';
 const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a3-f393-e0a9-e50e24dcca9e' }];
 const STORAGE_KEY = 'slalom-timing-control-v4';
+const BRACKET_SCHEMA_VERSION = 2;
 
 const AGE_GROUPS = [
   { id: 'g8', label: '8–9 лет', short: '8—9', min: 8, max: 9, male: 'мальчики', female: 'девочки' },
@@ -54,7 +55,7 @@ function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategor
 
 function createInitialState() {
   const roster = [];
-  const state = { eventName: 'Urban Flow Open', eventDate: new Date().toISOString().slice(0, 10), phase: 'qualification', roster, enabledAgeGroups: AGE_GROUPS.map((group) => group.id), categories: createCategoryStates(), lanes: lanesForRoster(roster), selectedFinalCategory: CATEGORIES[0].id, activity: [] };
+  const state = { eventName: 'Urban Flow Open', eventDate: new Date().toISOString().slice(0, 10), phase: 'qualification', roster, enabledAgeGroups: AGE_GROUPS.map((group) => group.id), categories: createCategoryStates(), lanes: lanesForRoster(roster), selectedFinalCategory: CATEGORIES[0].id, activity: [], bracketSchemaVersion: BRACKET_SCHEMA_VERSION };
   state.lanes.forEach((lane) => { lane.athleteId = state.roster.filter((athlete) => categoryForAthlete(athlete).id === lane.categoryId).sort((a, b) => Number(a.rating) - Number(b.rating))[0]?.id || null; });
   return state;
 }
@@ -75,7 +76,8 @@ function migrateState(saved) {
   while (lanes.length < 2) lanes.push(createLane(CATEGORIES[lanes.length].id));
   const savedPhase = saved.phase === 'finals' ? 'finals' : 'qualification';
   const phaseLanes = saved.phaseLanes || { qualification: savedPhase === 'qualification' ? lanes : lanesForRoster(roster), finals: savedPhase === 'finals' ? lanes : [createLane(), createLane()] };
-  const next = { ...base, ...saved, roster, enabledAgeGroups, categories, selectedFinalCategory: saved.selectedFinalCategory || firstActiveCategory([], roster), lanes, phaseLanes };
+  const next = { ...base, ...saved, roster, enabledAgeGroups, categories, selectedFinalCategory: saved.selectedFinalCategory || firstActiveCategory([], roster), lanes, phaseLanes, bracketSchemaVersion: BRACKET_SCHEMA_VERSION };
+  if (Number(saved.bracketSchemaVersion || 0) < BRACKET_SCHEMA_VERSION) Object.values(next.categories).forEach((category) => { category.bracket = null; category.selectedMatchId = null; category.standings = []; });
   return next;
 }
 let state;
@@ -401,7 +403,7 @@ function parseRosterRows(rows) {
 }
 function openImportPreview(fileName, parsed) { pendingImport = { fileName, roster: parsed.roster }; const hasExistingRoster = state.roster.length > 0; $('#importModalMeta').textContent = `${fileName} · корректных строк: ${parsed.roster.length}${parsed.errors.length ? ` · замечаний: ${parsed.errors.length}` : ''}`; $('#importReplaceWarning').classList.toggle('hidden', !hasExistingRoster); $('#importReplaceWarning').textContent = hasExistingRoster ? `В системе уже есть ${state.roster.length} спортсменов. Импорт полностью заменит текущий состав, результаты и очереди. Старые данные будут потеряны.` : ''; $('#importErrors').classList.toggle('hidden', !parsed.errors.length); $('#importErrors').textContent = parsed.errors.slice(0, 7).join(' · '); $('#importPreviewRows').innerHTML = parsed.roster.slice(0, 15).map((athlete) => `<tr><td>${escapeHtml(athlete.name)}</td><td>${escapeHtml(formatBirthDate(athlete.birthDate))}</td><td>${escapeHtml(categoryById(categoryForAthlete(athlete).id).label.split(' · ')[1])}</td><td>${escapeHtml(categoryLabelForAthlete(athlete))}</td><td>${escapeHtml(athlete.region || athlete.city || '—')}</td></tr>`).join('') || '<tr><td colspan="5">Нет корректных строк</td></tr>'; $('#importModal').classList.remove('hidden'); }
 function importWorkbook(file) { ensureXlsx().then(() => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = resolve; reader.onerror = reject; reader.readAsArrayBuffer(file); })).then((event) => { try { const workbook = XLSX.read(event.target.result, { type: 'array', cellDates: true }); const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' }); const parsed = parseRosterRows(rows); if (!parsed.roster.length) return showToast(parsed.errors[0] || 'Не найдено корректных строк'); openImportPreview(file.name, parsed); } catch (error) { showToast('Не удалось прочитать файл Excel'); } }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
-function confirmImport() { if (!pendingImport?.roster?.length) return; if (state.roster.length && !confirm(`В системе уже есть ${state.roster.length} спортсменов. Импортировать новый список и удалить старый состав вместе с результатами?`)) return; const roster = normalizeRoster(pendingImport.roster); state = { eventName: state.eventName, eventDate: state.eventDate, phase: 'qualification', roster, enabledAgeGroups: [...new Set(roster.map((athlete) => ageGroupForAge(athlete.age).id))], categories: createCategoryStates(), lanes: [], phaseLanes: null, selectedFinalCategory: null, activity: [] }; state.lanes = lanesForRoster(state.roster); state.phaseLanes = { qualification: state.lanes, finals: [createLane(), createLane()] }; autoAssignLanes(); state.selectedFinalCategory = firstActiveCategory([], state.roster); addActivity(`Импортировано ${state.roster.length} спортсменов из ${pendingImport.fileName}`); pendingImport = null; $('#importModal').classList.add('hidden'); closeListsModal(); renderAll(); showToast(`Загружено ${state.roster.length} спортсменов`); }
+function confirmImport() { if (!pendingImport?.roster?.length) return; if (state.roster.length && !confirm(`В системе уже есть ${state.roster.length} спортсменов. Импортировать новый список и удалить старый состав вместе с результатами?`)) return; const roster = normalizeRoster(pendingImport.roster); state = { eventName: state.eventName, eventDate: state.eventDate, phase: 'qualification', roster, enabledAgeGroups: [...new Set(roster.map((athlete) => ageGroupForAge(athlete.age).id))], categories: createCategoryStates(), lanes: [], phaseLanes: null, selectedFinalCategory: null, activity: [], bracketSchemaVersion: BRACKET_SCHEMA_VERSION }; state.lanes = lanesForRoster(state.roster); state.phaseLanes = { qualification: state.lanes, finals: [createLane(), createLane()] }; autoAssignLanes(); state.selectedFinalCategory = firstActiveCategory([], state.roster); addActivity(`Импортировано ${state.roster.length} спортсменов из ${pendingImport.fileName}`); pendingImport = null; $('#importModal').classList.add('hidden'); closeListsModal(); renderAll(); showToast(`Загружено ${state.roster.length} спортсменов`); }
 function openListsModal() { renderListsSummary(); $('#listsModal').classList.remove('hidden'); }
 function closeListsModal() { $('#listsModal').classList.add('hidden'); }
 function renderListsSummary() { const count = $('#listsRosterCount'); if (count) count.textContent = String(state.roster.length); }
@@ -438,6 +440,7 @@ function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLane
 
 wireEvents();
 renderAll();
+persist('Сохранено · финальная сетка обновлена');
 loadTestRosterOnStartup();
 setInterval(() => { if (state.lanes.some((lane) => lane.running)) renderLanes(); }, 500);
 window.addEventListener('beforeunload', () => persist());

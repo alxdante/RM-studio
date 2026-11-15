@@ -207,7 +207,7 @@ function resultCell(categoryId, athleteId, attempt) {
 function waitingListHtml(lane, index) {
   const athletes = lane.categoryId ? qualificationOrder(lane.categoryId, categoryState(lane.categoryId).attempt) : [];
   const attempt = categoryState(lane.categoryId).attempt;
-  return athletes.map((athlete, position) => { const completedFirstAttempt = Number.isFinite(getTime(lane.categoryId, athlete.id, 1)); return `<div class="queue-result-row ${attempt === 1 && completedFirstAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${position + 1}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
+  return athletes.map((athlete, position) => { const completedFirstAttempt = Number.isFinite(getTime(lane.categoryId, athlete.id, 1)); return `<div class="queue-result-row ${attempt === 1 && completedFirstAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${athletes.length - position}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
 }
 function renderLanes() {
   const now = Date.now();

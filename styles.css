@@ -94,8 +94,21 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-card { position: sticky; top: 58px; z-index: 20; }
 .lane-waiting .waiting-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
 .lane-grid.finals-mode .lane-waiting { display: none; }
+.lane-grid.finals-mode .lane-group-picker { display: none; }
 .lane-grid.finals-mode > #finalsPanel { grid-column: 1 / -1; width: 100%; min-width: 0; margin-top: 0; }
 #qualificationPanel, #finalsPanel { margin-top: 12px; }
+.finals-group-strip { display: flex; align-items: center; gap: 14px; padding: 8px 10px; margin-bottom: 10px; background: var(--deep); color: var(--paper); overflow-x: auto; }
+.finals-group-heading { flex: 0 0 145px; display: flex; flex-direction: column; gap: 2px; }
+.finals-group-heading strong { font-size: 11px; white-space: nowrap; }
+.finals-group-tiles { display: grid; grid-template-columns: repeat(8, minmax(92px, 1fr)); gap: 5px; flex: 1 0 auto; min-width: 780px; }
+.final-group-tile { position: relative; min-height: 38px; padding: 5px 18px 5px 6px; border: 1px solid rgba(183,245,141,.16); background: rgba(255,255,255,.04); color: var(--paper); text-align: left; font: 9px "DM Mono", monospace; cursor: pointer; }
+.final-group-tile span, .final-group-tile b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.final-group-tile b { color: var(--muted); font-weight: 400; margin-top: 2px; }
+.final-group-tile i { position: absolute; top: 5px; right: 6px; color: var(--mint); font-style: normal; font-size: 13px; }
+.final-group-tile.active { background: #6f9d67; border-color: var(--mint); color: #102a2b; }
+.final-group-tile.active b { color: #315437; }
+.final-group-tile.unavailable { opacity: .38; cursor: not-allowed; }
+#finalsGroupPanel > #finalsPanel { margin-top: 0; }
 .match-race-head, .match-athlete { display: grid; gap: 5px; align-items: center; }
 .match-race-head { padding: 5px 8px 3px; color: var(--muted); font: 8px "DM Mono", monospace; text-align: center; }
 .match-race-head span:first-child { text-align: left; }

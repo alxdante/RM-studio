@@ -337,7 +337,7 @@ body { background: #eef0ea; }
 .event-control-cluster .event-fields { flex: 0 1 430px; width: auto; max-width: 430px; min-width: 0; gap: 10px; }
 .event-control-cluster .event-fields label:first-child { flex: 0 1 280px; max-width: 280px; min-width: 120px; }
 .event-control-cluster .event-fields label:last-child { flex: 0 1 125px; min-width: 92px; }
-.event-control-cluster .run-controls { position: static; flex: 0 1 auto; gap: 6px; transform: none; margin: 0 auto; white-space: nowrap; }
+.event-control-cluster .run-controls { position: static; flex: 0 1 auto; gap: 6px; transform: none; margin: 0 auto 0 28px; white-space: nowrap; }
 .event-control-cluster .run-controls .btn { flex: 1 1 70px; min-width: 60px; padding: 0 10px; }
 .top-phase-switch, .top-actions { flex: 0 0 auto; min-width: max-content; }
 
@@ -348,6 +348,7 @@ body { background: #eef0ea; }
   .top-phase-switch { order: 3; }
   .top-actions { order: 4; }
   .event-control-cluster .event-fields { flex: 1 1 auto; }
+  .event-control-cluster .run-controls { margin: 0 auto; }
 }
 
 @media (max-width: 620px) {

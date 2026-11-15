@@ -139,6 +139,13 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 520px) { .lane-timer-row { grid-template-columns: minmax(0, 1fr) 88px; } .penalty-panel input { width: 58px; } }
 
 .next-athlete-trigger { width: 100%; min-height: 41px; margin: 0 0 10px; padding: 7px 11px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 9px; border: 1px solid rgba(183,245,141,.32); background: rgba(183,245,141,.09); color: var(--paper); text-align: left; transition: .18s ease; }
+.lane-next-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) 86px; gap: 6px; align-items: center; margin: 0 0 10px; }
+.lane-next-row .next-athlete-trigger { min-width: 0; min-height: 35px; margin: 0; padding: 5px 8px; gap: 6px; }
+.queue-arrow { min-height: 35px; border: 1px solid rgba(183,245,141,.25); background: rgba(183,245,141,.08); color: var(--mint); font-size: 17px; line-height: 1; }
+.queue-arrow:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); }
+.queue-arrow:disabled { opacity: .28; cursor: not-allowed; }
+.lane-next-row .manual-result { justify-content: stretch; }
+.lane-next-row .manual-result input { width: 100%; min-width: 0; }
 .next-athlete-trigger:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); transform: translateY(-1px); }
 .next-athlete-trigger span { color: var(--mint); font: 8px "DM Mono", monospace; letter-spacing: .1em; }
 .next-athlete-trigger strong { overflow: hidden; color: #e4eee5; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
@@ -318,6 +325,10 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active .lane-tab-gender, .lane-group-picker .lane-tab.active small { color: inherit; opacity: .75; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
-.lane-card { padding-top: 7px; }
+.lane-card { min-height: 320px; padding-top: 7px; padding-bottom: 10px; }
 .lane-card .lane-athlete { margin-top: 10px; }
 .lane-card .lane-athlete strong { display: block; }
+
+@media (max-width: 620px) {
+  .lane-next-row { grid-template-columns: 28px minmax(0, 1fr) 78px; gap: 4px; }
+}

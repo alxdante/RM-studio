@@ -298,12 +298,12 @@ body { background: #eef0ea; }
 .lane-top-group { min-width: 0; overflow: hidden; color: #cfe0d6; font: 10px "DM Mono", monospace; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .lane-top-status { color: #8aa29b; font: 8px "DM Mono", monospace; text-transform: uppercase; white-space: nowrap; }
 .lane-top.lane-group-toggle > b { color: var(--mint); font-size: 15px; line-height: 1; font-weight: 400; transition: transform .18s ease; }
-.lane-group-picker { margin: 0 -5px 1px; padding: 6px 7px 5px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); overflow: visible; }
+.lane-group-picker { margin: 0 -5px 1px; padding: 6px; display: grid; gap: 5px; background: rgba(0,0,0,.18); border: 1px solid rgba(183,245,141,.16); overflow: visible; }
 .lane-group-picker .lane-tab-row { display: block; }
-.lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 5px; }
+.lane-group-picker .lane-tab-row + .lane-tab-row { margin-top: 0; }
 .lane-group-picker .lane-gender-headings { gap: 4px; margin-bottom: 3px; }
 .lane-group-picker .lane-gender-headings span { min-width: 0; color: #a9c0b6; font: 600 10px/1.1 "Space Grotesk", sans-serif; text-transform: none; }
-.lane-group-picker .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
+.lane-group-picker .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
 .lane-group-picker .lane-tabs { overflow: visible; overscroll-behavior: auto; }
 .lane-group-picker .lane-tab { min-width: 0; width: 100%; }
 .lane-group-picker .lane-tab { min-width: 0; min-height: 27px; padding: 3px 4px; border: 1px solid rgba(183,245,141,.2); background: rgba(255,255,255,.06); color: #b9cbc2; text-align: center; }

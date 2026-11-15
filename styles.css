@@ -284,7 +284,7 @@ body { background: #eef0ea; }
 @media (max-width: 900px) { .topbar { flex-wrap: wrap; } .event-fields { order: 3; width: 100%; } .main-content { padding: 14px; } }
 
 /* Inline lane group selector */
-.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 5px; background: transparent; color: inherit; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 7px; text-align: left; }
+.lane-top.lane-group-toggle { width: 100%; border: 0; padding: 0 0 3px; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; min-height: 15px; text-align: center; }
 .lane-top.lane-group-toggle:hover .lane-top-group { color: var(--mint); }
 .lane-top-group { min-width: 0; overflow: hidden; color: #cfe0d6; font: 10px "DM Mono", monospace; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 .lane-top-status { color: #8aa29b; font: 8px "DM Mono", monospace; text-transform: uppercase; white-space: nowrap; }

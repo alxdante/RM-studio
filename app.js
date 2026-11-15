@@ -137,6 +137,8 @@ function openAddGroup() { $('#addGroupModal').classList.remove('hidden'); }
 function closeAddGroup() { $('#addGroupModal').classList.add('hidden'); }
 function addAgeGroup(ageId) { state.enabledAgeGroups = [...new Set([...(state.enabledAgeGroups || []), ageId])]; closeAddGroup(); persist(); renderAll(); showToast(`${ageGroupForAge(AGE_GROUPS.find((group) => group.id === ageId)?.min || 0).label} добавлена в выбор`); }
 function setLaneCategory(index, categoryId) {
+  const lane = state.lanes[index];
+  if (lane.running || lane.pendingResult || Number.isFinite(lane.time)) return showToast('Сначала зафиксируйте результат или выполните сброс до 0.000');
   commitLaneResult(index); state.lanes[index].categoryId = categoryId; state.lanes[index].athleteId = null; state.lanes[index].time = null; state.lanes[index].penalties = 0; state.lanes[index].dq = false; state.lanes[index].falseStarts = 0; state.lanes[index].running = false; autoAssignLanes(); persist(); renderAll();
 }
 function commitLaneResult(index) {

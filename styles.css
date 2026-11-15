@@ -228,3 +228,22 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
 @media (max-width: 760px) { .lane-time { font-size: 62px; } .queue-result-header, .queue-result-row { grid-template-columns: 30px minmax(120px, 1fr) 65px 65px 78px; gap: 6px; } .queue-result-row { font-size: 11px; } }
+
+/* App-like presentation: focus on controls, lanes and queues. */
+body { background: #eef0ea; }
+.app-shell { max-width: 1600px; margin: 0 auto; background: #f7f8f3; }
+.topbar { position: sticky; top: 0; z-index: 20; min-height: 66px; padding: 10px 22px; background: rgba(247,248,243,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+.brand-lockup h1 { font-size: 20px; }
+.event-fields { gap: 16px; }
+.event-fields label span { font-size: 8px; }
+.save-status { display: none; }
+.main-content { padding: 18px 22px 40px; }
+.section-head { margin-bottom: 12px; }
+.section-head h3 { font-size: 27px; }
+.lane-category-tabs { gap: 12px; }
+.lane-tab-panel { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
+.lane-grid { gap: 14px; }
+.lane-card { border-radius: 12px; box-shadow: 0 6px 18px rgba(13,34,36,.08); }
+.lane-waiting { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
+.qual-lower-grid { display: none; }
+@media (max-width: 900px) { .topbar { flex-wrap: wrap; } .event-fields { order: 3; width: 100%; } .main-content { padding: 14px; } }

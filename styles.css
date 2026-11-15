@@ -90,7 +90,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab:disabled { opacity: .32; cursor: not-allowed; }
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
-.lane-timer-block { min-height: 116px; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
+.lane-timer-block { height: 132px; min-height: 132px; box-sizing: border-box; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
 .lane-card.dq .lane-time { color: var(--orange); font-family: "Space Grotesk", sans-serif; font-size: 48px; font-style: normal; letter-spacing: .02em; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }
@@ -125,7 +125,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-timer-block { justify-items: center; text-align: center; }
 .penalty-panel { padding: 0; background: transparent; border: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; }
 .penalty-panel span { color: #ffb39e; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
-.penalty-panel input { width: 100%; height: 100%; min-height: 116px; margin: 0; border: 1px solid rgba(255,179,158,.5); background: rgba(0,0,0,.12); color: #ffb39e; padding: 4px 3px; outline: none; font: italic 700 76px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; appearance: textfield; caret-color: transparent; }
+.penalty-panel input { width: 100%; height: 132px; min-height: 132px; box-sizing: border-box; margin: 0; border: 1px solid rgba(255,179,158,.5); background: rgba(0,0,0,.12); color: #ffb39e; padding: 4px 3px; outline: none; font: italic 700 76px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; appearance: textfield; caret-color: transparent; }
 .penalty-panel input::-webkit-inner-spin-button, .penalty-panel input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .penalty-quick-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
 .penalty-quick-row button, .penalty-dq { height: 24px; border: 1px solid rgba(255,179,158,.5); background: rgba(255,116,69,.16); color: #ffb39e; padding: 0; font: 600 12px "Space Grotesk", sans-serif; }

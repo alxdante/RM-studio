@@ -96,7 +96,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-grid.finals-mode { position: sticky; top: 104px; z-index: 30; background: var(--paper); padding-bottom: 10px; }
 .lane-grid.finals-mode .lane-card { top: auto; }
 .lane-grid.finals-mode + #qualificationPanel { display: none; }
-.workspace > #finalsPanel .bracket-board { max-height: calc(100vh - 180px); overflow: auto; overscroll-behavior: contain; }
+.workspace > #finalsPanel .bracket-board { max-height: none; overflow: visible; overscroll-behavior: auto; }
 .lane-waiting .waiting-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
 .lane-grid:not(.finals-mode) { margin-bottom: 14px; }
 .lane-grid.finals-mode .lane-waiting { display: none; }

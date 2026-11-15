@@ -40,8 +40,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .btn-small { min-height: 30px; padding: 0 10px; font-size: 10px; } .btn-outline { border: 1px solid rgba(16,42,43,.28); background: transparent; color: var(--ink); } .btn-outline:hover:not(:disabled) { border-color: var(--orange); } .btn-muted { background: rgba(255,255,255,.08); color: #c2d0c8; } .btn-start { background: var(--mint); color: var(--deep); font-weight: 600; } .btn-start:hover:not(:disabled) { background: #d1fcae; }
 .lane-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 27px; } .lane-card { min-height: 305px; padding: 14px; background: var(--deep); color: var(--paper); border: 1px solid rgba(183,245,141,.12); position: relative; overflow: hidden; } .lane-card.active { border-color: rgba(183,245,141,.7); } .lane-card.active:before { content: ""; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: var(--mint); } .lane-card.error .lane-time { color: var(--orange); } .lane-card.finished .lane-time { color: var(--mint); }
 .lane-top { display: flex; justify-content: space-between; color: #8aa29b; font: 9px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .09em; } .lane-number { color: var(--mint); font-size: 10px; }
-.lane-category { margin-top: 16px; } .lane-category .mini-label { color: #718c85; margin-bottom: 4px; } .lane-category select, .lane-athlete select { width: 100%; border: 0; border-bottom: 1px solid #4d6a62; outline: none; background: transparent; color: #dce8df; padding: 5px 0; font-size: 11px; } .lane-category option, .lane-athlete option { color: var(--ink); }
-.lane-athlete { display: grid; grid-template-columns: 1fr 150px; align-items: end; gap: 10px; margin: 15px 0 11px; } .lane-athlete strong { display: block; font-size: 15px; font-weight: 500; } .lane-athlete span { display: block; color: #809993; font: 9px "DM Mono", monospace; margin-top: 4px; }
+.lane-category { margin-top: 16px; } .lane-category .mini-label { color: #718c85; margin-bottom: 4px; } .lane-category select { width: 100%; border: 0; border-bottom: 1px solid #4d6a62; outline: none; background: transparent; color: #dce8df; padding: 5px 0; font-size: 11px; } .lane-category option { color: var(--ink); }
 .lane-queue { min-height: 41px; padding: 8px 9px; background: rgba(255,255,255,.05); border-left: 2px solid rgba(183,245,141,.55); } .lane-queue span { display: block; color: #7e9991; font: 8px "DM Mono", monospace; text-transform: uppercase; } .lane-queue strong { display: block; color: #c9d7cf; font: 9px/1.4 "DM Mono", monospace; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lane-time-row { display: flex; align-items: flex-end; justify-content: space-between; margin: 14px 0 9px; } .lane-time { font: 34px/.9 "DM Mono", monospace; letter-spacing: -.08em; } .lane-state { color: #829b92; font: 9px "DM Mono", monospace; text-transform: uppercase; }
 .lane-actions { display: grid; grid-template-columns: auto auto 1fr; gap: 6px; align-items: center; } .lane-actions .btn { min-height: 27px; } .manual-result { display: flex; gap: 5px; justify-content: flex-end; } .manual-result input { width: 76px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.12); color: #dce8df; padding: 5px 6px; font: 9px "DM Mono", monospace; outline: none; } .manual-result input:focus { border-color: var(--mint); } .mini-submit { border: 0; background: transparent; color: var(--mint); padding: 0 2px; font: 9px "DM Mono", monospace; }
@@ -72,7 +71,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .toast { position: fixed; right: 24px; bottom: 22px; max-width: 380px; background: var(--ink); color: var(--paper); padding: 12px 15px; font: 10px "DM Mono", monospace; opacity: 0; transform: translateY(9px); pointer-events: none; transition: .25s; z-index: 30; } .toast.show { opacity: 1; transform: translateY(0); } .hidden { display: none !important; }
 @media (max-width: 1180px) { .page-layout { grid-template-columns: 1fr; } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; } .rules-card { grid-column: span 3; } }
 @media (max-width: 850px) { .topbar { padding: 12px 20px; flex-wrap: wrap; gap: 12px 18px; } .event-fields { order: 3; flex-basis: 100%; } .top-actions { margin-left: auto; } .main-content { padding: 0 20px 35px; } .hero-row { min-height: 170px; } .hero-metrics { gap: 14px; } .hero-metrics strong { font-size: 28px; } .status-strip { grid-template-columns: 1fr 1fr; } .ble-inline { grid-column: span 2; } .qual-lower-grid { grid-template-columns: 1fr; } .category-row { grid-template-columns: minmax(150px, 1fr) minmax(90px, .7fr) auto; } .category-row .text-button { grid-column: 3; } }
-@media (max-width: 620px) { .topbar { padding: 12px 14px; } .brand-lockup h1 { font-size: 17px; } .top-actions { width: 100%; } .top-actions .save-status { display: none; } .top-actions .btn { flex: 1; } .main-content { padding: 0 14px 28px; } .hero-row { min-height: 155px; } .hero-row h2 { font-size: 32px; } .hero-metrics { display: none; } .status-strip { display: block; padding: 12px; } .status-progress, .ble-inline { margin-top: 10px; } .ble-inline { display: flex !important; } .phase-switch { margin-top: 16px; width: max-content; } .automation-banner { align-items: flex-start; flex-wrap: wrap; } .automation-banner > div:nth-child(2) { width: calc(100% - 42px); } .automation-banner .automation-actions { width: 100%; } .automation-banner .btn { flex: 1; } .lane-grid { grid-template-columns: 1fr; } .lane-card { min-height: 320px; } .lane-athlete { grid-template-columns: 1fr; } .lane-actions { grid-template-columns: auto auto; } .manual-result { grid-column: span 2; justify-content: flex-start; } .right-rail { display: flex; } .rail-card { width: 100%; } .category-row { grid-template-columns: 1fr auto; } .category-progress { grid-column: 1 / 2; } .category-row select { grid-column: 2; grid-row: 1 / span 2; } .category-row .text-button { grid-column: 1; text-align: left; } .finals-toolbar { align-items: stretch; flex-wrap: wrap; } .finals-toolbar > div { flex-basis: 100%; } .finals-toolbar .bracket-choice { flex: 1; } .finals-toolbar .btn { width: 100%; } .finals-progress { display: block; line-height: 1.6; } .standings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .modal-card { padding: 16px; } }
+@media (max-width: 620px) { .topbar { padding: 12px 14px; } .brand-lockup h1 { font-size: 17px; } .top-actions { width: 100%; } .top-actions .save-status { display: none; } .top-actions .btn { flex: 1; } .main-content { padding: 0 14px 28px; } .hero-row { min-height: 155px; } .hero-row h2 { font-size: 32px; } .hero-metrics { display: none; } .status-strip { display: block; padding: 12px; } .status-progress, .ble-inline { margin-top: 10px; } .ble-inline { display: flex !important; } .phase-switch { margin-top: 16px; width: max-content; } .automation-banner { align-items: flex-start; flex-wrap: wrap; } .automation-banner > div:nth-child(2) { width: calc(100% - 42px); } .automation-banner .automation-actions { width: 100%; } .automation-banner .btn { flex: 1; } .lane-grid { grid-template-columns: 1fr; } .lane-card { min-height: 320px; } .lane-actions { grid-template-columns: auto auto; } .manual-result { grid-column: span 2; justify-content: flex-start; } .right-rail { display: flex; } .rail-card { width: 100%; } .category-row { grid-template-columns: 1fr auto; } .category-progress { grid-column: 1 / 2; } .category-row select { grid-column: 2; grid-row: 1 / span 2; } .category-row .text-button { grid-column: 1; text-align: left; } .finals-toolbar { align-items: stretch; flex-wrap: wrap; } .finals-toolbar > div { flex-basis: 100%; } .finals-toolbar .bracket-choice { flex: 1; } .finals-toolbar .btn { width: 100%; } .finals-progress { display: block; line-height: 1.6; } .standings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .modal-card { padding: 16px; } }
 
 /* Race-deck redesign: category tabs, large timing windows and waiting queues. */
 @font-face { font-family: "DSEG7"; src: url("DSEG7Classic-BoldItalic.ttf") format("truetype"); font-style: italic; font-weight: 700; font-display: swap; }
@@ -91,10 +90,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab:disabled { opacity: .32; cursor: not-allowed; }
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
-.lane-card .lane-athlete { margin: 17px 0 0; grid-template-columns: minmax(0, 1fr) 155px; align-items: end; }
-.lane-card .lane-athlete strong { font-size: 19px; letter-spacing: -.04em; }
-.lane-card .lane-athlete > div > span:last-child { color: #a6bbb2; }
-.lane-card .lane-athlete select { color: #8aa59c; font-size: 9px; }
 .lane-timer-block { min-height: 116px; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
 .timer-caption { color: #7d9a91; font: 8px "DM Mono", monospace; letter-spacing: .12em; }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 8px 0 5px; text-shadow: 0 0 12px rgba(183,245,141,.08); }
@@ -121,7 +116,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
   .lane-time { font-size: 51px; }
 }
 @media (max-width: 520px) {
-  .lane-card .lane-athlete { grid-template-columns: 1fr; gap: 8px; }
   .lane-control-row { grid-template-columns: 1fr; }
   .lane-actions { grid-template-columns: auto auto; }
   .lane-actions .manual-result { grid-column: span 2; justify-content: flex-start; }
@@ -142,6 +136,11 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .penalty-dq { width: 100%; }
 .penalty-quick-controls { grid-column: 5; display: grid; gap: 5px; align-self: center; }
 .penalty-panel input:focus { border-color: var(--orange); }
+.lane-fs-controls { min-height: 34px; display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin: 0 0 5px; }
+.fs-button { width: 34px; height: 34px; border: 1px solid rgba(255,179,158,.45); background: rgba(255,116,69,.1); color: #ffb39e; padding: 0; font: 700 10px "Space Grotesk", sans-serif; }
+.fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
+.fs-button.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }
+.fs-button.active:hover { background: #ff8068; color: #321512; }
 .penalty-panel em { color: #ffb39e; font: 8px "DM Mono", monospace; font-style: normal; }
 .lane-control-row { display: block; }
 @media (max-width: 520px) { .lane-timer-row { grid-template-columns: minmax(0, 1fr) 110px; } .penalty-panel input { width: 58px; } }
@@ -266,7 +265,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab-row .lane-tab span { font-size: 11px; }
 .lane-tab-row .lane-tab small { font-size: 9px; }
 .lane-card { min-height: 350px; padding: 20px 21px 17px; }
-.lane-card .lane-athlete strong { font-size: 23px; }
 .lane-time { font-size: 76px; }
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
@@ -340,8 +338,6 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
 .lane-card { min-height: 320px; padding-top: 7px; padding-bottom: 10px; }
-.lane-card .lane-athlete { margin-top: 10px; }
-.lane-card .lane-athlete strong { display: block; }
 
 @media (max-width: 620px) {
   .lane-next-row { grid-template-columns: 28px 150px minmax(0, 1fr) 110px 110px; gap: 4px; }

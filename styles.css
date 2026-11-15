@@ -301,7 +301,7 @@ body { background: #eef0ea; }
 .event-fields label:first-child { flex: 1 1 180px; min-width: 0; }
 .event-fields label:last-child { flex: 0 1 120px; min-width: 0; }
 .event-fields input { min-width: 0; text-overflow: ellipsis; }
-.event-control-cluster .run-controls { position: static; flex: 0 0 auto; transform: none; }
+.event-control-cluster .run-controls { position: absolute; left: 50%; flex: 0 0 auto; transform: translateX(-50%); }
 .event-fields label span { font-size: 8px; }
 .save-status { display: none; }
 .main-content { padding: 18px 22px 40px; }
@@ -319,6 +319,7 @@ body { background: #eef0ea; }
 @media (max-width: 900px) {
   .event-control-cluster { order: 2; flex: 1 1 100%; width: 100%; }
   .run-controls { position: static; order: 2; margin-left: auto; transform: none; }
+  .event-control-cluster .run-controls { position: static; transform: none; }
   .top-actions { order: 3; }
   .event-control-cluster .event-fields { order: 0; flex: 1 1 auto; width: auto; padding-right: 0; }
   .event-fields label:first-child { flex: 1 1 280px; }

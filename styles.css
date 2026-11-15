@@ -414,3 +414,7 @@ body { background: #eef0ea; }
 @media (max-width: 620px) {
   .lane-next-row { grid-template-columns: 28px 150px minmax(0, 1fr) 110px 110px; gap: 4px; }
 }
+
+.match-athlete { display: grid; align-items: center; }
+.match-race-value { text-align: center; color: var(--muted); font: 10px "DM Mono", monospace; }
+.match-athlete.winner .match-race-value { color: var(--ink); }

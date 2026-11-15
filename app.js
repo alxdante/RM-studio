@@ -202,7 +202,7 @@ function promoteNextAthlete(index) {
   commitLaneResult(index);
   const skipped = new Set(lane.queueHistory || []);
   const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId && !skipped.has(athlete.id));
-  if (!next) return showToast('В очереди больше нет спортсменов');
+  if (!next) { lane.athleteId = null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null; lane.queueHistory = []; persist(); renderAll(); return showToast('Результат сохранён'); }
   lane.queueHistory = Array.isArray(lane.queueHistory) ? lane.queueHistory : [];
   if (lane.athleteId) lane.queueHistory.push(lane.athleteId);
   lane.athleteId = next.id;

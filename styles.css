@@ -189,7 +189,11 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }
-.topbar { min-height: 54px; padding: 6px 22px; gap: 18px; }
+.topbar { min-height: 46px; padding: 4px 22px; gap: 16px; }
+.brand-lockup h1 { margin: 0; font-size: 19px; }
+.event-fields { gap: 10px; }
+.event-fields label { display: flex; align-items: center; }
+.event-fields input { height: 27px; }
 .top-actions { gap: 7px; }
 .btn-ble { min-width: 146px; justify-content: center; gap: 7px; }
 .btn-ble .status-dot { flex: 0 0 auto; }
@@ -267,9 +271,9 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 /* App-like presentation: focus on controls, lanes and queues. */
 body { background: #eef0ea; }
 .app-shell { max-width: 1600px; margin: 0 auto; background: #f7f8f3; }
-.topbar { position: sticky; top: 0; z-index: 20; min-height: 66px; padding: 10px 22px; background: rgba(247,248,243,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
-.brand-lockup h1 { font-size: 20px; }
-.event-fields { gap: 16px; }
+.topbar { position: sticky; top: 0; z-index: 20; min-height: 46px; padding: 4px 22px; background: rgba(247,248,243,.97); border-bottom: 1px solid var(--line); backdrop-filter: blur(12px); }
+.brand-lockup h1 { margin: 0; font-size: 19px; }
+.event-fields { gap: 10px; }
 .event-fields label span { font-size: 8px; }
 .save-status { display: none; }
 .main-content { padding: 18px 22px 40px; }

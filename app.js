@@ -130,7 +130,7 @@ function renderSummary() {
 function laneCategoryPicker(lane, laneIndex) {
   const visibleAges = AGE_GROUPS.filter((age) => state.enabledAgeGroups?.includes(age.id) || ['girls', 'boys'].some((gender) => athletesForCategory(categoryById(`${age.id}-${age.max >= 19 ? (gender === 'girls' ? 'women' : 'men') : gender}`).id).length > 0));
   const columnStyle = `style="grid-template-columns: repeat(${Math.max(1, visibleAges.length)}, minmax(0, 1fr));"`;
-  const renderGenderRow = (gender) => `<div class="lane-tab-row"><div class="lane-tabs" role="tablist" ${columnStyle}>${visibleAges.map((age) => { const ageGender = age.max >= 19 ? (gender === 'girls' ? 'women' : 'men') : gender; const category = categoryById(`${age.id}-${ageGender}`); const count = athletesForCategory(category.id).length; const genderLabel = gender === 'girls' ? age.female : age.male; return `<button class="lane-tab ${category.id === lane.categoryId ? 'active' : ''}" data-lane-tab="${laneIndex}" data-category-id="${category.id}"><span class="lane-tab-gender">${escapeHtml(genderLabel)}</span><span class="lane-tab-age">${escapeHtml(age.label)}</span><small>${count}</small></button>`; }).join('')}</div></div>`;
+  const renderGenderRow = (gender) => `<div class="lane-tab-row"><div class="lane-tabs" role="tablist" ${columnStyle}>${visibleAges.map((age) => { const ageGender = age.max >= 19 ? (gender === 'girls' ? 'women' : 'men') : gender; const category = categoryById(`${age.id}-${ageGender}`); const count = athletesForCategory(category.id).length; const genderLabel = gender === 'girls' ? age.female : age.male; const completed = categoryState(category.id).attempt > 2; return `<button class="lane-tab ${category.id === lane.categoryId ? 'active' : ''} ${completed ? 'completed' : ''}" ${completed ? 'disabled' : ''} data-lane-tab="${laneIndex}" data-category-id="${category.id}"><span class="lane-tab-gender">${escapeHtml(genderLabel)}</span><span class="lane-tab-age">${escapeHtml(age.label)}</span><small>${count}</small></button>`; }).join('')}</div></div>`;
   return `<div class="lane-group-picker" data-lane-picker="${laneIndex}">${renderGenderRow('girls')}${renderGenderRow('boys')}</div>`;
 }
 function openAddGroup() { $('#addGroupModal').classList.remove('hidden'); }
@@ -138,6 +138,7 @@ function closeAddGroup() { $('#addGroupModal').classList.add('hidden'); }
 function addAgeGroup(ageId) { state.enabledAgeGroups = [...new Set([...(state.enabledAgeGroups || []), ageId])]; closeAddGroup(); persist(); renderAll(); showToast(`${ageGroupForAge(AGE_GROUPS.find((group) => group.id === ageId)?.min || 0).label} добавлена в выбор`); }
 function setLaneCategory(index, categoryId) {
   const lane = state.lanes[index];
+  if (categoryState(categoryId).attempt > 2) return showToast('Эта группа завершила квалификацию и доступна в разделе «Финалы»');
   if (lane.running || lane.pendingResult || Number.isFinite(lane.time)) return showToast('Сначала зафиксируйте результат или выполните сброс до 0.000');
   commitLaneResult(index); state.lanes[index].categoryId = categoryId; state.lanes[index].athleteId = null; state.lanes[index].time = null; state.lanes[index].penalties = 0; state.lanes[index].dq = false; state.lanes[index].falseStarts = 0; state.lanes[index].running = false; autoAssignLanes(); persist(); renderAll();
 }

@@ -96,6 +96,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-grid.finals-mode .lane-waiting { display: none; }
 .lane-grid.finals-mode .lane-group-picker { display: none; }
 .lane-grid.finals-mode > #finalsPanel { grid-column: 1 / -1; width: 100%; min-width: 0; margin-top: 0; }
+.workspace > #finalsPanel { width: 100%; min-width: 0; margin-top: 10px; }
 #qualificationPanel, #finalsPanel { margin-top: 12px; }
 .finals-group-strip { display: flex; align-items: center; padding: 6px; margin-bottom: 10px; background: var(--deep); color: var(--paper); border-radius: 10px; overflow-x: auto; }
 .finals-group-heading { display: none; }

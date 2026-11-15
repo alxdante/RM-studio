@@ -111,6 +111,14 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 #finalsGroupPanel .finals-toolbar, #finalsGroupPanel .finals-progress { display: none; }
 #finalsGroupPanel > #finalsPanel { background: transparent; }
 #finalsGroupPanel .finals-group-tiles .lane-tab { min-width: 0; }
+.finals-group-tiles .lane-tab { box-sizing: border-box; position: relative; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto; align-items: center; justify-items: center; row-gap: 2px; min-height: 27px; padding: 3px 4px; border: 1px solid rgba(183,245,141,.2); background: rgba(255,255,255,.06); color: #b9cbc2; text-align: center; }
+.finals-group-tiles .lane-tab:hover:not(:disabled):not(.active) { transform: none; border-color: var(--orange); color: #b9cbc2; }
+.finals-group-tiles .lane-tab span, .finals-group-tiles .lane-tab small { white-space: nowrap; }
+.finals-group-tiles .lane-tab .lane-tab-gender { grid-column: 1; overflow: hidden; color: #a9c0b6; font: 600 10px/1.05 "Space Grotesk", sans-serif; text-overflow: ellipsis; }
+.finals-group-tiles .lane-tab .lane-tab-age { grid-column: 1; color: inherit; font: 500 11px/1.05 "Space Grotesk", sans-serif; }
+.finals-group-tiles .lane-tab small { position: absolute; right: 4px; bottom: 3px; margin: 0; color: #819b90; font: 500 10px/1.05 "Space Grotesk", sans-serif; }
+.finals-group-tiles .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
+.finals-group-tiles .lane-tab.active small { color: var(--ink); opacity: .7; }
 .match-race-head, .match-athlete { display: grid; gap: 5px; align-items: center; }
 .match-race-head { padding: 5px 8px 3px; color: var(--muted); font: 8px "DM Mono", monospace; text-align: center; }
 .match-race-head span:first-child { text-align: left; }

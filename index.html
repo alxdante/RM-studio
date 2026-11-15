@@ -19,12 +19,14 @@
           <div class="brand-mark"><span>ST</span><i></i></div>
           <div><h1>SpeedSlalom <strong>Timing</strong></h1></div>
         </div>
-        <div class="event-fields">
-          <label><input id="eventName" value="Urban Flow Open" aria-label="Название соревнования" /></label>
-          <label><input id="eventDate" type="date" aria-label="Дата соревнования" /></label>
+        <div class="event-control-cluster">
+          <div class="event-fields">
+            <label><input id="eventName" value="Urban Flow Open" aria-label="Название соревнования" /></label>
+            <label><input id="eventDate" type="date" aria-label="Дата соревнования" /></label>
+          </div>
+          <div class="run-controls"><button id="startAllBtn" class="btn run-start" disabled>Старт</button><button id="resetAllBtn" class="btn run-reset">Сброс</button></div>
         </div>
         <div class="phase-switch top-phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Квалификация</button><button class="phase-tab" data-phase="finals">Финалы</button></div>
-        <div class="run-controls"><button id="startAllBtn" class="btn run-start" disabled>Старт</button><button id="resetAllBtn" class="btn run-reset">Сброс</button></div>
         <div class="top-actions">
           <span id="saveStatus" class="save-status">Сохранено только что</span>
           <button id="listsBtn" class="btn btn-lists">Списки</button>

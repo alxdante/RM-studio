@@ -184,6 +184,21 @@ function recalculateLanePenalty(index) {
     lane.pendingResult.adjustedTime = Number((lane.pendingResult.rawTime + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
     lane.time = lane.dq ? null : lane.pendingResult.adjustedTime;
   }
+  if (state.phase === 'finals' && lane?.athleteId) {
+    const category = categoryState(state.selectedFinalCategory);
+    const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId);
+    if (match) {
+      const side = match.athlete1 === lane.athleteId ? 'time1' : match.athlete2 === lane.athleteId ? 'time2' : null;
+      const races = side ? ensureMatchRaces(match) : [];
+      const raceIndex = races.reduce((last, race, current) => race[side] !== null && race[side] !== undefined ? current : last, -1);
+      if (side && raceIndex >= 0) {
+        const rawTime = Number(lane.finalRawTime);
+        races[raceIndex][side] = lane.dq ? 'DQ' : (Number.isFinite(rawTime) ? Number((rawTime + lane.penalties * 0.2).toFixed(3)) : races[raceIndex][side]);
+        lane.time = lane.dq ? null : races[raceIndex][side];
+        resolveMatch(state.selectedFinalCategory, match.id);
+      }
+    }
+  }
   if (state.phase === 'qualification' && lane?.athleteId && lane.categoryId) {
     const category = categoryState(lane.categoryId); const attempt = [category.attempt, 1, 2].find((candidate) => candidate <= 2 && Number.isFinite(category.attempts[candidate]?.[lane.athleteId]));
     if (attempt) {
@@ -323,7 +338,7 @@ function recordFinalDQ(index) {
   const raceIndex = finalRaceForAthlete(match, lane.athleteId);
   if (raceIndex < 0) return false;
   ensureMatchRaces(match)[raceIndex][match.athlete1 === lane.athleteId ? 'time1' : 'time2'] = 'DQ';
-  lane.running = false; lane.startedAt = null; lane.time = null;
+  lane.running = false; lane.startedAt = null; lane.time = null; lane.finalRawTime = null;
   resolveMatch(state.selectedFinalCategory, match.id);
   addActivity(`Финал · ${athleteById(lane.athleteId)?.name || ''} · DQ`);
   persist(); renderAll();
@@ -353,6 +368,7 @@ function applyLaneResult(index, time, source = 'ble') {
     lane.queueHistory = [];
     lane.pendingResult = { categoryId: lane.categoryId, attempt, rawTime: result, adjustedTime, penalties: lane.penalties, dq: lane.dq, source };
   } else {
+    lane.finalRawTime = result;
     lane.time = lane.dq ? null : adjustedTime;
     lane.queueHistory = [];
     const cat = categoryState(state.selectedFinalCategory);

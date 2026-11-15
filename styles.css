@@ -265,7 +265,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab-row .lane-tab span { font-size: 11px; }
 .lane-tab-row .lane-tab small { font-size: 9px; }
 .lane-card { min-height: 350px; padding: 20px 21px 17px; }
-.lane-time { font-size: 84px; }
+.lane-time { font-size: 92px; }
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
@@ -282,7 +282,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
 @media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 28px minmax(140px, 1.3fr) 95px minmax(85px, .8fr) 72px 72px 78px; min-width: 760px; gap: 6px; } }
-@media (max-width: 760px) { .lane-time { font-size: 62px; } .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(140px, 1.3fr) 95px 85px 68px 68px 74px; gap: 6px; } .queue-result-row { font-size: 11px; } }
+@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(140px, 1.3fr) 95px 85px 68px 68px 74px; gap: 6px; } .queue-result-row { font-size: 11px; } }
 
 /* App-like presentation: focus on controls, lanes and queues. */
 body { background: #eef0ea; }

@@ -575,3 +575,7 @@ body { background: #eef0ea; }
   border-color: var(--orange);
   box-shadow: 0 0 0 2px rgba(255, 116, 69, .1);
 }
+
+.match-card.final-match {
+  border-color: var(--line);
+}

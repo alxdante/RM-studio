@@ -264,7 +264,7 @@ function recalculateLanePenalty(index) {
 }
 function setLanePenalties(index, value) {
   const lane = state.lanes[index];
-  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); const numeric = Math.max(0, Math.min(99, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
 }
 function setLaneDQ(index) {
   const lane = state.lanes[index];
@@ -350,7 +350,7 @@ function renderLanes() {
   $$('[data-lane-tab]').forEach((button) => button.addEventListener('click', () => setLaneCategory(Number(button.dataset.laneTab), button.dataset.categoryId)));
   $$('[data-promote-next]').forEach((button) => button.addEventListener('click', () => promoteNextAthlete(Number(button.dataset.promoteNext))));
   $$('[data-promote-prev]').forEach((button) => button.addEventListener('click', () => promotePreviousAthlete(Number(button.dataset.promotePrev))));
-  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { const raw = input.value.toUpperCase(); input.value = raw.includes('D') ? 'DQ' : raw.replace(/\D/g, '').replace(/^0+/, '').slice(0, 1); }); input.addEventListener('change', () => { const index = Number(input.dataset.lanePenalties); if (input.value === 'DQ') setLaneDQ(index); else setLanePenalties(index, input.value); }); });
+  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { const raw = input.value.toUpperCase(); input.value = raw.includes('D') ? 'DQ' : raw.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2); }); input.addEventListener('change', () => { const index = Number(input.dataset.lanePenalties); if (input.value === 'DQ') setLaneDQ(index); else setLanePenalties(index, input.value); }); });
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
   $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (lane.dq) clearFinalDQ(index); else setLaneDQ(index); return; } if (lane.dq) { lane.dq = false; recalculateLanePenalty(index); } else setLaneDQ(index); }));
   $$('[data-false-start]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.falseStart); const lane = state.lanes[index]; const number = Number(button.dataset.fsNumber); if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number); }));

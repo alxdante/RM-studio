@@ -552,3 +552,7 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .lane-athlete-name {
   color: #d5dcda;
 }
+
+.top-phase-switch .phase-tab {
+  font-size: 13px;
+}

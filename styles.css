@@ -652,3 +652,12 @@ body { background: #eef0ea; }
 .queue-result-row span:nth-of-type(4) {
   text-align: left;
 }
+
+.qualification-export-card { width: min(520px, 100%); }
+.qualification-export-groups { display: grid; gap: 7px; max-height: min(420px, 52vh); overflow: auto; margin-top: 12px; }
+.qualification-export-option { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--paper-2); padding: 10px 12px; cursor: pointer; }
+.qualification-export-option:hover { border-color: var(--orange); }
+.qualification-export-option input { width: 16px; height: 16px; accent-color: var(--orange); }
+.qualification-export-option span { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; width: 100%; }
+.qualification-export-option strong { font-size: 13px; font-weight: 600; }
+.qualification-export-option small { color: var(--muted); font: 10px "DM Mono", monospace; }

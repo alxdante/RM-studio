@@ -594,14 +594,16 @@ function resolveAutoAdvances(bracket, categoryId) {
     if (round > 0) {
       const feederA = getMatch(bracket, `r${round - 1}m${match.index * 2}`);
       const feederB = getMatch(bracket, `r${round - 1}m${match.index * 2 + 1}`);
-      if (!matchReadyForAdvance(feederA) || !matchReadyForAdvance(feederB)) {
-        match.winnerId = null; match.loserId = null;
-        return;
-      }
-      const athlete1 = feederA?.winnerId || null;
-      const athlete2 = feederB?.winnerId || null;
+      const feederAReady = matchReadyForAdvance(feederA);
+      const feederBReady = matchReadyForAdvance(feederB);
+      const athlete1 = feederAReady ? feederA?.winnerId || null : null;
+      const athlete2 = feederBReady ? feederB?.winnerId || null : null;
       if (match.athlete1 !== athlete1 || match.athlete2 !== athlete2) {
         match.athlete1 = athlete1; match.athlete2 = athlete2; match.time1 = null; match.time2 = null; match.races = emptyFinalRaces(); match.winnerId = null; match.loserId = null;
+      }
+      if (!feederAReady || !feederBReady) {
+        match.winnerId = null; match.loserId = null;
+        return;
       }
     }
     const only = match.athlete1 && !match.athlete2 ? match.athlete1 : !match.athlete1 && match.athlete2 ? match.athlete2 : null;
@@ -609,9 +611,12 @@ function resolveAutoAdvances(bracket, categoryId) {
   });
   const small = getMatch(bracket, 'small-final');
   const semis = bracket.matches.filter((match) => match.round === finalRound - 1);
-  const loser1 = semis[0]?.loserId && semis[0].loserId !== semis[0].winnerId ? semis[0].loserId : null;
-  const loser2 = semis[1]?.loserId && semis[1].loserId !== semis[1].winnerId ? semis[1].loserId : null;
+  const semi1Ready = matchReadyForAdvance(semis[0]);
+  const semi2Ready = matchReadyForAdvance(semis[1]);
+  const loser1 = semi1Ready && semis[0]?.loserId && semis[0].loserId !== semis[0].winnerId ? semis[0].loserId : null;
+  const loser2 = semi2Ready && semis[1]?.loserId && semis[1].loserId !== semis[1].winnerId ? semis[1].loserId : null;
   if (small && (small.athlete1 !== loser1 || small.athlete2 !== loser2)) { small.athlete1 = loser1; small.athlete2 = loser2; small.time1 = null; small.time2 = null; small.races = emptyFinalRaces(); small.winnerId = null; small.loserId = null; }
+  if (small && (!semi1Ready || !semi2Ready)) { small.winnerId = null; small.loserId = null; return; }
   if (small) { if (small.athlete1 && small.athlete2) resolveMatchWinner(small, categoryId); else if (small.athlete1 || small.athlete2) small.winnerId = small.athlete1 || small.athlete2; }
 }
 function recalculateBracket(bracket, categoryId) { if (!bracket) return; for (let pass = 0; pass < Math.max(2, Math.log2(bracket.size)); pass += 1) resolveAutoAdvances(bracket, categoryId); }

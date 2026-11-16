@@ -523,3 +523,11 @@ body { background: #eef0ea; }
   color: #dbe8df;
   box-shadow: none;
 }
+
+:root[data-theme="dark"] .btn-ble {
+  background: #173d35;
+  color: #dcebe2;
+}
+:root[data-theme="dark"] .btn-ble:hover:not(:disabled) {
+  background: #205344;
+}

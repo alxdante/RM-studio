@@ -569,3 +569,14 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab {
   border-radius: 5px;
 }
+
+.queue-result-row span:nth-of-type(3),
+.queue-result-row span:nth-of-type(4) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  line-height: 1.15;
+}

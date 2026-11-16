@@ -239,6 +239,8 @@ function setLaneDQ(index) {
   if (state.phase === 'finals' && recordFinalDQ(index)) return;
   recalculateLanePenalty(index);
 }
+// The race log is intentionally consulted only when a judge undoes a mistaken
+// DQ. The previous non-DQ result must survive that correction and be restored.
 function clearFinalDQ(index) {
   const lane = state.lanes[index]; const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); if (!lane?.athleteId || !match) return;
   const raceIndex = Number.isInteger(category.selectedRaceIndex) ? category.selectedRaceIndex : finalRaceForAthlete(match, lane.athleteId); const side = match.athlete1 === lane.athleteId ? 'time1' : 'time2'; const penaltyKey = side === 'time1' ? 'penalty1' : 'penalty2'; const sourceKey = side === 'time1' ? 'source1' : 'source2'; const race = ensureMatchRaces(match)[raceIndex]; const previous = [...(state.raceLog || [])].reverse().find((entry) => entry.phase === 'finals' && entry.categoryId === state.selectedFinalCategory && entry.matchId === match.id && entry.raceIndex === raceIndex && entry.athleteId === lane.athleteId && !entry.dq && Number.isFinite(entry.rawTime));

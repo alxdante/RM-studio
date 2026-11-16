@@ -105,9 +105,8 @@ function ensureXlsx() {
 function persist(message = 'Сохранено только что') { ensurePhaseLanes(); state.phaseLanes[state.phase] = state.lanes; state.eventName = $('#eventName')?.value || state.eventName; state.eventDate = $('#eventDate')?.value || state.eventDate; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); if ($('#saveStatus')) $('#saveStatus').textContent = message; }
 function appendRaceLog(entry) { state.raceLog ||= []; const source = entry.source || 'manual'; const existing = entry.raceKey ? latestRaceLog((item) => item.raceKey === entry.raceKey) : null; if (existing && source === 'manual') { Object.assign(existing, entry, { source, updatedAt: Date.now(), revision: existing.revision || 1 }); return existing; } const record = { id: `race-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: Date.now(), ...entry, source, ...(existing && source === 'ble' ? { correction: true, correctionOf: existing.id } : {}) }; state.raceLog.push(record); if (state.raceLog.length > 5000) state.raceLog = state.raceLog.slice(-5000); return record; }
 function latestRaceLog(filter) { return (state.raceLog || []).slice().reverse().find(filter) || null; }
-function latestFinalLog(categoryId, matchId, raceIndex, athleteId) { return latestRaceLog((entry) => entry.phase === 'finals' && entry.categoryId === categoryId && entry.matchId === matchId && entry.raceIndex === raceIndex && entry.athleteId === athleteId); }
 function latestQualificationLog(categoryId, athleteId, attempt) { return latestRaceLog((entry) => entry.phase === 'qualification' && entry.categoryId === categoryId && entry.athleteId === athleteId && entry.attempt === attempt); }
-function finalRaceStoredValue(categoryId, match, raceIndex, athleteId) { const side = match.athlete1 === athleteId ? 'time1' : 'time2'; const penaltyKey = side === 'time1' ? 'penalty1' : 'penalty2'; const sourceKey = side === 'time1' ? 'source1' : 'source2'; const race = ensureMatchRaces(match)[raceIndex] || {}; const hasCurrentRaceValue = race[side] !== null && race[side] !== undefined; const log = hasCurrentRaceValue ? latestFinalLog(categoryId, match.id, raceIndex, athleteId) : null; return { value: hasCurrentRaceValue ? race[side] : null, penalties: hasCurrentRaceValue ? Number(race[penaltyKey] || 0) : 0, source: race[sourceKey] || log?.source || '' }; }
+function finalRaceStoredValue(categoryId, match, raceIndex, athleteId) { const side = match.athlete1 === athleteId ? 'time1' : 'time2'; const penaltyKey = side === 'time1' ? 'penalty1' : 'penalty2'; const sourceKey = side === 'time1' ? 'source1' : 'source2'; const race = ensureMatchRaces(match)[raceIndex] || {}; const hasValue = race[side] !== null && race[side] !== undefined; return { value: hasValue ? race[side] : null, penalties: hasValue ? Number(race[penaltyKey] || 0) : 0, source: race[sourceKey] || '' }; }
 function switchPhase(phase) { ensurePhaseLanes(); state.phaseLanes[state.phase] = state.lanes; state.phase = phase; state.lanes = state.phaseLanes[phase]; persist(); renderAll(); }
 function athletesForCategory(categoryId, sourceState = state) { return (sourceState.roster || []).filter((athlete) => categoryForAthlete(athlete).id === categoryId); }
 function athleteById(id) { return state.roster.find((athlete) => athlete.id === id) || null; }
@@ -522,33 +521,33 @@ function ensureMatchRaces(match) {
   }
   while (match.races.length < 2) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
   match.races.forEach((race) => { race.penalty1 ??= 0; race.penalty2 ??= 0; race.source1 ??= null; race.source2 ??= null; });
-
-  // A previous recalculation could remove a trailing race from the live array.
-  // If that race has a persisted log entry, restore the missing slot without
-  // overwriting an intentionally cleared value in an existing slot.
-  const logged = new Map();
-  (state.raceLog || []).filter((entry) => entry.phase === 'finals' && entry.matchId === match.id && Number.isInteger(entry.raceIndex) && (entry.athleteId === match.athlete1 || entry.athleteId === match.athlete2)).forEach((entry) => {
-    const key = `${entry.raceIndex}|${entry.athleteId}`;
-    logged.set(key, entry);
-  });
-  const maxLoggedRace = [...logged.values()].reduce((max, entry) => Math.max(max, entry.raceIndex), -1);
-  const originalLength = match.races.length;
-  while (match.races.length <= maxLoggedRace) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
-  if (match.races.length > originalLength) {
-    logged.forEach((entry) => {
-      if (entry.raceIndex < originalLength) return;
-      const race = match.races[entry.raceIndex];
-      const side = entry.athleteId === match.athlete1 ? '1' : entry.athleteId === match.athlete2 ? '2' : null;
-      if (!side) return;
-      race[`time${side}`] = entry.dq ? 'DQ' : entry.adjustedTime;
-      race[`penalty${side}`] = entry.dq ? 5 : Number(entry.penalties || 0);
-      race[`source${side}`] = entry.source || null;
-    });
-  }
   return match.races;
 }
-function finalRaceWinner(race, athlete1, athlete2) { const dq1 = race.time1 === 'DQ'; const dq2 = race.time2 === 'DQ'; if (dq1 && !dq2 && race.time2 !== null) return athlete2; if (dq2 && !dq1 && race.time1 !== null) return athlete1; if (Number.isFinite(race.time1) && Number.isFinite(race.time2)) return race.time1 <= race.time2 ? athlete1 : athlete2; return null; }
-function resolveMatchWinner(match, categoryId) { const races = ensureMatchRaces(match); const wins = { [match.athlete1]: 0, [match.athlete2]: 0 }; races.forEach((race) => { const winner = finalRaceWinner(race, match.athlete1, match.athlete2); if (winner) wins[winner] += 1; }); let winnerId = wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null; const allRacesComplete = races.every((race) => race.time1 !== null && race.time2 !== null); if (!winnerId && races.length >= 5 && allRacesComplete && categoryId) { const qualificationTime1 = bestTime(categoryId, match.athlete1); const qualificationTime2 = bestTime(categoryId, match.athlete2); if (Number.isFinite(qualificationTime1) && Number.isFinite(qualificationTime2) && qualificationTime1 !== qualificationTime2) winnerId = qualificationTime1 < qualificationTime2 ? match.athlete1 : match.athlete2; } if (winnerId) { while (races.length > 2 && races.at(-1).time1 === null && races.at(-1).time2 === null) races.pop(); if (categoryId) { const category = categoryState(categoryId); category.selectedRaceIndex = Math.min(Number(category.selectedRaceIndex) || 0, races.length - 1); } } match.winnerId = winnerId; match.loserId = winnerId ? (winnerId === match.athlete1 ? match.athlete2 : match.athlete1) : null; if (!winnerId && races.length < 5 && allRacesComplete) races.push({ time1: null, time2: null }); return winnerId; }
+function finalRaceWinner(race, athlete1, athlete2) {
+  const dq1 = race.time1 === 'DQ';
+  const dq2 = race.time2 === 'DQ';
+  if (dq1 && dq2) return null;
+  if (dq1 && race.time2 !== null) return athlete2;
+  if (dq2 && race.time1 !== null) return athlete1;
+  if (Number.isFinite(race.time1) && Number.isFinite(race.time2)) return race.time1 <= race.time2 ? athlete1 : athlete2;
+  return null;
+}
+function resolveMatchWinner(match, categoryId) {
+  const races = ensureMatchRaces(match);
+  const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };
+  races.forEach((race) => { const winner = finalRaceWinner(race, match.athlete1, match.athlete2); if (winner) wins[winner] += 1; });
+  const allRacesComplete = races.every((race) => race.time1 !== null && race.time2 !== null);
+  let winnerId = wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null;
+  if (!winnerId && races.length === 5 && allRacesComplete && categoryId) {
+    const qualificationTime1 = bestTime(categoryId, match.athlete1);
+    const qualificationTime2 = bestTime(categoryId, match.athlete2);
+    if (Number.isFinite(qualificationTime1) && Number.isFinite(qualificationTime2) && qualificationTime1 !== qualificationTime2) winnerId = qualificationTime1 < qualificationTime2 ? match.athlete1 : match.athlete2;
+  }
+  match.winnerId = winnerId;
+  match.loserId = winnerId ? (winnerId === match.athlete1 ? match.athlete2 : match.athlete1) : null;
+  if (!winnerId && allRacesComplete && races.length < 5) races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
+  return winnerId;
+}
 function finalRaceForAthlete(match, athleteId) { return ensureMatchRaces(match).findIndex((race) => (athleteId === match.athlete1 ? race.time1 : race.time2) === null); }
 function matchReadyForAdvance(match) { return !match || Boolean(match.winnerId) || (!match.athlete1 && !match.athlete2); }
 function resolveAutoAdvances(bracket, categoryId) {
@@ -579,7 +578,7 @@ function resolveAutoAdvances(bracket, categoryId) {
   if (small) { if (small.athlete1 && small.athlete2) resolveMatchWinner(small, categoryId); else if (small.athlete1 || small.athlete2) small.winnerId = small.athlete1 || small.athlete2; }
 }
 function recalculateBracket(bracket, categoryId) { if (!bracket) return; for (let pass = 0; pass < Math.max(2, Math.log2(bracket.size)); pass += 1) resolveAutoAdvances(bracket, categoryId); }
-function syncBracketBeforeRender(categoryId) { const bracket = categoryState(categoryId).bracket; if (!bracket) return; bracket.matches.forEach((match) => { match.label = match.id === 'small-final' ? 'Малый финал' : roundLabel(bracket.size, match.round); }); recalculateBracket(bracket, categoryId); }
+function syncBracketBeforeRender(categoryId) { const bracket = categoryState(categoryId).bracket; if (!bracket) return; bracket.matches.forEach((match) => { match.label = match.id === 'small-final' ? 'Малый финал' : roundLabel(bracket.size, match.round); }); }
 
 function updateStandings(categoryId) { const bracket = categoryState(categoryId).bracket; if (!bracket) return; const finalRound = Math.log2(bracket.size) - 1; const big = bracket.matches.find((match) => match.round === finalRound); const small = getMatch(bracket, 'small-final'); categoryState(categoryId).standings = [big?.winnerId, big?.loserId, small?.winnerId, small?.loserId].filter(Boolean); }
 function resolveMatch(categoryId, matchId) { const bracket = categoryState(categoryId).bracket; const match = bracket && getMatch(bracket, matchId); if (!match) return; ensureMatchRaces(match); match.time1 = match.races[0].time1; match.time2 = match.races[0].time2; recalculateBracket(bracket, categoryId); updateStandings(categoryId); persist(); }
@@ -588,8 +587,36 @@ function renderMatch(categoryId, match) { const races = ensureMatchRaces(match);
 function renderBracket() { const categoryId = state.selectedFinalCategory; syncBracketBeforeRender(categoryId); const bracket = categoryState(categoryId).bracket; if (!bracket) { $('#bracketBoard').innerHTML = `<div class="bracket-empty">Сетка ещё не собрана. Когда категория завершит обе попытки, выберите размер финала и соберите посев.</div>`; return; } const rounds = Math.log2(bracket.size); const columns = []; for (let round = 0; round < rounds; round += 1) { const matches = bracket.matches.filter((match) => match.round === round); if (round === rounds - 1) columns.push(`<div class="bracket-column">${renderMatch(categoryId, getMatch(bracket, 'small-final'))}</div>`); columns.push(`<div class="bracket-column">${matches.map((match) => renderMatch(categoryId, match)).join('')}</div>`); } $('#bracketBoard').innerHTML = `<div class="bracket-grid">${columns.join('')}</div>`; const board = $('#bracketBoard'); board.querySelectorAll('[data-final-race]').forEach((raceButton) => raceButton.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); selectFinalRaceForTiming(categoryId, raceButton.dataset.finalRace, Number(raceButton.dataset.raceIndex)); })); board.onclick = (event) => { if (event.target.closest('[data-final-race]')) return; const card = event.target.closest('[data-match]'); if (card && board.contains(card)) selectMatchForTiming(categoryId, card.dataset.match); }; }
 
 
-function selectFinalRaceForTiming(categoryId, matchId, raceIndex, alreadyCommitted = false) { if (!alreadyCommitted) commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const category = categoryState(categoryId); category.selectedMatchId = matchId; category.selectedRaceIndex = Number(raceIndex); state.selectedFinalCategory = categoryId; if (state.phase !== 'finals') { state.phaseLanes[state.phase] = state.lanes; state.phase = 'finals'; } state.lanes = [createLane(categoryId), createLane(categoryId)]; state.phaseLanes.finals = state.lanes; const athletes = category.selectedRaceIndex % 2 === 1 ? [match.athlete2, match.athlete1] : [match.athlete1, match.athlete2]; athletes.forEach((athleteId, index) => { const lane = state.lanes[index]; const stored = finalRaceStoredValue(categoryId, match, category.selectedRaceIndex, athleteId); const value = stored.value; lane.athleteId = athleteId; lane.penalties = stored.penalties; lane.dq = value === 'DQ'; lane.time = Number.isFinite(value) ? value : null; lane.finalRawTime = Number.isFinite(value) ? Number((value - lane.penalties * 0.2).toFixed(3)) : null; lane.finalRaceKey = `${match.id}|${category.selectedRaceIndex}|${athleteId}`; }); addActivity(`Выбран заезд ${category.selectedRaceIndex + 1} · ${match.label}`); persist(); renderAll(); }
-function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const races = ensureMatchRaces(match); const unfinishedIndex = races.findIndex((race) => race.time1 === null || race.time2 === null); const raceIndex = unfinishedIndex >= 0 ? unfinishedIndex : Math.max(0, races.length - 1); selectFinalRaceForTiming(categoryId, matchId, raceIndex, true); }
+function finalLaneAthletes(match, raceIndex) { return raceIndex % 2 === 1 ? [match.athlete2, match.athlete1] : [match.athlete1, match.athlete2]; }
+function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
+  const category = categoryState(categoryId);
+  const match = getMatch(category.bracket, matchId);
+  const index = Number(raceIndex);
+  const races = match ? ensureMatchRaces(match) : [];
+  if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен');
+  if (!Number.isInteger(index) || !races[index]) return showToast('Этот заезд ещё не создан');
+  if (match.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
+  category.selectedMatchId = matchId;
+  category.selectedRaceIndex = index;
+  state.selectedFinalCategory = categoryId;
+  if (state.phase !== 'finals') { state.phaseLanes[state.phase] = state.lanes; state.phase = 'finals'; }
+  state.lanes = [createLane(categoryId), createLane(categoryId)];
+  state.phaseLanes.finals = state.lanes;
+  finalLaneAthletes(match, index).forEach((athleteId, laneIndex) => {
+    const lane = state.lanes[laneIndex];
+    const stored = finalRaceStoredValue(categoryId, match, index, athleteId);
+    lane.athleteId = athleteId;
+    lane.penalties = stored.penalties;
+    lane.dq = stored.value === 'DQ';
+    lane.time = Number.isFinite(stored.value) ? stored.value : null;
+    lane.finalRawTime = Number.isFinite(stored.value) ? Number((stored.value - stored.penalties * 0.2).toFixed(3)) : null;
+    lane.finalRaceKey = `${match.id}|${index}|${athleteId}`;
+  });
+  addActivity(`Выбран заезд ${index + 1} · ${match.label}`);
+  persist();
+  renderAll();
+}
+function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const races = ensureMatchRaces(match); const unfinishedIndex = races.findIndex((race) => race.time1 === null || race.time2 === null); const raceIndex = unfinishedIndex >= 0 ? unfinishedIndex : Math.max(0, races.length - 1); selectFinalRaceForTiming(categoryId, matchId, raceIndex); }
 
 function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#disconnectBtn').addEventListener('click', disconnectBle); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', exportRosterWorkbook); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#loadTestRosterBtn').addEventListener('click', loadTestRosterForImport); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $$('[data-add-age-group]').forEach((button) => button.addEventListener('click', () => addAgeGroup(button.dataset.addAgeGroup))); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
 

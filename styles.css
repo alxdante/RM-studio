@@ -611,3 +611,11 @@ body { background: #eef0ea; }
   cursor: col-resize !important;
   user-select: none !important;
 }
+
+.queue-result-header span:nth-child(3),
+.queue-result-header span:nth-child(4),
+.queue-result-header span:nth-child(n+5),
+.queue-result-row span:nth-of-type(n+3),
+.queue-result-row strong {
+  text-align: center;
+}

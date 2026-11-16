@@ -546,3 +546,6 @@ body { background: #eef0ea; }
 .lane-card.review-only { border-color: rgba(142, 215, 239, .28); }
 .lane-review-badge { color: var(--blue); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
 .lane-card.review-only .penalty-panel input { opacity: .82; }
+
+/* A historical raw time retained behind DQ is shown as a muted reference value. */
+.lane-card.review-only.dq .lane-time { color: #8f9994; text-shadow: none; }

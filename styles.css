@@ -74,10 +74,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 
 /* Race-deck redesign: category tabs, large timing windows and waiting queues. */
 @font-face { font-family: "DSEG7"; src: url("DSEG7Classic-BoldItalic.ttf") format("truetype"); font-style: italic; font-weight: 700; font-display: swap; }
-.lane-tab-panel { background: #fff; border: 1px solid var(--line); padding: 11px 12px 10px; }
-.lane-tab-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 9px; }
-.lane-tab-heading span { color: var(--orange); font: 9px "DM Mono", monospace; letter-spacing: .1em; }
-.lane-tab-heading b { color: var(--ink); font-size: 11px; font-weight: 600; text-align: right; }
 .lane-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
 .lane-tab { min-height: 31px; padding: 4px 8px; border: 1px solid var(--line); background: #fff; color: var(--muted); text-align: left; transition: .18s ease; }
 .lane-tab span, .lane-tab small { display: block; }
@@ -207,10 +203,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .next-athlete-trigger:disabled { opacity: .42; }
 
 /* Category matrix: age columns, girls/women on top and boys/men below. */
-.lane-tab-panel { padding: 11px 12px 12px; }
 .lane-tab-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); align-items: center; gap: 9px; }
 .lane-tab-row + .lane-tab-row { margin-top: 7px; }
-.lane-tab-row-label { color: var(--muted); font: 8px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
 .lane-tab-row .lane-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
 .lane-tab-row .lane-tab { width: 100%; min-width: 0; min-height: 34px; padding: 5px 6px; }
 .lane-tab-row .lane-tab span { font: 9px "DM Mono", monospace; }
@@ -224,11 +218,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 }
 
 /* Clean age matrix: full-width tiles, no left gender labels. */
-.lane-tab-heading { display: grid; grid-template-columns: 1fr auto; align-items: center; }
-.lane-tab-heading span { grid-column: 1; }
-.lane-tab-heading b { grid-column: 1; grid-row: 2; margin-top: 3px; text-align: left; font-size: 12px; }
-.add-group-button { grid-column: 2; grid-row: 1 / span 2; width: 28px; height: 28px; border: 1px solid var(--ink); background: #fff; color: var(--ink); font: 22px/1 "DM Mono", monospace; padding: 0; }
-.add-group-button:hover { border-color: var(--orange); color: var(--orange); background: #fff8f4; }
 .lane-tab-row { display: block; }
 .lane-tab-row + .lane-tab-row { margin-top: 7px; }
 .lane-tab-row .lane-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -278,17 +267,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 760px) { .lane-tab-row .lane-tab { flex-basis: 142px; } }
 
 /* Keep group selectors exactly aligned with the two timing cards. */
-.lane-tab-panel { width: 100%; min-width: 0; padding: 9px 10px 10px; }
-.lane-tab-heading { min-height: 28px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.lane-tab-heading span { flex: 0 0 auto; }
-.lane-tab-heading b { min-width: 0; flex: 1 1 auto; overflow: hidden; margin: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
-.add-group-button { flex: 0 0 26px; width: 26px; height: 26px; display: grid; place-items: center; }
 .lane-tab-row .lane-tabs { width: 100%; gap: 5px; }
 .lane-tab-row .lane-tab { flex: 1 1 0; max-width: 180px; min-width: 118px; min-height: 43px; padding: 6px 5px; }
-.lane-tab-heading { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-.lane-tab-heading span { grid-column: 1; }
-.lane-tab-heading b { grid-column: 2; grid-row: 1; justify-self: center; text-align: center; font-size: 12px; font-weight: 600; }
-.lane-tab-heading .add-group-button { grid-column: 3; grid-row: 1; justify-self: end; }
 @media (max-width: 620px) { .lane-tab-row .lane-tab { max-width: none; } }
 
 /* Full-width race console after removing the side rail. */
@@ -301,7 +281,6 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 @media (max-width: 620px) { .top-utility-clear { display: none; } }
 
 /* Race-control foundation: stable lanes and result queues, with larger type after rail removal. */
-.lane-tab-panel { padding: 14px 16px 15px; }
 .lane-tab-row .lane-tab span { font-size: 11px; }
 .lane-tab-row .lane-tab small { font-size: 9px; }
 .lane-card { min-height: 350px; padding: 20px 21px 17px; }
@@ -340,7 +319,6 @@ body { background: #eef0ea; }
 .event-fields label span { font-size: 8px; }
 .save-status { display: none; }
 .main-content { padding: 18px 22px 40px; }
-.lane-tab-panel { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
 .lane-grid { gap: 14px; }
 .lane-card { border-radius: 12px; box-shadow: 0 6px 18px rgba(13,34,36,.08); }
 .lane-waiting { border-radius: 10px; box-shadow: 0 2px 9px rgba(13,34,36,.04); }
@@ -465,7 +443,6 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .queue-next,
 :root[data-theme="dark"] .category-row,
 :root[data-theme="dark"] .rail-card,
-:root[data-theme="dark"] .lane-tab-panel,
 :root[data-theme="dark"] .lane-waiting,
 :root[data-theme="dark"] .standing-item,
 :root[data-theme="dark"] .lists-summary { background: var(--paper-2); }

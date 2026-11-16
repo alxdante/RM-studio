@@ -310,7 +310,7 @@ function waitingListHtml(lane, index) {
   const attempt = categoryState(lane.categoryId).attempt;
   return athletes.map((athlete, position) => { const completedAttempt = hasRecordedResult(lane.categoryId, athlete.id, attempt); return `<div class="queue-result-row ${completedAttempt ? 'attempt-complete' : ''}"><span class="queue-result-number">${athletes.length - position}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span>${resultCell(lane.categoryId, athlete.id, 1)}</span><span>${resultCell(lane.categoryId, athlete.id, 2)}</span><strong>${formatTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('');
 }
-const QUEUE_WIDTHS_KEY = 'rm-studio-queue-column-widths-v2';
+const QUEUE_WIDTHS_KEY = 'rm-studio-queue-column-widths-v3';
 const queueResizeLimits = { athlete: [126, 280], dob: [60, 140], region: [70, 220] };
 const queueResizePairs = { athlete: ['athlete', 'dob'], dob: ['dob', null] };
 let activeQueueResize = null;

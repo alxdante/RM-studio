@@ -126,10 +126,11 @@ function hasRecordedResult(categoryId, athleteId, attempt) { return Number.isFin
 function bestTime(categoryId, athleteId) { const values = [1, 2].map((attempt) => getPenalty(categoryId, athleteId, attempt) >= 5 ? null : getTime(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)); return values.length ? Math.min(...values) : null; }
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
-function parseBirthDateValue(value) { if (value instanceof Date) return new Date(value.getTime()); if (typeof value === 'number' && Number.isFinite(value)) return new Date(Date.UTC(1899, 11, 30) + value * 86400000); const raw = String(value ?? '').trim(); if (!raw) return null; if (/^\d{4,6}(?:\.0+)?$/.test(raw)) return new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000); const rus = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+.*)?$/); const parsed = rus ? new Date(Number(rus[3]), Number(rus[2]) - 1, Number(rus[1])) : new Date(raw); return Number.isNaN(parsed.getTime()) ? null : parsed; }
-function normalizeBirthDate(value) { const parsed = parseBirthDateValue(value); return parsed ? `${String(parsed.getDate()).padStart(2, '0')}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${parsed.getFullYear()}` : String(value ?? '').trim(); }
-function formatBirthDate(value) { if (!value) return 'дата не указана'; const parsed = parseBirthDateValue(value); return parsed ? new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(parsed) : String(value); }
-function ageFromBirthDate(value, referenceDate = state?.eventDate || new Date().toISOString().slice(0, 10)) { const birth = parseBirthDateValue(value); const reference = new Date(`${referenceDate}T12:00:00`); if (!birth || Number.isNaN(reference.getTime())) return NaN; let age = reference.getFullYear() - birth.getFullYear(); const birthdayPassed = reference.getMonth() > birth.getMonth() || (reference.getMonth() === birth.getMonth() && reference.getDate() >= birth.getDate()); if (!birthdayPassed) age -= 1; return age; }
+function birthYearOnly(value) { const raw = String(value ?? '').trim(); const match = raw.match(/^(\d{4})(?:\.0+)?$/); const year = match ? Number(match[1]) : NaN; return year >= 1900 && year <= 2100 ? year : null; }
+function parseBirthDateValue(value) { const yearOnly = birthYearOnly(value); if (yearOnly) return new Date(Date.UTC(yearOnly, 0, 1)); if (value instanceof Date) return new Date(value.getTime()); if (typeof value === 'number' && Number.isFinite(value)) return new Date(Date.UTC(1899, 11, 30) + value * 86400000); const raw = String(value ?? '').trim(); if (!raw) return null; if (/^\d{4,6}(?:\.0+)?$/.test(raw)) return new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000); const rus = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+.*)?$/); const parsed = rus ? new Date(Number(rus[3]), Number(rus[2]) - 1, Number(rus[1])) : new Date(raw); return Number.isNaN(parsed.getTime()) ? null : parsed; }
+function normalizeBirthDate(value) { const yearOnly = birthYearOnly(value); if (yearOnly) return String(yearOnly); const parsed = parseBirthDateValue(value); return parsed ? `${String(parsed.getDate()).padStart(2, '0')}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${parsed.getFullYear()}` : String(value ?? '').trim(); }
+function formatBirthDate(value) { if (!value) return 'дата не указана'; const yearOnly = birthYearOnly(value); if (yearOnly) return String(yearOnly); const parsed = parseBirthDateValue(value); return parsed ? new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(parsed) : String(value); }
+function ageFromBirthDate(value, referenceDate = state?.eventDate || new Date().toISOString().slice(0, 10)) { const birth = parseBirthDateValue(value); const reference = new Date(`${referenceDate}T12:00:00`); if (!birth || Number.isNaN(reference.getTime())) return NaN; return reference.getFullYear() - birth.getFullYear(); }
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char])); }
 function showToast(text) { const toast = $('#toast'); toast.textContent = text; toast.classList.add('show'); clearTimeout(toastHandle); toastHandle = setTimeout(() => toast.classList.remove('show'), 2900); }
 function addActivity(text) { state.activity = [{ at: Date.now(), text }, ...(state.activity || [])].slice(0, 20); persist(); }
@@ -481,13 +482,13 @@ function parseRosterRows(rows) {
   const patronymicKey = find(['отчество', 'middle name', 'patronymic']);
   const ratingKey = find(['рейтинг', 'спортивный рейтинг', 'rating', 'rank', 'elo']);
   const genderKey = find(['пол', 'пол участника', 'мж', 'gender', 'sex']);
-  const birthKey = find(['дата рождения', 'день рождения', 'дата рожд', 'датарожд', 'birth date', 'birthdate', 'birthday', 'dob']);
+  const birthKey = find(['дата рождения', 'год рождения', 'день рождения', 'дата рожд', 'год рожд', 'датарожд', 'birth date', 'birth year', 'year of birth', 'birthdate', 'birthday', 'dob']);
   const regionKey = find(['регион', 'субъект рф', 'субъект российской федерации', 'область', 'край', 'республика', 'region', 'oblast', 'area']);
   const cityKey = find(['город', 'населенный пункт', 'место проживания', 'city', 'town']);
   const clubKey = find(['клуб', 'команда', 'спортивная школа', 'club', 'team']);
   const errors = [];
   if (!nameKey && !(surnameKey && firstNameKey)) errors.push('Не найдена колонка ФИО / Name или отдельные колонки Фамилия + Имя');
-  if (!birthKey) errors.push('Не найдена обязательная колонка Дата рождения / Birth date');
+  if (!birthKey) errors.push('Не найдена обязательная колонка Дата или год рождения / Birth date or birth year');
   if ((!nameKey && !(surnameKey && firstNameKey)) || !birthKey) return { roster: [], errors };
   const roster = rows.map((row, index) => {
     const rawBirthDate = birthKey ? row[birthKey] : '';
@@ -496,7 +497,7 @@ function parseRosterRows(rows) {
     const rating = ratingKey ? Number.parseInt(String(row[ratingKey] ?? '').replace(/[^0-9]/g, ''), 10) || 0 : 0;
     const name = nameKey ? String(row[nameKey] ?? '').trim() : [row[surnameKey], row[firstNameKey], patronymicKey ? row[patronymicKey] : ''].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
     if (!name || !Number.isFinite(age) || age < 1 || age > 120) {
-      errors.push(`Строка ${index + 2}: проверьте ФИО, дату рождения и возраст`);
+      errors.push(`Строка ${index + 2}: проверьте ФИО и год рождения`);
       return null;
     }
     return { id: `import-${Date.now()}-${index}`, name, age, rating, gender: normalizeGenderKey(genderKey ? row[genderKey] : '', age), birthDate, region: String(regionKey ? row[regionKey] ?? '' : cityKey ? row[cityKey] ?? '' : '').trim(), city: String(cityKey ? row[cityKey] ?? '' : '').trim(), club: String(clubKey ? row[clubKey] ?? '' : '').trim(), source: 'import' };

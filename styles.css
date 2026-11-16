@@ -677,6 +677,18 @@ body { background: #eef0ea; }
 .corrections-table .text-button { margin-left: 6px; white-space: nowrap; }
 .correction-delete { color: #a34f39; }
 
+.lists-card { position: relative; }
+.lists-card > .card-head { justify-content: flex-end; margin-bottom: 0; }
+.lists-card > .card-head > div, .lists-card > .modal-meta { display: none; }
+.lists-card .lists-summary { margin-top: 0; min-height: 66px; box-sizing: border-box; }
+.lists-card .lists-actions { gap: 7px; }
+.lists-card .list-action { min-height: 76px; box-sizing: border-box; align-content: center; }
+.lists-card .icon-btn, .corrections-card .icon-btn, .add-group-card .icon-btn { width: 44px; height: 44px; font-size: 29px; line-height: 1; }
+.back-btn { width: 44px; height: 44px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 28px; line-height: 1; cursor: pointer; }
+.back-btn:hover { border-color: var(--orange); color: var(--orange); }
+.corrections-card .card-head, .add-group-card .card-head { gap: 10px; }
+.corrections-card .card-head > div, .add-group-card .card-head > div { flex: 1; }
+
 /* Larger, easier-to-read text in the Lists menu and its result tools. */
 .lists-card .eyebrow, .corrections-card .eyebrow { font-size: 11px; }
 .lists-card .modal-meta, .corrections-card .modal-meta { font-size: 13px; line-height: 1.55; }

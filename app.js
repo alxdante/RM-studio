@@ -101,6 +101,7 @@ if (isFactoryReset && typeof history !== 'undefined') history.replaceState(null,
 function ensurePhaseLanes() { state.phaseLanes ||= { qualification: state.lanes || lanesForRoster(state.roster), finals: [createLane(), createLane()] }; state.phaseLanes.qualification ||= lanesForRoster(state.roster); state.phaseLanes.finals ||= [createLane(), createLane()]; state.lanes = state.phaseLanes[state.phase] || state.phaseLanes.qualification; }
 ensurePhaseLanes();
 let ble = { device: null, server: null, rx: null, tx: null, connected: false, buffer: '', reconnectTimer: null, reconnectAttempt: 0, manualDisconnect: false };
+let pendingModeChange = null;
 let timerHandle = null;
 let toastHandle = null;
 let pendingImport = null;
@@ -125,7 +126,34 @@ function appendRaceLog(entry) { state.raceLog ||= []; const source = entry.sourc
 function latestRaceLog(filter) { return (state.raceLog || []).slice().reverse().find(filter) || null; }
 function latestQualificationLog(categoryId, athleteId, attempt) { const superseded = new Set((state.raceLog || []).filter((entry) => entry.correctionOf && entry.correctionAction).map((entry) => entry.correctionOf)); return latestRaceLog((entry) => entry.phase === 'qualification' && !entry.correctionAction && !superseded.has(entry.id) && entry.categoryId === categoryId && entry.athleteId === athleteId && entry.attempt === attempt); }
 function finalRaceStoredValue(categoryId, match, raceIndex, athleteId) { const side = match.athlete1 === athleteId ? 'time1' : 'time2'; const penaltyKey = side === 'time1' ? 'penalty1' : 'penalty2'; const falseStartKey = side === 'time1' ? 'falseStarts1' : 'falseStarts2'; const sourceKey = side === 'time1' ? 'source1' : 'source2'; const race = ensureMatchRaces(match)[raceIndex] || {}; const hasValue = race[side] !== null && race[side] !== undefined; return { value: hasValue ? race[side] : null, penalties: hasValue ? Number(race[penaltyKey] || 0) : 0, falseStarts: hasValue ? Number(race[falseStartKey] || 0) : 0, source: race[sourceKey] || '' }; }
-function switchPhase(phase) { ensurePhaseLanes(); state.phaseLanes[state.phase] = state.lanes; state.phase = phase; if (phase === 'finals') { state.selectedFinalCategory = null; state.lanes = [createLane(), createLane()]; state.phaseLanes.finals = state.lanes; } else state.lanes = state.phaseLanes[phase]; persist(); renderAll(); }
+function hasActiveTimers() {
+  const phaseLanes = Object.values(state.phaseLanes || {});
+  return phaseLanes.some((lanes) => Array.isArray(lanes) && lanes.some((lane) => lane?.running));
+}
+function phaseToBleMode(phase) { return phase === 'qualification' ? 'qualification' : 'race'; }
+function switchPhase(phase, { notifyBle = true } = {}) {
+  if (!['qualification', 'finals'].includes(phase) || phase === state.phase) return false;
+  if (hasActiveTimers()) {
+    showToast('Нельзя сменить режим: таймер запущен');
+    return false;
+  }
+  ensurePhaseLanes();
+  const previousPhase = state.phase;
+  state.phaseLanes[state.phase] = state.lanes;
+  state.phase = phase;
+  if (phase === 'finals') {
+    state.selectedFinalCategory = null;
+    state.lanes = [createLane(), createLane()];
+    state.phaseLanes.finals = state.lanes;
+  } else {
+    state.lanes = state.phaseLanes[phase];
+  }
+  pendingModeChange = notifyBle && ble.connected ? { requestedPhase: phase, previousPhase } : null;
+  persist();
+  renderAll();
+  if (notifyBle) sendBleCommand(`${phaseToBleMode(phase)}\n`);
+  return true;
+}
 function athletesForCategory(categoryId, sourceState = state) { return (sourceState.roster || []).filter((athlete) => categoryForAthlete(athlete).id === categoryId); }
 function athleteById(id) { return state.roster.find((athlete) => athlete.id === id) || null; }
 function categoryState(categoryId) { if (!state.categories[categoryId]) state.categories[categoryId] = emptyCategoryState(); return state.categories[categoryId]; }
@@ -478,7 +506,39 @@ function applyLaneResult(index, time, source = 'ble') {
   persist();
   renderAll();
 }
-function parseBleLine(line) { let payload; try { payload = JSON.parse(line); } catch (error) { addActivity(`BLE · неизвестная строка: ${line.slice(0, 35)}`); return; } const type = payload.type; if (type === 'start') { const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1]; indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false) return; if (state.lanes[index].athleteId) { state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); } }); persist(); renderLanes(); startTicker(); } else if (type === 'reset') { clearInterval(timerHandle); state.lanes.forEach((lane) => { lane.running = false; lane.startedAt = null; lane.time = null; if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; } lane.error = null; }); persist(); renderLanes(); } else if (['qualification', 'race', 'laser', 'finish'].includes(type)) { const index = Number(payload.lane) - 1; const time = Number(payload.time ?? payload.result ?? payload.seconds); if (index >= 0 && index < 2 && Number.isFinite(time)) applyLaneResult(index, time, 'ble'); } }
+function parseBleLine(line) {
+  let payload;
+  try { payload = JSON.parse(line); }
+  catch (error) { addActivity(`BLE · неизвестная строка: ${line.slice(0, 35)}`); return; }
+  const type = payload.type;
+  if (type === 'mode') {
+    const nextPhase = payload.mode === 'qualification' ? 'qualification' : payload.mode === 'race' ? 'finals' : null;
+    if (!nextPhase) return;
+    pendingModeChange = null;
+    if (nextPhase === state.phase) return;
+    if (!switchPhase(nextPhase, { notifyBle: false })) {
+      sendBleCommand(`${phaseToBleMode(state.phase)}\n`);
+    }
+  } else if (type === 'mode_rejected') {
+    if (!pendingModeChange) return;
+    const previousPhase = pendingModeChange.previousPhase;
+    pendingModeChange = null;
+    switchPhase(previousPhase, { notifyBle: false });
+    showToast('База отклонила смену режима: таймер запущен');
+  } else if (type === 'start') {
+    const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1];
+    indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false) return; if (state.lanes[index].athleteId) { state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); } });
+    persist(); renderLanes(); startTicker();
+  } else if (type === 'reset') {
+    clearInterval(timerHandle);
+    state.lanes.forEach((lane) => { lane.running = false; lane.startedAt = null; lane.time = null; if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; } lane.error = null; });
+    persist(); renderLanes();
+  } else if (['qualification', 'race', 'laser', 'finish'].includes(type)) {
+    const index = Number(payload.lane) - 1;
+    const time = Number(payload.time ?? payload.result ?? payload.seconds);
+    if (index >= 0 && index < 2 && Number.isFinite(time)) applyLaneResult(index, time, 'ble');
+  }
+}
 function handleBleNotification(event) { const text = new TextDecoder().decode(event.target.value); ble.buffer += text; const lines = ble.buffer.split(/\r?\n/); ble.buffer = lines.pop() || ''; lines.filter(Boolean).forEach(parseBleLine); }
 async function connectToBleDevice(device, isReconnect = false) { ble.device = device; $('#bleBtnText').textContent = 'Подключение…'; const connectPromise = device.gatt.connect(); const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('тайм-аут GATT-подключения')), 10000)); ble.server = await Promise.race([connectPromise, timeoutPromise]); let lastError; for (const profile of BLE_PROFILES) { try { const service = await ble.server.getPrimaryService(profile.service); ble.rx = await service.getCharacteristic(profile.rx); ble.tx = await service.getCharacteristic(profile.tx); break; } catch (error) { lastError = error; ble.rx = null; ble.tx = null; } } if (!ble.rx || !ble.tx) throw lastError || new Error('BLE service/characteristics not found'); await ble.tx.startNotifications(); ble.tx.addEventListener('characteristicvaluechanged', handleBleNotification); ble.connected = true; ble.reconnectAttempt = 0; renderBle(); addActivity(`BLE · ${isReconnect ? 'переподключено к' : 'подключено к'} ${device.name || 'ESP32-BLE-UART'}`); showToast(isReconnect ? 'BLE снова подключён' : 'BLE подключён. События laser готовы.'); }
 function scheduleBleReconnect() { if (!ble.device || ble.manualDisconnect || ble.reconnectTimer || ble.reconnectAttempt >= 5) return; const delay = Math.min(8000, 900 * (2 ** ble.reconnectAttempt)); ble.reconnectTimer = setTimeout(async () => { ble.reconnectTimer = null; ble.reconnectAttempt += 1; try { await connectToBleDevice(ble.device, true); } catch (error) { renderBle(); scheduleBleReconnect(); } }, delay); }

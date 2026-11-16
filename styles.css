@@ -579,3 +579,7 @@ body { background: #eef0ea; }
 .match-card.final-match {
   border-color: var(--line);
 }
+
+#finalsGroupPanel .finals-group-tiles .lane-tab {
+  border-radius: 5px;
+}

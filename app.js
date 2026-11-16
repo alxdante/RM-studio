@@ -1,8 +1,17 @@
 const SERVICE_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50100406e';
 const RX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50200406e';
 const TX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50300406e';
-const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a3-f393-e0a9-e50e24dcca9e' }];
+const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a9-e50e24dcca9e' }];
 const STORAGE_KEY = 'slalom-timing-control-v4';
+const THEME_KEY = 'slalom-timing-theme';
+
+function applyTheme(theme) {
+  const dark = theme === 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const button = $('#themeToggle');
+  if (button) { button.textContent = dark ? 'LIGHT' : 'DARK'; button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode'); }
+}
+function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; localStorage.setItem(THEME_KEY, next); applyTheme(next); }
 
 const AGE_GROUPS = [
   { id: 'g8', label: '8–9 лет', short: '8—9', min: 8, max: 9, male: 'мальчики', female: 'девочки' },
@@ -640,8 +649,9 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
 }
 function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const races = ensureMatchRaces(match); const unfinishedIndex = races.findIndex((race) => race.time1 === null || race.time2 === null); const raceIndex = unfinishedIndex >= 0 ? unfinishedIndex : Math.max(0, races.length - 1); selectFinalRaceForTiming(categoryId, matchId, raceIndex); }
 
-function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#disconnectBtn').addEventListener('click', disconnectBle); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', exportRosterWorkbook); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#loadTestRosterBtn').addEventListener('click', loadTestRosterForImport); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $$('[data-add-age-group]').forEach((button) => button.addEventListener('click', () => addAgeGroup(button.dataset.addAgeGroup))); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
+function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#disconnectBtn').addEventListener('click', disconnectBle); $('#themeToggle').addEventListener('click', toggleTheme); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', exportRosterWorkbook); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#loadTestRosterBtn').addEventListener('click', loadTestRosterForImport); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $$('[data-add-age-group]').forEach((button) => button.addEventListener('click', () => addAgeGroup(button.dataset.addAgeGroup))); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
 
+applyTheme(localStorage.getItem(THEME_KEY) || 'light');
 wireEvents();
 renderAll();
 loadTestRosterOnStartup();

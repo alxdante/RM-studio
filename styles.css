@@ -435,3 +435,52 @@ body { background: #eef0ea; }
 /* Final stacking order: the race-control zone stays above bracket tiles. */
 .topbar { z-index: 100; }
 #finalsGroupPanel { z-index: 80; }
+
+/* Theme switcher and dark mode. */
+.btn-theme { min-height: 28px; padding: 0 9px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
+.btn-theme:hover:not(:disabled) { border-color: var(--orange); background: var(--paper-2); }
+
+:root[data-theme="dark"] {
+  --ink: #e4f0e8;
+  --ink-2: #c4d8ce;
+  --deep: #091517;
+  --paper: #111d1f;
+  --paper-2: #1a2a2c;
+  --line: rgba(218, 239, 228, .18);
+  --line-light: rgba(228, 240, 232, .18);
+  --muted: #9aafa7;
+  --shadow: 0 16px 42px rgba(0, 0, 0, .28);
+  color-scheme: dark;
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .app-shell { background: var(--paper); color: var(--ink); }
+:root[data-theme="dark"] .topbar { background: rgba(17, 29, 31, .96); }
+:root[data-theme="dark"] .btn-ghost:hover:not(:disabled),
+:root[data-theme="dark"] .btn-lists:hover:not(:disabled) { background: var(--paper-2); }
+:root[data-theme="dark"] .event-fields input,
+:root[data-theme="dark"] .category-row select,
+:root[data-theme="dark"] .match-actions input,
+:root[data-theme="dark"] .match-athlete input { color: var(--ink); }
+:root[data-theme="dark"] .queue-lane,
+:root[data-theme="dark"] .queue-next,
+:root[data-theme="dark"] .category-row,
+:root[data-theme="dark"] .rail-card,
+:root[data-theme="dark"] .lane-tab-panel,
+:root[data-theme="dark"] .lane-waiting,
+:root[data-theme="dark"] .standing-item,
+:root[data-theme="dark"] .lists-summary { background: var(--paper-2); }
+:root[data-theme="dark"] .lane-tab,
+:root[data-theme="dark"] .list-action { background: var(--paper-2); color: var(--ink); }
+:root[data-theme="dark"] .list-action:hover { background: #24383a; }
+:root[data-theme="dark"] .list-action-primary { background: var(--ink); color: var(--deep); }
+:root[data-theme="dark"] .match-card { background: rgba(255, 255, 255, .04); }
+:root[data-theme="dark"] .match-title { background: var(--paper-2); }
+:root[data-theme="dark"] .match-athlete .winner-name { background: #315336; color: #effbea; }
+:root[data-theme="dark"] .preview-table th { background: var(--paper); }
+:root[data-theme="dark"] .import-warning { background: #40351d; color: #f4d28a; border-color: #80652a; }
+:root[data-theme="dark"] .import-errors { background: #412622; color: #ffb39e; }
+:root[data-theme="dark"] .lane-waiting { background: var(--paper-2); }
+:root[data-theme="dark"] .category-progress i,
+:root[data-theme="dark"] .group-stat i { background: #334846; }
+:root[data-theme="dark"] .lane-tab:hover:not(:disabled):not(.active) { color: var(--ink); }
+:root[data-theme="dark"] .top-actions .btn-theme { color: var(--ink); }

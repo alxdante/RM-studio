@@ -568,3 +568,10 @@ body { background: #eef0ea; }
 .workspace > #finalsPanel .finals-actions .btn {
   pointer-events: auto;
 }
+
+/* Consolation Final uses a base border of its own, but its active/hover highlight should match every other card. */
+.match-card.final-match:hover,
+.match-card.final-match.selected {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px rgba(255, 116, 69, .1);
+}

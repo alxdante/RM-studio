@@ -676,3 +676,16 @@ body { background: #eef0ea; }
 .corrections-table select { max-width: 190px; padding: 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: 10px "DM Mono", monospace; }
 .corrections-table .text-button { margin-left: 6px; white-space: nowrap; }
 .correction-delete { color: #a34f39; }
+
+/* Larger, easier-to-read text in the Lists menu and its result tools. */
+.lists-card .eyebrow, .corrections-card .eyebrow { font-size: 11px; }
+.lists-card .modal-meta, .corrections-card .modal-meta { font-size: 13px; line-height: 1.55; }
+.lists-card .lists-summary { padding: 18px; }
+.lists-card .lists-summary span { font-size: 13px; }
+.lists-card .list-action { padding: 15px 16px; gap: 6px; }
+.lists-card .list-action span { font-size: 15px; }
+.lists-card .list-action small { font-size: 12px; line-height: 1.45; }
+.corrections-card .corrections-table th, .corrections-card .corrections-table td { padding: 12px 9px; font-size: 13px; }
+.corrections-card .corrections-table th { font-size: 11px; }
+.corrections-card .corrections-table select { padding: 8px; font-size: 12px; }
+.corrections-card .modal-actions .btn { font-size: 13px; }

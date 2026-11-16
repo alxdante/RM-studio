@@ -583,14 +583,3 @@ body { background: #eef0ea; }
 #finalsGroupPanel .finals-group-tiles .lane-tab {
   border-radius: 5px;
 }
-
-/* Match qualification group panels and the add-group dialog to the rounded UI surfaces. */
-#qualificationPanel .category-row {
-  border-radius: 5px;
-}
-#addGroupModal .modal-card {
-  border-radius: 10px;
-}
-#addGroupModal .age-choice {
-  border-radius: 5px;
-}

@@ -584,7 +584,7 @@ body { background: #eef0ea; }
   line-height: 1.15;
 }
 
-/* Temporary column-width tuning mode; remove after the default widths are confirmed. */
+/* Persistent column-width controls for the qualification results table. */
 .queue-result-header span[data-queue-column] {
   position: relative;
   padding-right: 6px;

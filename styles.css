@@ -244,6 +244,18 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .age-group-gender-field { grid-template-columns: auto minmax(180px, 1fr); align-items: center; }
 .age-group-form .btn { justify-self: end; min-height: 32px; }
 @media (max-width: 520px) { .age-editor-categories, .age-group-fields { grid-template-columns: 1fr; } .age-group-gender-field { grid-template-columns: 1fr; } .age-group-form .btn { justify-self: stretch; } .lane-tab-row .lane-tab span { font-size: 10px; } }
+.add-group-card { width: min(640px, 100%); }
+.add-group-card h3 { font-size: 24px; }
+.add-group-card .modal-meta { font-size: 11px; }
+.add-group-card .age-editor-row { padding: 12px 13px; }
+.add-group-card .age-editor-head strong { font-size: 14px; }
+.add-group-card .age-editor-head small, .add-group-card .age-editor-category small { font-size: 9px; }
+.add-group-card .age-editor-category { font-size: 12px; }
+.add-group-card .age-editor-category .text-button, .add-group-card .age-editor-remove { font-size: 10px; }
+.add-group-card .age-group-form-title { font-size: 14px; }
+.add-group-card .age-group-form label { font-size: 10px; }
+.add-group-card .age-group-form input[type="number"], .add-group-card .age-group-form select { min-height: 35px; font-size: 11px; }
+.add-group-card .age-group-form .btn { font-size: 11px; min-height: 35px; }
 
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }

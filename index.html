@@ -25,7 +25,7 @@
           </div>
           <div class="run-controls"><button id="startAllBtn" class="btn run-start" disabled>Старт</button><button id="resetAllBtn" class="btn run-reset">Сброс</button></div>
         </div>
-        <div class="phase-switch top-phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Квалификация</button><button class="phase-tab" data-phase="finals">Финалы</button></div>
+        <div class="phase-switch top-phase-switch" role="tablist" aria-label="Этап соревнования"><button class="phase-tab active" data-phase="qualification">Time Trials</button><button class="phase-tab" data-phase="finals">KO Phase</button></div>
         <div class="top-actions">
           <span id="saveStatus" class="save-status">Сохранено только что</span>
           <button id="listsBtn" class="btn btn-lists">Списки</button>
@@ -40,11 +40,11 @@
               <div id="finalsGroupPanel" class="hidden"></div>
               <div id="laneCards" class="lane-grid"></div>
               <div id="qualificationPanel">
-                <div class="qual-lower-grid"><section class="panel-block"><div class="panel-head"><div><span class="eyebrow">Очередь соревнования</span><h4>Ближайшие старты</h4></div><span class="mono muted" id="queueMeta">0 категорий</span></div><div id="globalQueue" class="queue-list"></div></section><section class="panel-block"><div class="panel-head"><div><span class="eyebrow">Контроль групп</span><h4>Прогресс квалификации</h4></div><span class="mono muted" id="categoryMeta">0 / 0</span></div><div id="categoryBoard" class="category-board"></div></section></div>
+                <div class="qual-lower-grid"><section class="panel-block"><div class="panel-head"><div><span class="eyebrow">Competition Queue</span><h4>Upcoming Starts</h4></div><span class="mono muted" id="queueMeta">0 categories</span></div><div id="globalQueue" class="queue-list"></div></section><section class="panel-block"><div class="panel-head"><div><span class="eyebrow">Time Trial Control</span><h4>Time Trial Progress</h4></div><span class="mono muted" id="categoryMeta">0 / 0 KO</span></div><div id="categoryBoard" class="category-board"></div></section></div>
               </div>
 
             <div id="finalsPanel" class="hidden">
-              <div class="finals-actions"><button id="resetFinalBracketBtn" class="btn btn-ghost">Сбросить финальную сетку</button></div>
+              <div class="finals-actions"><button id="resetFinalBracketBtn" class="btn btn-ghost">Reset KO Bracket</button></div>
               <div id="bracketBoard" class="bracket-board"></div>
             </div>
           </section>

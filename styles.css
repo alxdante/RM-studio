@@ -250,14 +250,14 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .run-reset:hover:not(:disabled) { background: #ff9b87; }
 .run-controls .btn:disabled { background: #d7dad4; color: #9ca29b; border-color: transparent; opacity: .65; cursor: not-allowed; }
 .top-actions { gap: 7px; }
-.btn-ble { min-width: 146px; justify-content: center; gap: 7px; }
+.btn-ble { min-width: 132px; justify-content: center; gap: 6px; padding-left: 10px; padding-right: 10px; }
 .ble-button-signal { display: inline-flex; align-items: flex-end; gap: 2px; height: 13px; }
 .ble-button-signal i { display: block; width: 3px; background: currentColor; opacity: .35; }
 .ble-button-signal i:nth-child(1) { height: 5px; }
 .ble-button-signal i:nth-child(2) { height: 8px; }
 .ble-button-signal i:nth-child(3) { height: 11px; }
 .btn-ble.connected .ble-button-signal i { color: var(--mint-2); opacity: 1; }
-.top-disconnect { min-width: 106px; border: 1px solid var(--line); background: transparent; color: var(--ink); margin-left: 0; white-space: nowrap; }
+.top-disconnect { min-width: 92px; border: 1px solid var(--line); background: transparent; color: var(--ink); margin-left: 0; white-space: nowrap; padding-left: 9px; padding-right: 9px; }
 .top-disconnect:hover:not(:disabled) { color: var(--ink); border-color: var(--orange); background: #fff8f4; }
 
 /* Extra age groups (for example 5–7 and 40+) stay in one row and scroll horizontally. */
@@ -419,7 +419,7 @@ body { background: #eef0ea; }
 #finalsGroupPanel { z-index: 80; }
 
 /* Theme switcher and dark mode. */
-.btn-theme { min-height: 28px; padding: 0 9px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
+.btn-theme { width: 35px; min-width: 35px; height: 35px; min-height: 35px; padding: 0; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
 .btn-theme:hover:not(:disabled) { border-color: var(--orange); background: var(--paper-2); }
 
 :root[data-theme="dark"] {

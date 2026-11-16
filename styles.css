@@ -104,7 +104,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .workspace > #finalsPanel { width: 100%; min-width: 0; margin-top: 10px; }
 #qualificationPanel, #finalsPanel { margin-top: 12px; }
 .finals-group-strip { display: flex; align-items: center; padding: 6px; margin-bottom: 10px; background: var(--deep); color: var(--paper); border-radius: 10px; overflow-x: auto; }
-.finals-group-tiles { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; width: 100%; min-width: 0; }
+.finals-group-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; width: 100%; min-width: 0; }
 #finalsGroupPanel .finals-group-tiles .lane-tab { min-width: 0; }
 .finals-group-tiles .lane-tab { box-sizing: border-box; position: relative; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto; align-items: center; justify-items: center; row-gap: 2px; min-height: 27px; padding: 3px 4px; border: 1px solid rgba(183,245,141,.2); background: rgba(255,255,255,.06); color: #b9cbc2; text-align: center; }
 .finals-group-tiles .lane-tab:hover:not(:disabled):not(.active) { transform: none; border-color: var(--orange); color: #b9cbc2; }

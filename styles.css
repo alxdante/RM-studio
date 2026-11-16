@@ -532,6 +532,12 @@ body { background: #eef0ea; }
   background: #205344;
 }
 
-/* Finals layout: bring the bracket closer to the timing lanes and align its reset action with the top match. */
-.workspace > #finalsPanel { margin-top: 4px; }
-.workspace > #finalsPanel .finals-actions { transform: translateY(16px); position: relative; z-index: 3; }
+/* Finals panel: reserve only a 15px gap after timing lanes; align reset with bracket top. */
+.lane-grid.finals-mode { margin-bottom: 0; padding-bottom: 0; }
+.workspace > #finalsPanel { margin-top: 15px; }
+.workspace > #finalsPanel .finals-actions {
+  margin: 0 0 -35px;
+  transform: none;
+  position: relative;
+  z-index: 3;
+}

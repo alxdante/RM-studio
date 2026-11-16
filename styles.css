@@ -288,7 +288,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
-.queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(0, 28px) minmax(140px, 1.45fr) minmax(0, 92px) minmax(0, .8fr) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
+.queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(0, 28px) minmax(0, var(--queue-athlete-width, 1.45fr)) minmax(0, var(--queue-dob-width, 92px)) minmax(0, var(--queue-region-width, .8fr)) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
 .queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 10px "DM Mono", monospace; letter-spacing: .08em; }
 .queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
 .queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 14px; }
@@ -300,8 +300,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-row strong { color: var(--ink); font-weight: 500; }
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
-@media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(125px, 1.3fr) 82px minmax(75px, .8fr) 58px 58px 64px; min-width: 690px; gap: 5px; } }
-@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(115px, 1.3fr) minmax(0, 76px) minmax(0, 70px) 54px 54px 60px; min-width: 0; gap: 4px; } .queue-result-row { font-size: 12px; } }
+@media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(0, var(--queue-athlete-width, 1.3fr)) minmax(0, var(--queue-dob-width, 82px)) minmax(0, var(--queue-region-width, .8fr)) 58px 58px 64px; min-width: 690px; gap: 5px; } }
+@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(0, var(--queue-athlete-width, 1.3fr)) minmax(0, var(--queue-dob-width, 76px)) minmax(0, var(--queue-region-width, 70px)) 54px 54px 60px; min-width: 0; gap: 4px; } .queue-result-row { font-size: 12px; } }
 @media (max-width: 620px) { .queue-result-header span:nth-child(3), .queue-result-header span:nth-child(4), .queue-result-row span:nth-of-type(3), .queue-result-row span:nth-of-type(4) { display: none; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(115px, 1fr) 54px 54px 60px; } }
 
 /* App-like presentation: focus on controls, lanes and queues. */
@@ -579,4 +579,32 @@ body { background: #eef0ea; }
   overflow-wrap: anywhere;
   white-space: normal;
   line-height: 1.15;
+}
+
+/* Temporary column-width tuning mode; remove after the default widths are confirmed. */
+.queue-result-header span[data-queue-column] {
+  position: relative;
+  padding-right: 6px;
+}
+.queue-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  border-right: 1px solid rgba(255, 116, 69, .65);
+  cursor: col-resize;
+  touch-action: none;
+  opacity: .65;
+  z-index: 2;
+}
+.queue-resize-handle:hover,
+.resizing-queue-columns .queue-resize-handle {
+  border-right-color: var(--orange);
+  opacity: 1;
+}
+.resizing-queue-columns,
+.resizing-queue-columns * {
+  cursor: col-resize !important;
+  user-select: none !important;
 }

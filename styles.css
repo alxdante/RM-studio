@@ -256,6 +256,13 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .add-group-card .age-group-form label { font-size: 10px; }
 .add-group-card .age-group-form input[type="number"], .add-group-card .age-group-form select { min-height: 35px; font-size: 11px; }
 .add-group-card .age-group-form .btn { font-size: 11px; min-height: 35px; }
+.add-group-card .age-editor-category { min-height: 62px; padding: 10px; border: 1px solid var(--line); background: var(--paper); }
+.add-group-card .age-editor-category.is-enabled { border-color: rgba(255,116,69,.42); }
+.add-group-card .age-editor-category.is-hidden { opacity: .72; }
+.add-group-card .age-editor-category > div { min-width: 0; }
+.add-group-card .age-editor-category strong, .add-group-card .age-editor-category small { display: block; }
+.add-group-card .age-editor-category strong { font-size: 12px; }
+.add-group-card .age-editor-category small { margin-top: 5px; }
 
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }

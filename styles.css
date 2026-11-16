@@ -583,3 +583,11 @@ body { background: #eef0ea; }
 #finalsGroupPanel .finals-group-tiles .lane-tab {
   border-radius: 5px;
 }
+
+/* Qualification-only group picker: round its window and group tiles without changing timer cards. */
+.lane-group-picker {
+  border-radius: 7px;
+}
+.lane-group-picker .lane-tab {
+  border-radius: 5px;
+}

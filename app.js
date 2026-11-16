@@ -219,6 +219,11 @@ function laneCategoryPicker(lane, laneIndex) {
   return `<div class="lane-group-picker" data-lane-picker="${laneIndex}">${renderGenderRow('girls')}${renderGenderRow('boys')}</div>`;
 }
 function categoryHasAthletes(categoryId) { return athletesForCategory(categoryId).length > 0; }
+function demoStartAllowed() {
+  if (state.phase === 'finals') return !categoryState(state.selectedFinalCategory).bracket;
+  if (state.phase !== 'qualification') return false;
+  return !activeCategoryIds().some((categoryId) => athletesForCategory(categoryId).length > 0);
+}
 function renderAgeGroupEditor() { const host = $('#ageGroupEditorList'); if (!host) return; host.innerHTML = sortedAgeGroups().map((age) => { const definitions = categoryDefinitionsForAge(age); const total = definitions.reduce((sum, category) => sum + athletesForCategory(category.id).length, 0); const categories = definitions.map((category) => { const count = athletesForCategory(category.id).length; return `<div class="age-editor-category"><div><strong>${escapeHtml(category.label.split(' · ')[1])}</strong><small>${count} уч.</small></div></div>`; }).join(''); return `<article class="age-editor-row"><div class="age-editor-head"><div><strong>${escapeHtml(age.label)}</strong><small>группа · ${total} уч.</small></div><button type="button" class="text-button age-editor-remove" data-remove-age-group="${age.id}" ${total ? 'disabled' : ''}>Удалить группу</button></div><div class="age-editor-categories">${categories}</div></article>`; }).join(''); }
 function openAddGroup() { renderAgeGroupEditor(); $('#addGroupModal').classList.remove('hidden'); }
 function closeAddGroup() { $('#addGroupModal').classList.add('hidden'); }
@@ -408,11 +413,12 @@ function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); 
 function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 70); }
 
 function startAllLanes() {
-  if (currentModeDisabled()) return showToast(`Старт заблокирован: ${modeDisabledLabel()} = true`);
+  if (currentModeDisabled()) return showToast(`${modeDisabledLabel()} = true`);
+  const demoStart = demoStartAllowed();
   let started = 0;
   state.lanes.forEach((lane, index) => {
     if (prepareLaneForStart(index) === false) return;
-    if (!lane.athleteId) return;
+    if (!demoStart && !lane.athleteId) return;
     lane.running = true;
     lane.startedAt = Date.now();
     lane.time = null;
@@ -551,7 +557,8 @@ function parseBleLine(line) {
   } else if (type === 'start') {
     if (currentModeDisabled()) return showToast(`Старт заблокирован: ${modeDisabledLabel()} = true`);
     const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1];
-    indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false) return; if (state.lanes[index].athleteId) { state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); } });
+    const demoStart = demoStartAllowed();
+    indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false || (!demoStart && !state.lanes[index].athleteId)) return; state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); });
     persist(); renderLanes(); startTicker();
   } else if (type === 'reset') {
     clearInterval(timerHandle);

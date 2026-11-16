@@ -129,6 +129,9 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-timer-block.timer-disabled { border-color: #c8ccd0; }
 .lane-timer-block.timer-error { border-color: #ff4d4d; box-shadow: inset 0 0 0 1px rgba(255,77,77,.22), 0 0 10px rgba(255,77,77,.18); }
 .lane-timer-block.timer-ready { border-color: #58d68d; box-shadow: inset 0 0 0 1px rgba(88,214,141,.16), 0 0 10px rgba(88,214,141,.12); }
+.timer-state-label { position: absolute; top: 7px; left: 9px; color: #58d68d; font: 8px/1 "DM Mono", monospace; letter-spacing: .08em; }
+.lane-timer-block.timer-disabled .timer-state-label { color: #c8ccd0; }
+.lane-timer-block.timer-error .timer-state-label { color: #ff4d4d; }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
 .lane-card.dq .lane-time { color: var(--orange); font-family: "DSEG7", "DM Mono", monospace; font-style: italic; font-weight: 700; letter-spacing: .02em; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }

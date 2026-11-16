@@ -1,7 +1,7 @@
 const SERVICE_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50100406e';
 const RX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50200406e';
 const TX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50300406e';
-const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a9-e50e24dcca9e' }];
+const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a3-f393-e0a9-e50e24dcca9e' }];
 const STORAGE_KEY = 'slalom-timing-control-v4';
 const THEME_KEY = 'slalom-timing-theme';
 

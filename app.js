@@ -140,6 +140,9 @@ function qualificationOrder(categoryId, attempt = categoryState(categoryId).atte
   }
   return baseOrder.sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return -1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return 1; return (bBest ?? -Infinity) - (aBest ?? -Infinity) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'); });
 }
+// When one category is assigned to both qualification lanes, keep the athlete
+// already occupying the other lane out of this lane's candidates. This makes
+// the shared category queue advance alternately instead of duplicating a start.
 function reservedAthletes(categoryId, laneIndex) { return state.lanes.filter((lane, index) => index !== laneIndex && lane.categoryId === categoryId && lane.athleteId).map((lane) => lane.athleteId); }
 function pendingForCategory(categoryId, laneIndex = -1, sourceState = state) { const category = categoryState(categoryId); if (category.attempt > 2) return []; const attempt = category.attempt; const reserved = sourceState === state ? reservedAthletes(categoryId, laneIndex) : []; return qualificationOrder(categoryId, attempt).filter((athlete) => !hasRecordedResult(categoryId, athlete.id, attempt) && !reserved.includes(athlete.id)); }
 function finishedCount(categoryId, attempt) { return athletesForCategory(categoryId).filter((athlete) => hasRecordedResult(categoryId, athlete.id, attempt)).length; }
@@ -450,7 +453,6 @@ function parseRosterRows(rows) {
   const surnameKey = find(['фамилия', 'last name', 'surname']);
   const firstNameKey = find(['имя', 'first name', 'given name']);
   const patronymicKey = find(['отчество', 'middle name', 'patronymic']);
-  const ageKey = find(['возраст', 'возраст участника', 'лет', 'age', 'years', 'years old']);
   const ratingKey = find(['рейтинг', 'спортивный рейтинг', 'rating', 'rank', 'elo']);
   const genderKey = find(['пол', 'пол участника', 'мж', 'gender', 'sex']);
   const birthKey = find(['дата рождения', 'день рождения', 'дата рожд', 'датарожд', 'birth date', 'birthdate', 'birthday', 'dob']);
@@ -459,13 +461,12 @@ function parseRosterRows(rows) {
   const clubKey = find(['клуб', 'команда', 'спортивная школа', 'club', 'team']);
   const errors = [];
   if (!nameKey && !(surnameKey && firstNameKey)) errors.push('Не найдена колонка ФИО / Name или отдельные колонки Фамилия + Имя');
-  if (!ageKey && !birthKey) errors.push('Не найдена колонка Возраст / Age или Дата рождения / Birth date');
-  if ((!nameKey && !(surnameKey && firstNameKey)) || (!ageKey && !birthKey)) return { roster: [], errors };
+  if (!birthKey) errors.push('Не найдена обязательная колонка Дата рождения / Birth date');
+  if ((!nameKey && !(surnameKey && firstNameKey)) || !birthKey) return { roster: [], errors };
   const roster = rows.map((row, index) => {
     const rawBirthDate = birthKey ? row[birthKey] : '';
     const birthDate = normalizeBirthDate(rawBirthDate);
-    const parsedAge = ageKey ? Number.parseInt(String(row[ageKey] ?? '').replace(/[^0-9]/g, ''), 10) : NaN;
-    const age = Number.isFinite(parsedAge) ? parsedAge : ageFromBirthDate(rawBirthDate || birthDate);
+    const age = ageFromBirthDate(rawBirthDate || birthDate);
     const rating = ratingKey ? Number.parseInt(String(row[ratingKey] ?? '').replace(/[^0-9]/g, ''), 10) || 0 : 0;
     const name = nameKey ? String(row[nameKey] ?? '').trim() : [row[surnameKey], row[firstNameKey], patronymicKey ? row[patronymicKey] : ''].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
     if (!name || !Number.isFinite(age) || age < 1 || age > 120) {
@@ -493,7 +494,21 @@ function exportFinalProtocolWorkbook() { if (!state.roster.length) return showTo
 function exportRosterWorkbook() { if (!state.roster.length) return showToast('В текущем списке нет спортсменов'); ensureXlsx().then(() => { const rows = state.roster.map((athlete) => { const category = categoryForAthlete(athlete); return { 'ФИО': athlete.name, 'Дата рождения': formatBirthDate(athlete.birthDate), 'Пол и категория': category.label.split(' · ')[1], 'Регион': athlete.region || athlete.city || '', 'Возраст': athlete.age, 'Категория': category.label, 'Попытка 1': getPenalty(category.id, athlete.id, 1) >= 5 ? 'DQ' : (getTime(category.id, athlete.id, 1) ?? ''), 'Штраф 1': getPenalty(category.id, athlete.id, 1) || '', 'Попытка 2': getPenalty(category.id, athlete.id, 2) >= 5 ? 'DQ' : (getTime(category.id, athlete.id, 2) ?? ''), 'Штраф 2': getPenalty(category.id, athlete.id, 2) || '', 'Лучшее время': bestTime(category.id, athlete.id) ?? '' }; }); const sheet = XLSX.utils.json_to_sheet(rows); sheet['!cols'] = [{ wch: 24 }, { wch: 15 }, { wch: 18 }, { wch: 24 }, { wch: 9 }, { wch: 25 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 14 }]; const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, sheet, 'Результаты'); const eventPart = (state.eventName || 'соревнование').replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 40); XLSX.writeFile(workbook, `${eventPart || 'соревнование'}_результаты.xlsx`); showToast('Excel-файл с результатами выгружен'); }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
 function resetSavedData() { if (!confirm('Очистить сохранённые данные и загрузить тестовый список заново?')) return; localStorage.removeItem(STORAGE_KEY); location.reload(); }
 function cancelImport() { pendingImport = null; $('#importModal').classList.add('hidden'); }
-function clearRoster() { if (!confirm('Очистить список спортсменов и результаты?')) return; state.roster = []; state.enabledAgeGroups = AGE_GROUPS.map((group) => group.id); state.categories = createCategoryStates(); state.lanes = [createLane(CATEGORIES[0].id), createLane(CATEGORIES[1].id)]; state.selectedFinalCategory = CATEGORIES[0].id; addActivity('Список спортсменов очищен'); renderAll(); }
+function clearRoster() {
+  if (!confirm('Очистить список спортсменов и результаты?')) return;
+  state.roster = [];
+  state.enabledAgeGroups = AGE_GROUPS.map((group) => group.id);
+  state.categories = createCategoryStates();
+  state.phase = 'qualification';
+  state.lanes = lanesForRoster([]);
+  state.phaseLanes = { qualification: state.lanes, finals: [createLane(), createLane()] };
+  state.selectedFinalCategory = CATEGORIES[0].id;
+  state.activity = [];
+  state.raceLog = [];
+  persist('Список и результаты очищены');
+  renderAll();
+  showToast('Список, результаты и финальные сетки очищены');
+}
 
 function qualificationRanking(categoryId) { return athletesForCategory(categoryId).slice().sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return 1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return -1; return (aBest ?? Infinity) - (bBest ?? Infinity) || Number(b.rating) - Number(a.rating); }); }
 function roundLabel(size, round) { const rounds = Math.log2(size); if (round === rounds - 1) return 'большой финал'; return `1/${2 ** (rounds - round - 1)} финала`; }

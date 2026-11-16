@@ -523,6 +523,25 @@ function ensureMatchRaces(match) {
   }
   while (match.races.length < 2) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
   match.races.forEach((race) => { race.penalty1 ??= 0; race.penalty2 ??= 0; race.source1 ??= null; race.source2 ??= null; });
+
+  // Keep historical race buttons and timer values available after a bracket
+  // recalculation. This restores only missing race data; it never recalculates
+  // the bracket and never overwrites a value already present in match.races.
+  const logged = new Map();
+  (state.raceLog || [])
+    .filter((entry) => entry.phase === 'finals' && entry.matchId === match.id && Number.isInteger(entry.raceIndex) && (entry.athleteId === match.athlete1 || entry.athleteId === match.athlete2))
+    .forEach((entry) => logged.set(`${entry.raceIndex}|${entry.athleteId}`, entry));
+  const maxLoggedRace = [...logged.values()].reduce((max, entry) => Math.max(max, entry.raceIndex), -1);
+  while (match.races.length <= maxLoggedRace) match.races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, source1: null, source2: null });
+  logged.forEach((entry) => {
+    const race = match.races[entry.raceIndex];
+    if (!race) return;
+    const side = entry.athleteId === match.athlete1 ? '1' : entry.athleteId === match.athlete2 ? '2' : null;
+    if (!side || race[`time${side}`] !== null && race[`time${side}`] !== undefined) return;
+    race[`time${side}`] = entry.dq ? 'DQ' : entry.adjustedTime;
+    race[`penalty${side}`] = entry.dq ? 5 : Number(entry.penalties || 0);
+    race[`source${side}`] = entry.source || null;
+  });
   return match.races;
 }
 function finalRaceWinner(race, athlete1, athlete2) {

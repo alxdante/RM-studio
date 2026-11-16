@@ -548,3 +548,7 @@ body { background: #eef0ea; }
 
 /* A historical raw time retained behind DQ is shown as a muted reference value. */
 .lane-card.review-only.dq .lane-time { color: #6f7975; text-shadow: none; }
+
+:root[data-theme="dark"] .lane-athlete-name {
+  color: #d5dcda;
+}

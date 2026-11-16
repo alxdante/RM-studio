@@ -556,6 +556,3 @@ body { background: #eef0ea; }
 .top-phase-switch .phase-tab {
   font-size: 13px;
 }
-
-/* Keep the raised top edge of the bracket above the sticky timing layer so its cards remain clickable. */
-.workspace > #finalsPanel { z-index: 95; }

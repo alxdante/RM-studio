@@ -531,3 +531,7 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .btn-ble:hover:not(:disabled) {
   background: #205344;
 }
+
+/* Finals layout: bring the bracket closer to the timing lanes and align its reset action with the top match. */
+.workspace > #finalsPanel { margin-top: 4px; }
+.workspace > #finalsPanel .finals-actions { transform: translateY(16px); position: relative; z-index: 3; }

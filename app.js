@@ -523,14 +523,17 @@ function parseBleLine(line) {
   catch (error) { addActivity(`BLE · неизвестная строка: ${line.slice(0, 35)}`); return; }
   const type = payload.type;
   if (type === 'mode') {
-    bleState.mode = payload.mode === 'qualification' || payload.mode === 'race' ? payload.mode : bleState.mode;
-    if (typeof payload.race_disable === 'boolean') bleState.raceDisable = payload.race_disable;
-    if (typeof payload.qualification_disable === 'boolean') bleState.qualificationDisable = payload.qualification_disable;
-    renderLanes(); renderBle();
+    const nextMode = payload.mode === 'qualification' || payload.mode === 'race' ? payload.mode : null;
+    const nextRaceDisable = typeof payload.race_disable === 'boolean' ? payload.race_disable : bleState.raceDisable;
+    const nextQualificationDisable = typeof payload.qualification_disable === 'boolean' ? payload.qualification_disable : bleState.qualificationDisable;
+    const stateChanged = bleState.mode !== nextMode || bleState.raceDisable !== nextRaceDisable || bleState.qualificationDisable !== nextQualificationDisable;
+    bleState.mode = nextMode || bleState.mode;
+    bleState.raceDisable = nextRaceDisable;
+    bleState.qualificationDisable = nextQualificationDisable;
     const nextPhase = payload.mode === 'qualification' ? 'qualification' : payload.mode === 'race' ? 'finals' : null;
-    if (!nextPhase) return;
+    if (!nextPhase) { if (stateChanged) { renderLanes(); renderBle(); } return; }
     pendingModeChange = null;
-    if (nextPhase === state.phase) return;
+    if (nextPhase === state.phase) { if (stateChanged) { renderLanes(); renderBle(); } return; }
     if (!switchPhase(nextPhase, { notifyBle: false })) {
       sendBleModeCommand(phaseToBleCommand(state.phase));
     }

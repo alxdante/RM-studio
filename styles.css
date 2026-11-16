@@ -126,6 +126,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-card-wrap { min-width: 0; }
 .lane-card { min-height: 312px; padding: 16px 17px 14px; }
 .lane-timer-block { position: relative; height: 132px; min-height: 132px; box-sizing: border-box; margin: 16px 0 12px; padding: 11px 13px 9px; background: rgba(0,0,0,.16); border: 1px solid rgba(183,245,141,.12); display: grid; align-content: center; }
+.lane-timer-block.timer-disabled { border-color: #c8ccd0; }
+.lane-timer-block.timer-error { border-color: #ff4d4d; box-shadow: inset 0 0 0 1px rgba(255,77,77,.22), 0 0 10px rgba(255,77,77,.18); }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
 .lane-card.dq .lane-time { color: var(--orange); font-family: "DSEG7", "DM Mono", monospace; font-style: italic; font-weight: 700; letter-spacing: .02em; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }

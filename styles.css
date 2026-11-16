@@ -484,3 +484,19 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .group-stat i { background: #334846; }
 :root[data-theme="dark"] .lane-tab:hover:not(:disabled):not(.active) { color: var(--ink); }
 :root[data-theme="dark"] .top-actions .btn-theme { color: var(--ink); }
+
+/* Neutral charcoal dark theme and restrained winner emphasis. */
+.match-race-value.race-winner { background: transparent; color: #356847; font-weight: 700; text-decoration: underline; text-decoration-color: var(--mint-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.match-athlete .winner-name { background: rgba(183, 245, 141, .16); }
+:root[data-theme="dark"] {
+  --paper: #1d1f21;
+  --paper-2: #282b2d;
+  --deep: #111315;
+  --ink: #e5e8e6;
+  --ink-2: #c7cfca;
+  --muted: #a1aaa5;
+  --line: rgba(225, 231, 227, .18);
+}
+:root[data-theme="dark"] .topbar { background: rgba(29, 31, 33, .97); }
+:root[data-theme="dark"] .match-race-value.race-winner { background: transparent; color: #d5edc9; box-shadow: inset 0 -2px 0 #6fa65e; }
+:root[data-theme="dark"] .match-athlete .winner-name { background: transparent; color: #d5edc9; box-shadow: inset 0 -2px 0 #6fa65e; }

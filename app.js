@@ -251,7 +251,7 @@ function commitLaneResult(index) {
   category.falseStarts[attempt][lane.athleteId] = lane.falseStarts || 0;
   appendRaceLog({ phase: 'qualification', raceKey: `qualification|${pending.categoryId || lane.categoryId}|${lane.athleteId}|${attempt}`, categoryId: pending.categoryId || lane.categoryId, athleteId: lane.athleteId, attempt, rawTime: pending.rawTime, adjustedTime: pending.dq ? null : pending.adjustedTime, penalties: pending.penalties || 0, dq: pending.dq, source: pending.source });
   lane.pendingResult = null;
-  addActivity(`${pending.source === 'ble' ? 'Лазер' : 'Ручной ввод'} · ${categoryById(pending.categoryId || lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${pending.dq ? 'DQ' : formatTime(pending.adjustedTime)}`);
+  addActivity(`${pending.source === 'ble' ? 'BLE' : 'Ручной ввод'} · ${categoryById(pending.categoryId || lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${pending.dq ? 'DQ' : formatTime(pending.adjustedTime)}`);
   advanceCategoryIfComplete(pending.categoryId || lane.categoryId);
   return true;
 }

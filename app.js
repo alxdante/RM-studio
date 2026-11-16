@@ -148,7 +148,6 @@ function switchPhase(phase, { notifyBle = true } = {}) {
     return false;
   }
   ensurePhaseLanes();
-  const previousPhase = state.phase;
   state.phaseLanes[state.phase] = state.lanes;
   state.phase = phase;
   if (phase === 'finals') {
@@ -158,7 +157,7 @@ function switchPhase(phase, { notifyBle = true } = {}) {
   } else {
     state.lanes = state.phaseLanes[phase];
   }
-  pendingModeChange = notifyBle && ble.connected ? { requestedPhase: phase, previousPhase } : null;
+  pendingModeChange = null;
   persist();
   renderAll();
   if (notifyBle) sendBleModeCommand(phaseToBleCommand(phase));
@@ -532,16 +531,12 @@ function parseBleLine(line) {
     bleState.qualificationDisable = nextQualificationDisable;
     const nextPhase = payload.mode === 'qualification' ? 'qualification' : payload.mode === 'race' ? 'finals' : null;
     if (!nextPhase) { if (stateChanged) { renderLanes(); renderBle(); } return; }
-    pendingModeChange = null;
     if (nextPhase === state.phase) { if (stateChanged) { renderLanes(); renderBle(); } return; }
     if (!switchPhase(nextPhase, { notifyBle: false })) {
       sendBleModeCommand(phaseToBleCommand(state.phase));
     }
   } else if (type === 'mode_rejected') {
-    if (!pendingModeChange) return;
-    const previousPhase = pendingModeChange.previousPhase;
     pendingModeChange = null;
-    switchPhase(previousPhase, { notifyBle: false });
     showToast('База отклонила смену режима: таймер запущен');
   } else if (type === 'error') {
     const lane = Number(payload.lane);

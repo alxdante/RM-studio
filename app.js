@@ -485,12 +485,20 @@ function recordFinalDQ(index) {
 function applyLaneResult(index, time, source = 'ble') {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
-  if (!lane || !lane.athleteId) return showToast(`На дорожке ${index + 1} не выбран спортсмен`);
+  if (!lane) return showToast(`Дорожка ${index + 1} не найдена`);
   const result = Number(time);
   if (!Number.isFinite(result) || result <= 0) return showToast('Получено некорректное время');
 
   lane.running = false;
   lane.startedAt = null;
+  if (!lane.athleteId) {
+    lane.time = Number(result.toFixed(3));
+    lane.error = null;
+    persist();
+    renderAll();
+    addActivity(`Демо · дорожка ${index + 1} · ${formatTime(lane.time)}`);
+    return;
+  }
   const adjustedTime = Number((result + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
   if (state.phase === 'qualification') {
     const category = categoryState(lane.categoryId);

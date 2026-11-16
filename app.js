@@ -57,7 +57,7 @@ function activeCategoryIds() { return CATEGORIES.filter((category) => athletesFo
 
 function emptyCategoryState() { return { attempt: 1, attempts: { 1: {}, 2: {} }, rawAttempts: { 1: {}, 2: {} }, penalties: { 1: {}, 2: {} }, finalSize: 4, bracket: null, selectedMatchId: null, selectedRaceIndex: 0, standings: [] }; }
 function createCategoryStates() { return Object.fromEntries(CATEGORIES.map((category) => [category.id, emptyCategoryState()])); }
-function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, falseStarts: 0, running: false, startedAt: null, error: null, queueHistory: [], pendingResult: null }; }
+function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, falseStarts: 0, running: false, startedAt: null, error: null, queueHistory: [], pendingResult: null, reviewOnly: false }; }
 function firstActiveCategory(exclude = [], roster = DEMO_ROSTER) { const ids = CATEGORIES.filter((category) => roster.some((athlete) => categoryForAthlete(athlete).id === category.id)).map((category) => category.id); return ids.find((id) => !exclude.includes(id)) || ids[0] || CATEGORIES[0].id; }
 function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategory([], roster); const second = firstActiveCategory([first], roster); return [createLane(first), createLane(second === first ? CATEGORIES[1]?.id || CATEGORIES[0].id : second)]; }
 
@@ -195,6 +195,7 @@ function commitLaneResult(index) {
 }
 function recalculateLanePenalty(index) {
   const lane = state.lanes[index];
+  if (lane?.reviewOnly) return;
   if (lane?.pendingResult) {
     lane.pendingResult.penalties = lane.penalties;
     lane.pendingResult.dq = lane.dq;
@@ -241,17 +242,20 @@ function recalculateLanePenalty(index) {
   persist(); renderAll();
 }
 function setLanePenalties(index, value) {
-  const lane = state.lanes[index]; const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
+  const lane = state.lanes[index];
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); const numeric = Math.max(0, Math.min(5, Number(value) || 0)); lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
 }
 function setLaneDQ(index) {
-  const lane = state.lanes[index]; lane.penalties = 5; lane.dq = true;
+  const lane = state.lanes[index];
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); lane.penalties = 5; lane.dq = true;
   if (state.phase === 'finals' && recordFinalDQ(index)) return;
   recalculateLanePenalty(index);
 }
 // The race log is intentionally consulted only when a judge undoes a mistaken
 // DQ. The previous non-DQ result must survive that correction and be restored.
 function clearFinalDQ(index) {
-  const lane = state.lanes[index]; const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); if (!lane?.athleteId || !match) return;
+  const lane = state.lanes[index];
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); if (!lane?.athleteId || !match) return;
   const raceIndex = Number.isInteger(category.selectedRaceIndex) ? category.selectedRaceIndex : finalRaceForAthlete(match, lane.athleteId); const side = match.athlete1 === lane.athleteId ? 'time1' : 'time2'; const penaltyKey = side === 'time1' ? 'penalty1' : 'penalty2'; const sourceKey = side === 'time1' ? 'source1' : 'source2'; const race = ensureMatchRaces(match)[raceIndex]; const previous = [...(state.raceLog || [])].reverse().find((entry) => entry.phase === 'finals' && entry.categoryId === state.selectedFinalCategory && entry.matchId === match.id && entry.raceIndex === raceIndex && entry.athleteId === lane.athleteId && !entry.dq && Number.isFinite(entry.rawTime));
   lane.dq = false; lane.penalties = 0; lane.pendingFinalResult = null;
   if (previous) { const penalties = Number(previous.penalties || 0); race[side] = Number.isFinite(previous.adjustedTime) ? previous.adjustedTime : Number((previous.rawTime + penalties * 0.2).toFixed(3)); race[penaltyKey] = penalties; race[sourceKey] = previous.source || 'manual'; lane.finalRawTime = previous.rawTime; lane.penalties = penalties; lane.time = race[side]; } else { race[side] = null; race[penaltyKey] = 0; race[sourceKey] = null; lane.finalRawTime = null; lane.time = null; }
@@ -259,6 +263,7 @@ function clearFinalDQ(index) {
 }
 function handleFalseStart(index, number) {
   const lane = state.lanes[index];
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
   if (!lane?.athleteId) return;
   if (number === 1 && lane.falseStarts === 1) { lane.falseStarts = 0; persist(); renderLanes(); return; }
   if (number === 2 && lane.falseStarts === 2) { lane.falseStarts = 0; lane.pendingResult = null; lane.penalties = 0; lane.dq = false; lane.time = null; persist(); renderLanes(); return; }
@@ -310,7 +315,7 @@ function renderLanes() {
   const existingFinalsPanel = $('#finalsPanel'); const laneCardsHost = $('#laneCards'); if (existingFinalsPanel && laneCardsHost && existingFinalsPanel.parentElement === laneCardsHost) document.querySelector('.main-content')?.append(existingFinalsPanel);
   $('#laneCards').innerHTML = state.lanes.map((lane, index) => {
     const runningTime = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time; const displayTime = lane.dq ? '--' : formatClock(runningTime); const nextCandidates = pendingForCategory(lane.categoryId, index).filter((candidate) => candidate.id !== lane.athleteId); const nextAthlete = nextCandidates[0]; const crownCount = finalWinsForAthlete(lane.athleteId); const crowns = crownCount ? `<span class="lane-win-crowns" aria-label="Duel wins: ${crownCount}">${'♛ '.repeat(crownCount).trim()}</span>` : '';
-    return `<div class="lane-card-wrap"><article class="lane-card ${lane.running ? 'active' : ''} ${Number.isFinite(lane.time) && !lane.running ? 'finished' : ''} ${lane.dq ? 'dq' : ''}"><div class="lane-top lane-group-toggle"><span class="lane-number">LANE ${index + 1}</span></div>${laneCategoryPicker(lane, index)}<div class="lane-athlete-name"><span class="lane-athlete-label">${escapeHtml(athleteById(lane.athleteId)?.name || 'Next skater')}</span></div><div class="lane-fs-controls"><button type="button" class="fs-button ${lane.falseStarts >= 1 ? 'active' : ''}" data-false-start="${index}" data-fs-number="1">FS</button><button type="button" class="fs-button ${lane.falseStarts >= 2 ? 'active' : ''}" data-false-start="${index}" data-fs-number="2">FS</button></div><div class="lane-timer-row"><div class="lane-timer-block">${crowns}<strong class="lane-time">${displayTime}</strong></div><div class="penalty-panel"><input data-lane-penalties="${index}" type="text" inputmode="numeric" maxlength="2" value="${lane.dq ? 'DQ' : lane.penalties}" aria-label="Penalties lane ${index + 1}" /></div></div><div class="lane-next-row"><button data-promote-prev="${index}" class="queue-arrow queue-arrow-prev" ${lane.queueHistory?.length ? '' : 'disabled'} aria-label="Previous skater">←</button><button data-promote-next="${index}" class="next-athlete-trigger" ${nextCandidates.length || lane.pendingResult ? '' : 'disabled'}><span>${nextCandidates.length ? 'NEXT' : lane.pendingResult ? 'SAVE' : 'NO NEXT'}</span><strong>${escapeHtml(nextAthlete?.name || (lane.pendingResult ? 'record result' : ''))}</strong><b>${nextCandidates.length ? '→' : lane.pendingResult ? '✓' : ''}</b></button><div class="manual-result"><input data-manual-time="${index}" type="text" inputmode="numeric" maxlength="6" placeholder="---" readonly aria-label="Manual time lane ${index + 1}" /></div><div class="penalty-quick-controls"><div class="penalty-quick-row">${[1, 2, 3, 4].map((value) => `<button type="button" class="${lane.penalties === value && !lane.dq ? 'active' : ''}" data-quick-penalty="${index}" data-penalty-value="${value}">${value}</button>`).join('')}</div><button type="button" class="penalty-dq ${lane.dq ? 'active' : ''}" data-lane-dq="${index}">DQ</button></div></div></article><section class="lane-waiting"><div class="queue-result-header"><span>№</span><span>ATHLETE</span><span>DOB</span><span>REGION</span><span>TT1</span><span>TT2</span><span>BEST TT</span></div><div class="waiting-list">${waitingListHtml(lane, index)}</div></section></div>`;
+    return `<div class="lane-card-wrap"><article class="lane-card ${lane.running ? 'active' : ''} ${Number.isFinite(lane.time) && !lane.running ? 'finished' : ''} ${lane.dq ? 'dq' : ''}${lane.reviewOnly ? ' review-only' : ''}"><div class="lane-top lane-group-toggle"><span class="lane-number">LANE ${index + 1}</span>${lane.reviewOnly ? '<span class="lane-review-badge">REVIEW RUN</span>' : ''}</div>${laneCategoryPicker(lane, index)}<div class="lane-athlete-name"><span class="lane-athlete-label">${escapeHtml(athleteById(lane.athleteId)?.name || 'Next skater')}</span></div><div class="lane-fs-controls"><button type="button" class="fs-button ${lane.falseStarts >= 1 ? 'active' : ''}" data-false-start="${index}" data-fs-number="1"${lane.reviewOnly ? ' disabled' : ''}>FS</button><button type="button" class="fs-button ${lane.falseStarts >= 2 ? 'active' : ''}" data-false-start="${index}" data-fs-number="2"${lane.reviewOnly ? ' disabled' : ''}>FS</button></div><div class="lane-timer-row"><div class="lane-timer-block">${crowns}<strong class="lane-time">${displayTime}</strong></div><div class="penalty-panel"><input data-lane-penalties="${index}" type="text" inputmode="numeric" maxlength="2" value="${lane.dq ? 'DQ' : lane.penalties}" aria-label="Penalties lane ${index + 1}"${lane.reviewOnly ? ' disabled' : ''} /></div></div><div class="lane-next-row"><button data-promote-prev="${index}" class="queue-arrow queue-arrow-prev" ${lane.queueHistory?.length ? '' : 'disabled'} aria-label="Previous skater">←</button><button data-promote-next="${index}" class="next-athlete-trigger" ${nextCandidates.length || lane.pendingResult ? '' : 'disabled'}><span>${nextCandidates.length ? 'NEXT' : lane.pendingResult ? 'SAVE' : 'NO NEXT'}</span><strong>${escapeHtml(nextAthlete?.name || (lane.pendingResult ? 'record result' : ''))}</strong><b>${nextCandidates.length ? '→' : lane.pendingResult ? '✓' : ''}</b></button><div class="manual-result"><input data-manual-time="${index}" type="text" inputmode="numeric" maxlength="6" placeholder="---" readonly aria-label="Manual time lane ${index + 1}" /></div><div class="penalty-quick-controls"><div class="penalty-quick-row">${[1, 2, 3, 4].map((value) => `<button type="button" class="${lane.penalties === value && !lane.dq ? 'active' : ''}" data-quick-penalty="${index}" data-penalty-value="${value}"${lane.reviewOnly ? ' disabled' : ''}>${value}</button>`).join('')}</div><button type="button" class="penalty-dq ${lane.dq ? 'active' : ''}" data-lane-dq="${index}"${lane.reviewOnly ? ' disabled' : ''}>DQ</button></div></div></article><section class="lane-waiting"><div class="queue-result-header"><span>№</span><span>ATHLETE</span><span>DOB</span><span>REGION</span><span>TT1</span><span>TT2</span><span>BEST TT</span></div><div class="waiting-list">${waitingListHtml(lane, index)}</div></section></div>`;
   }).join('');
   $$('[data-lane-tab]').forEach((button) => button.addEventListener('click', () => setLaneCategory(Number(button.dataset.laneTab), button.dataset.categoryId)));
   $$('[data-promote-next]').forEach((button) => button.addEventListener('click', () => promoteNextAthlete(Number(button.dataset.promoteNext))));
@@ -328,7 +333,7 @@ function setFinalCategory(categoryId) { commitPendingFinalResults(); const cat =
 function resetFinalBracket() { const categoryId = state.selectedFinalCategory; const category = categoryState(categoryId); if (!category.bracket) return showToast('Финальная сетка уже пустая'); if (!confirm(`Сбросить финальную сетку категории «${categoryById(categoryId).label}»? Квалификационные результаты сохранятся.`)) return; state.raceLog = (state.raceLog || []).filter((entry) => !(entry.phase === 'finals' && entry.categoryId === categoryId)); category.bracket = null; category.selectedMatchId = null; category.standings = []; state.lanes = [createLane(categoryId), createLane(categoryId)]; state.phaseLanes.finals = state.lanes; persist(); renderAll(); showToast('Финальная сетка и её история сброшены. Выберите плитку категории, чтобы собрать её заново.'); }
 function renderFinalGroupPanel() { const host = $('#finalsGroupPanel'); if (!host) return; const finalsPanel = $('#finalsPanel'); const workspace = document.querySelector('.workspace'); if (state.phase !== 'finals') { host.classList.add('hidden'); if (finalsPanel && finalsPanel.parentElement === host) document.querySelector('.main-content')?.append(finalsPanel); return; } host.classList.remove('hidden'); if (finalsPanel && workspace && finalsPanel.parentElement !== workspace) workspace.append(finalsPanel); const tiles = CATEGORIES.map((category) => { const completed = categoryState(category.id).attempt > 2; const selected = state.selectedFinalCategory === category.id; const count = athletesForCategory(category.id).length; const gender = genderLabel(category.gender); const age = AGE_GROUPS.find((group) => group.id === category.ageId); return `<button class="lane-tab ${selected ? 'active' : ''} ${completed ? 'completed' : ''}" ${completed ? '' : 'disabled'} data-final-category="${category.id}"><span class="lane-tab-gender">${escapeHtml(gender)}</span><span class="lane-tab-age">${escapeHtml(age?.label || category.label)}</span><small>${count}</small></button>`; }).join(''); host.innerHTML = `<div class="finals-group-strip"><div class="finals-group-tiles">${tiles}</div></div>`; $$('[data-final-category]').forEach((button) => button.addEventListener('click', () => setFinalCategory(button.dataset.finalCategory))); }
 function renderPanels() { $$('.phase-tab').forEach((button) => button.classList.toggle('active', button.dataset.phase === state.phase)); $('#qualificationPanel').classList.toggle('hidden', state.phase !== 'qualification'); $('#finalsPanel').classList.toggle('hidden', state.phase !== 'finals'); $('#laneCards').classList.toggle('finals-mode', state.phase === 'finals'); }
-function renderBle() { const online = ble.connected; $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#disconnectBtn').disabled = !online; $('#startAllBtn').disabled = !online; $('#resetAllBtn').disabled = false; }
+function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#disconnectBtn').disabled = !online; $('#startAllBtn').disabled = !online || reviewOnly; $('#resetAllBtn').disabled = reviewOnly; }
 function renderFinals() { const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
 function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); }
 
@@ -403,6 +408,7 @@ function recordFinalDQ(index) {
 }
 function applyLaneResult(index, time, source = 'ble') {
   const lane = state.lanes[index];
+  if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
   if (!lane || !lane.athleteId) return showToast(`На дорожке ${index + 1} не выбран спортсмен`);
   const result = Number(time);
   if (!Number.isFinite(result) || result <= 0) return showToast('Получено некорректное время');
@@ -621,18 +627,19 @@ function renderBracket() { const categoryId = state.selectedFinalCategory; syncB
 function finalLaneAthletes(match, raceIndex) { return raceIndex % 2 === 1 ? [match.athlete2, match.athlete1] : [match.athlete1, match.athlete2]; }
 function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   const category = categoryState(categoryId);
+  if (state.phase === 'finals' && state.lanes.some((lane) => lane.running || lane.pendingFinalResult)) return showToast('Сначала завершите текущий RUN');
   const match = getMatch(category.bracket, matchId);
   const index = Number(raceIndex);
   const races = match ? ensureMatchRaces(match) : [];
   if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен');
   if (!Number.isInteger(index) || !races[index]) return showToast('Этот заезд ещё не создан');
-  if (match.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
   category.selectedMatchId = matchId;
   category.selectedRaceIndex = index;
   state.selectedFinalCategory = categoryId;
   if (state.phase !== 'finals') { state.phaseLanes[state.phase] = state.lanes; state.phase = 'finals'; }
   state.lanes = [createLane(categoryId), createLane(categoryId)];
   state.phaseLanes.finals = state.lanes;
+  const reviewOnly = races[index].time1 !== null && races[index].time1 !== undefined && races[index].time2 !== null && races[index].time2 !== undefined;
   finalLaneAthletes(match, index).forEach((athleteId, laneIndex) => {
     const lane = state.lanes[laneIndex];
     const stored = finalRaceStoredValue(categoryId, match, index, athleteId);
@@ -642,6 +649,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
     lane.time = Number.isFinite(stored.value) ? stored.value : null;
     lane.finalRawTime = Number.isFinite(stored.value) ? Number((stored.value - stored.penalties * 0.2).toFixed(3)) : null;
     lane.finalRaceKey = `${match.id}|${index}|${athleteId}`;
+    lane.reviewOnly = reviewOnly;
   });
   addActivity(`Selected Run ${index + 1} · ${match.label}`);
   persist();

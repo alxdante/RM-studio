@@ -1043,3 +1043,30 @@ body { background: #eef0ea; }
   color: #e8f2e8;
   border: 1px solid rgba(183, 245, 141, .22);
 }
+
+
+:root:not([data-theme="dark"]) .lane-tab.active {
+  background: #fff;
+  color: var(--muted);
+}
+
+:root:not([data-theme="dark"]) .lane-tab.active small {
+  color: #9aa49f;
+}
+
+:root:not([data-theme="dark"]) .finals-group-tiles .lane-tab.active,
+:root:not([data-theme="dark"]) .lane-group-picker .lane-tab.active {
+  background: rgba(255, 255, 255, .06);
+  color: #b9cbc2;
+}
+
+:root:not([data-theme="dark"]) .finals-group-tiles .lane-tab.active small,
+:root:not([data-theme="dark"]) .lane-group-picker .lane-tab.active small {
+  color: #819b90;
+  opacity: 1;
+}
+
+:root:not([data-theme="dark"]) .lane-group-picker .lane-tab.active .lane-tab-gender {
+  color: #a9c0b6;
+  opacity: 1;
+}

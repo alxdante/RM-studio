@@ -869,3 +869,25 @@ body { background: #eef0ea; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+.add-athlete-fields {
+  grid-template-columns: minmax(275px, 2.2fr) 112px 112px minmax(240px, 2.4fr) 55px;
+}
+
+.add-athlete-fields #addAthleteRating {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.add-athlete-fields #addAthleteRating::-webkit-inner-spin-button,
+.add-athlete-fields #addAthleteRating::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+@media (max-width: 820px) {
+  .add-athlete-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

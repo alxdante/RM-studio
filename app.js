@@ -215,7 +215,45 @@ function qualificationOrder(categoryId, attempt = categoryState(categoryId).atte
 // the shared category queue advance alternately instead of duplicating a start.
 function reservedAthletes(categoryId, laneIndex) { return state.lanes.filter((lane, index) => index !== laneIndex && lane.categoryId === categoryId && lane.athleteId).map((lane) => lane.athleteId); }
 function pendingForCategory(categoryId, laneIndex = -1, sourceState = state) { const category = categoryState(categoryId); if (category.attempt > 2) return []; const attempt = category.attempt; const reserved = sourceState === state ? reservedAthletes(categoryId, laneIndex) : []; return qualificationOrder(categoryId, attempt).filter((athlete) => !hasRecordedResult(categoryId, athlete.id, attempt) && !reserved.includes(athlete.id)); }
-function nextAthleteForLane(index) { const lane = state.lanes[index]; if (!lane?.categoryId) return null; const skipped = new Set(lane.queueHistory || []); const candidates = pendingForCategory(lane.categoryId, index).filter((athlete) => athlete.id !== lane.athleteId && !skipped.has(athlete.id)); const reserved = new Set(state.lanes.filter((other, otherIndex) => otherIndex !== index && other.categoryId === lane.categoryId && other.athleteId).map((other) => other.athleteId)); for (let otherIndex = 0; otherIndex < index; otherIndex += 1) { const other = state.lanes[otherIndex]; if (other.categoryId !== lane.categoryId) continue; const otherSkipped = new Set(other.queueHistory || []); const otherNext = pendingForCategory(other.categoryId, otherIndex).find((athlete) => athlete.id !== other.athleteId && !otherSkipped.has(athlete.id) && !reserved.has(athlete.id)); if (otherNext) reserved.add(otherNext.id); } return candidates.find((athlete) => !reserved.has(athlete.id)) || null; }
+function qualificationSequence(categoryId, attempt) {
+  const athletes = athletesForCategory(categoryId).slice();
+  const base = (a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru');
+  if (attempt === 1) return athletes.sort(base);
+  if (attempt === 2) return athletes.sort((a, b) => (getTime(categoryId, b.id, 1) ?? -Infinity) - (getTime(categoryId, a.id, 1) ?? -Infinity) || base(a, b));
+  return athletes.sort((a, b) => (bestTime(categoryId, b.id) ?? -Infinity) - (bestTime(categoryId, a.id) ?? -Infinity) || base(a, b));
+}
+function nextAthleteForLane(index, advancing = false) {
+  const lane = state.lanes[index];
+  if (!lane?.categoryId) return null;
+  const categoryId = lane.categoryId;
+  const attempt = categoryState(categoryId).attempt;
+  const currentId = lane.athleteId;
+  const otherCurrentIds = new Set(state.lanes
+    .filter((other, otherIndex) => otherIndex !== index && other.categoryId === categoryId && other.athleteId)
+    .map((other) => other.athleteId));
+  const skipped = new Set();
+  state.lanes
+    .filter((other) => other.categoryId === categoryId)
+    .forEach((other) => (other.queueHistory || []).forEach((athleteId) => {
+      if (!hasRecordedResult(categoryId, athleteId, attempt)) skipped.add(athleteId);
+    }));
+  const currentRecorded = currentId && hasRecordedResult(categoryId, currentId, attempt);
+  if (advancing && currentId && !currentRecorded) skipped.add(currentId);
+  const order = qualificationSequence(categoryId, attempt);
+  const currentIds = new Set(state.lanes.filter((other) => other.categoryId === categoryId && other.athleteId).map((other) => other.athleteId));
+  const activeOrder = order.filter((athlete) => !skipped.has(athlete.id) && (currentIds.has(athlete.id) || !hasRecordedResult(categoryId, athlete.id, attempt)));
+  const available = (athlete) => !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id) && athlete.id !== currentId;
+  if (advancing && currentId && !currentRecorded) {
+    const currentPosition = order.findIndex((athlete) => athlete.id === currentId);
+    return order.slice(currentPosition + 1).find((athlete) => !skipped.has(athlete.id) && available(athlete)) || null;
+  }
+  const currentPosition = activeOrder.findIndex((athlete) => athlete.id === currentId);
+  if (currentPosition < 0) return activeOrder.find(available) || null;
+  for (let position = currentPosition + 2; position < activeOrder.length; position += 2) {
+    if (available(activeOrder[position])) return activeOrder[position];
+  }
+  return null;
+}
 function finishedCount(categoryId, attempt) { return athletesForCategory(categoryId).filter((athlete) => hasRecordedResult(categoryId, athlete.id, attempt)).length; }
 function categoryComplete(categoryId, attempt) { const total = athletesForCategory(categoryId).length; return total > 0 && finishedCount(categoryId, attempt) >= total; }
 function autoAssignLanes() { state.lanes.forEach((lane, index) => { if (!lane.categoryId || lane.athleteId || categoryState(lane.categoryId).attempt > 2) return; lane.athleteId = pendingForCategory(lane.categoryId, index)[0]?.id || null; }); }
@@ -357,12 +395,14 @@ function handleFalseStart(index, number) {
 }
 function promoteNextAthlete(index) {
   const lane = state.lanes[index];
+  const previousAthleteId = lane.athleteId;
   commitLaneResult(index);
-  const skipped = new Set(lane.queueHistory || []);
-  const next = nextAthleteForLane(index);
-  if (!next) { lane.athleteId = null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null; lane.queueHistory = []; persist(); renderAll(); return showToast('Результат сохранён'); }
   lane.queueHistory = Array.isArray(lane.queueHistory) ? lane.queueHistory : [];
-  if (lane.athleteId) lane.queueHistory.push(lane.athleteId);
+  const attempt = lane.categoryId ? categoryState(lane.categoryId).attempt : null;
+  const recorded = previousAthleteId && Number.isInteger(attempt) && hasRecordedResult(lane.categoryId, previousAthleteId, attempt);
+  if (previousAthleteId) lane.queueHistory.push(previousAthleteId);
+  const next = nextAthleteForLane(index, !recorded);
+  if (!next) { lane.athleteId = null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null; persist(); renderAll(); return showToast('Результат сохранён'); }
   lane.athleteId = next.id;
   lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null;
   persist(); renderAll();

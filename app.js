@@ -246,7 +246,10 @@ function nextAthleteForLane(index, advancing = false) {
     const athlete = order[position];
     if (!skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id)) return athlete;
   }
-  return null;
+  // If this lane has exhausted its fixed odd/even queue, use the first
+  // still-unrecorded athlete from the neighbouring queue instead of leaving
+  // the remaining participants without a lane.
+  return order.find((athlete) => !skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && athlete.id !== currentId && !otherCurrentIds.has(athlete.id)) || null;
 }
 function finishedCount(categoryId, attempt) { return athletesForCategory(categoryId).filter((athlete) => hasRecordedResult(categoryId, athlete.id, attempt)).length; }
 function categoryComplete(categoryId, attempt) { const total = athletesForCategory(categoryId).length; return total > 0 && finishedCount(categoryId, attempt) >= total; }

@@ -516,7 +516,17 @@ function applyLaneResult(index, time, source = 'ble') {
     const category = categoryState(lane.categoryId);
     if (category.attempt > 2) return showToast('Эта категория уже завершила квалификацию');
     const attempt = category.attempt;
-    if (lane.pendingResult || Number.isFinite(getTime(lane.categoryId, lane.athleteId, attempt))) {
+    if (lane.pendingResult) {
+      lane.pendingResult.rawTime = result;
+      lane.pendingResult.penalties = lane.penalties;
+      lane.pendingResult.dq = lane.dq;
+      lane.pendingResult.adjustedTime = Number((result + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
+      lane.time = lane.dq ? null : lane.pendingResult.adjustedTime;
+      persist();
+      renderAll();
+      return;
+    }
+    if (Number.isFinite(getTime(lane.categoryId, lane.athleteId, attempt))) {
       lane.time = null;
       prepareLaneForStart(index);
       persist();

@@ -828,3 +828,33 @@ body { background: #eef0ea; }
   width: 100%;
   box-sizing: border-box;
 }
+
+
+.corrections-card {
+  max-height: min(820px, 95vh);
+}
+
+.corrections-card .corrections-search input {
+  min-height: 44px;
+  padding: 10px 12px;
+  font-size: 15px;
+}
+
+.corrections-card .add-athlete-fields input,
+.corrections-card .add-athlete-fields select {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.corrections-card .add-athlete-fields label {
+  font-size: 13px;
+}
+
+.corrections-card .corrections-table th,
+.corrections-card .corrections-table td {
+  font-size: 14px;
+}
+
+.corrections-card .corrections-table th {
+  font-size: 12px;
+}

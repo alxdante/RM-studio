@@ -927,3 +927,10 @@ body { background: #eef0ea; }
   font: 12px "DM Mono", monospace;
   font-weight: 500;
 }
+
+
+.queue-result-row span:nth-of-type(5),
+.queue-result-row span:nth-of-type(6),
+.queue-result-row strong {
+  font-family: "DM Mono", monospace !important;
+}

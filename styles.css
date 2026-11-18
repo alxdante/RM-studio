@@ -1006,3 +1006,14 @@ body { background: #eef0ea; }
   background: rgba(183, 245, 141, .12);
   box-shadow: 0 0 0 2px rgba(113, 177, 105, .24);
 }
+
+
+.match-race-button:disabled {
+  cursor: not-allowed;
+  opacity: .35;
+  text-decoration: none;
+}
+
+.match-race-button:disabled:hover {
+  color: inherit;
+}

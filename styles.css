@@ -978,9 +978,13 @@ body { background: #eef0ea; }
 }
 
 .final-size-option span {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 3px;
   opacity: .7;
+}
+
+.final-size-card .modal-meta {
+  font-size: 14px;
 }
 
 .final-size-option:hover,

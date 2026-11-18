@@ -240,17 +240,11 @@ function nextAthleteForLane(index, advancing = false) {
   const currentRecorded = currentId && hasRecordedResult(categoryId, currentId, attempt);
   if (advancing && currentId && !currentRecorded) skipped.add(currentId);
   const order = qualificationSequence(categoryId, attempt);
-  const currentIds = new Set(state.lanes.filter((other) => other.categoryId === categoryId && other.athleteId).map((other) => other.athleteId));
-  const activeOrder = order.filter((athlete) => !skipped.has(athlete.id) && (currentIds.has(athlete.id) || !hasRecordedResult(categoryId, athlete.id, attempt)));
-  const available = (athlete) => !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id) && athlete.id !== currentId;
-  if (advancing && currentId && !currentRecorded) {
-    const currentPosition = order.findIndex((athlete) => athlete.id === currentId);
-    return order.slice(currentPosition + 1).find((athlete) => !skipped.has(athlete.id) && available(athlete)) || null;
-  }
-  const currentPosition = activeOrder.findIndex((athlete) => athlete.id === currentId);
-  if (currentPosition < 0) return activeOrder.find(available) || null;
-  for (let position = currentPosition + 2; position < activeOrder.length; position += 2) {
-    if (available(activeOrder[position])) return activeOrder[position];
+  const currentPosition = order.findIndex((athlete) => athlete.id === currentId);
+  if (currentPosition < 0) return null;
+  for (let position = currentPosition + 2; position < order.length; position += 2) {
+    const athlete = order[position];
+    if (!skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id)) return athlete;
   }
   return null;
 }

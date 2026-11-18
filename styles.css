@@ -944,3 +944,53 @@ body { background: #eef0ea; }
 .queue-result-row.lane-current-athlete strong {
   color: var(--ink);
 }
+
+
+.final-size-card {
+  max-width: 420px;
+}
+
+.final-size-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 8px;
+}
+
+.final-size-option {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 10px 5px;
+  text-align: center;
+  transition: border-color .16s ease, background .16s ease;
+}
+
+.final-size-option strong,
+.final-size-option span {
+  display: block;
+}
+
+.final-size-option strong {
+  font: 500 20px "DM Mono", monospace;
+}
+
+.final-size-option span {
+  font-size: 10px;
+  margin-top: 3px;
+  opacity: .7;
+}
+
+.final-size-option:hover,
+.final-size-option.selected {
+  border-color: var(--accent);
+  background: rgba(183, 245, 141, .14);
+}
+
+.final-size-option:disabled {
+  cursor: not-allowed;
+  opacity: .32;
+  filter: grayscale(.4);
+}

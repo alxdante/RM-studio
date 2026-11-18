@@ -1020,6 +1020,7 @@ body { background: #eef0ea; }
 
 
 .match-title.match-title-complete {
-  background: rgba(183, 245, 141, .28);
+  background: rgba(183, 245, 141, .42);
   color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--mint-2);
 }

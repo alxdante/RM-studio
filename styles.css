@@ -937,7 +937,7 @@ body { background: #eef0ea; }
 
 
 .queue-result-row.lane-current-athlete {
-  background: rgba(183, 245, 141, .28);
+  background: rgba(183, 245, 141, .14);
   color: var(--ink);
 }
 

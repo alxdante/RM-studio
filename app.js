@@ -376,7 +376,7 @@ function promotePreviousAthlete(index) {
     const candidateId = lane.queueHistory.pop();
     if (!Number.isInteger(attempt) || !hasRecordedResult(lane.categoryId, candidateId, attempt)) { previousId = candidateId; break; }
   }
-  if (!previousId) { persist(); renderAll(); return showToast('Нет предыдущего спортсмена без записанного результата'); }
+  if (!previousId) { persist(); renderAll(); return; }
   lane.athleteId = previousId;
   lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null;
   persist(); renderAll();

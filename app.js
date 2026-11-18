@@ -584,7 +584,6 @@ function applyLaneResult(index, time, source = 'ble') {
       return showToast('Результат этого спортсмена уже записан и не может быть перезаписан');
     }
     lane.time = lane.dq ? null : adjustedTime;
-    lane.queueHistory = [];
     lane.pendingResult = { categoryId: lane.categoryId, attempt, rawTime: result, adjustedTime, penalties: lane.penalties, dq: lane.dq, source };
   } else {
     lane.finalRawTime = result;

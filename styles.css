@@ -752,3 +752,17 @@ body { background: #eef0ea; }
   width: 100%;
   box-sizing: border-box;
 }
+
+
+.corrections-log-heading {
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.corrections-roster-table-wrap {
+  overflow-x: auto;
+}
+
+.corrections-roster-table-wrap .corrections-table {
+  min-width: 760px;
+}

@@ -654,6 +654,11 @@ function closeCorrectionsModal() { $('#correctionsModal').classList.add('hidden'
 function backToListsFromCorrections() { closeCorrectionsModal(); openListsModal(); }
 function backToListsFromAddGroup() { closeAddGroup(); openListsModal(); }
 function renderCorrections() {
+  const rosterHost = $('#correctionsRosterRows');
+  if (rosterHost) {
+    const roster = state.roster.slice().sort((a, b) => categoryLabelForAthlete(a).localeCompare(categoryLabelForAthlete(b), 'ru') || a.name.localeCompare(b.name, 'ru'));
+    rosterHost.innerHTML = roster.length ? roster.map((athlete) => { const category = categoryForAthlete(athlete); const tt = (attempt) => isQualificationDQ(category.id, athlete.id, attempt) ? 'DQ' : (getTime(category.id, athlete.id, attempt) ?? '—'); return `<tr><td>${escapeHtml(category.label)}</td><td>${escapeHtml(athlete.name)}</td><td>${tt(1)}</td><td>${tt(2)}</td><td>${bestTime(category.id, athlete.id) ?? '—'}</td><td><button type="button" class="text-button correction-delete" data-roster-delete="${escapeHtml(athlete.id)}">Удалить из соревнования</button></td></tr>`; }).join('') : '<tr><td colspan="6" class="queue-empty">В списке нет спортсменов.</td></tr>';
+  }
   const host = $('#correctionsRows'); if (!host) return;
   const entries = qualificationLogEntries();
   host.innerHTML = entries.length ? entries.map((entry) => {
@@ -686,6 +691,17 @@ function replaceQualificationResult(entryId) {
 }
 function deleteQualificationResult(entryId) {
   const entry = correctionEntryById(entryId); if (!entry) return; if (qualificationHasFinalBracket(entry.categoryId)) return showToast('Для категории уже создана финальная сетка. Корректировки финалов будут добавлены отдельно.'); if (!confirm('Удалить этот результат? Спортсмен снова сможет пройти эту попытку. Запись останется в журнале.')) return; clearQualificationValue(entry.categoryId, entry.athleteId, entry.attempt); recordCorrection(entry, 'delete', { athleteId: entry.athleteId }); state.lanes.forEach((lane) => { if (lane.categoryId === entry.categoryId && lane.athleteId === entry.athleteId) Object.assign(lane, createLane(entry.categoryId)); }); recomputeQualificationAttempt(entry.categoryId); autoAssignLanes(); persist('Результат удалён для повторного старта'); renderCorrections(); renderAll(); showToast('Результат удалён, спортсмен снова доступен в очереди');
+}
+function removeAthleteFromCompetition(athleteId) {
+  const athlete = athleteById(athleteId); if (!athlete) return;
+  const categoryId = categoryForAthlete(athlete).id;
+  if (!confirm(`Удалить спортсмена «${athlete.name}» из текущего соревнования? Его результаты и записи журнала будут удалены.`)) return;
+  state.roster = state.roster.filter((item) => item.id !== athleteId);
+  clearQualificationValue(categoryId, athleteId, 1); clearQualificationValue(categoryId, athleteId, 2);
+  state.raceLog = (state.raceLog || []).filter((entry) => entry.athleteId !== athleteId && entry.fromAthleteId !== athleteId);
+  const category = categoryState(categoryId); category.bracket = null; category.selectedMatchId = null; category.selectedRaceIndex = 0; category.standings = [];
+  state.lanes.forEach((lane, index) => { if (lane.athleteId === athleteId) Object.assign(state.lanes[index], createLane(lane.categoryId)); });
+  recomputeQualificationAttempt(categoryId); autoAssignLanes(); persist('Спортсмен удалён из соревнования'); renderCorrections(); renderAll(); showToast(`Спортсмен «${athlete.name}» удалён из соревнования`);
 }
 
 function raceSourceLabel(source) { return source === 'ble' ? 'BLE' : source === 'manual' ? 'Ручной ввод' : ''; }
@@ -860,11 +876,13 @@ function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(f
 
   function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#disconnectBtn').addEventListener('click', disconnectBle); $('#themeToggle').addEventListener('click', toggleTheme); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', openQualificationExportModal); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#cancelQualificationExportBtn').addEventListener('click', closeQualificationExportModal); $('#backToListsFromExportBtn').addEventListener('click', backToListsFromQualificationExport); $('#cancelQualificationExportBtnBottom').addEventListener('click', closeQualificationExportModal); $('#confirmQualificationExportBtn').addEventListener('click', exportSelectedQualification); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#openCorrectionsBtn').addEventListener('click', openCorrectionsModal); $('#backToListsFromCorrectionsBtn').addEventListener('click', backToListsFromCorrections); $('#closeCorrectionsBtn').addEventListener('click', closeCorrectionsModal); $('#closeCorrectionsBtnBottom').addEventListener('click', closeCorrectionsModal); $('#correctionsRows').addEventListener('click', (event) => { const save = event.target.closest('[data-correction-save]'); const replace = event.target.closest('[data-correction-replace]'); const remove = event.target.closest('[data-correction-delete]'); if (save) editQualificationResult(save.dataset.correctionSave); if (replace) replaceQualificationResult(replace.dataset.correctionReplace); if (remove) deleteQualificationResult(remove.dataset.correctionDelete); }); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#backToListsFromImportBtn').addEventListener('click', backToListsFromImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $('#backToListsFromAddGroupBtn').addEventListener('click', backToListsFromAddGroup); $('#ageGroupEditorList').addEventListener('click', (event) => { const remove = event.target.closest('[data-remove-age-group]'); if (remove) removeAgeGroup(remove.dataset.removeAgeGroup); }); $('#ageGroupForm').addEventListener('submit', (event) => { event.preventDefault(); addCustomAgeGroup(); }); $('#ageGroupUnlimited').addEventListener('change', () => { $('#ageGroupMax').disabled = $('#ageGroupUnlimited').checked; }); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
   function wireFrsEvents() { $('#frsConnectBtn').addEventListener('click', () => { closeListsModal(); openFrsConnectModal(); }); $('#closeFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#cancelFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#confirmFrsConnectBtn').addEventListener('click', () => connectFrsServer().catch((error) => { setFrsStatus(false); showToast(`Ошибка ФРС: ${error.message}`); })); }
+  function wireRosterCorrectionEvents() { $('#correctionsRosterRows').addEventListener('click', (event) => { const remove = event.target.closest('[data-roster-delete]'); if (remove) removeAthleteFromCompetition(remove.dataset.rosterDelete); }); }
 
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 wireQueueResizers();
 wireEvents();
 wireFrsEvents();
+wireRosterCorrectionEvents();
 renderAll();
 setFrsStatus(Boolean(state.frs?.online), state.frs?.online ? 'online' : 'offline');
 setInterval(() => { if (state.lanes.some((lane) => lane.running)) renderLanes(); }, 500);

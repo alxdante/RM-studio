@@ -1043,3 +1043,11 @@ body { background: #eef0ea; }
   color: #e8f2e8;
   border: 1px solid rgba(183, 245, 141, .22);
 }
+
+
+/* Active group selection uses an outline only in both themes. */
+.lane-tab.active,
+.finals-group-tiles .lane-tab.active,
+.lane-group-picker .lane-tab.active {
+  background: transparent;
+}

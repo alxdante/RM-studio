@@ -246,6 +246,13 @@ function nextAthleteForLane(index, advancing = false) {
     const athlete = order[position];
     if (!skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id)) return athlete;
   }
+  // A lane may reach the end of its visible sequence while its last
+  // odd/even participant is still available earlier in the stable order.
+  // Always exhaust the lane's own parity before borrowing from the neighbour.
+  for (let position = index; position < order.length; position += 2) {
+    const athlete = order[position];
+    if (!skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && athlete.id !== currentId && !otherCurrentIds.has(athlete.id)) return athlete;
+  }
   // If this lane has exhausted its fixed odd/even queue, use the first
   // still-unrecorded athlete from the neighbouring queue instead of leaving
   // the remaining participants without a lane.

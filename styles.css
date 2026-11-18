@@ -934,3 +934,13 @@ body { background: #eef0ea; }
 .queue-result-row span:nth-of-type(3) {
   text-align: right;
 }
+
+
+.queue-result-row.lane-current-athlete {
+  background: rgba(183, 245, 141, .28);
+  color: var(--ink);
+}
+
+.queue-result-row.lane-current-athlete strong {
+  color: var(--ink);
+}

@@ -261,7 +261,7 @@ function commitLaneResult(index) {
   category.penalties[attempt][lane.athleteId] = pending.penalties || 0;
   category.dq[attempt][lane.athleteId] = Boolean(pending.dq);
   category.falseStarts[attempt][lane.athleteId] = lane.falseStarts || 0;
-  appendRaceLog({ phase: 'qualification', raceKey: `qualification|${pending.categoryId || lane.categoryId}|${lane.athleteId}|${attempt}`, categoryId: pending.categoryId || lane.categoryId, athleteId: lane.athleteId, attempt, rawTime: pending.rawTime, adjustedTime: pending.dq ? null : pending.adjustedTime, penalties: pending.penalties || 0, dq: pending.dq, source: pending.source });
+  appendRaceLog({ phase: 'qualification', raceKey: `qualification|${pending.categoryId || lane.categoryId}|${lane.athleteId}|${attempt}`, categoryId: pending.categoryId || lane.categoryId, athleteId: lane.athleteId, attempt, rawTime: pending.rawTime, adjustedTime: pending.dq ? null : pending.adjustedTime, penalties: pending.penalties || 0, dq: pending.dq, source: pending.source, correction: Boolean(pending.correction) });
   lane.pendingResult = null;
   addActivity(`${pending.source === 'ble' ? 'BLE' : 'Ручной ввод'} · ${categoryById(pending.categoryId || lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${pending.dq ? 'DQ' : formatTime(pending.adjustedTime)}`);
   advanceCategoryIfComplete(pending.categoryId || lane.categoryId);
@@ -521,6 +521,7 @@ function applyLaneResult(index, time, source = 'ble') {
       lane.pendingResult.penalties = lane.penalties;
       lane.pendingResult.dq = lane.dq;
       lane.pendingResult.adjustedTime = Number((result + (lane.dq ? 0 : lane.penalties * 0.2)).toFixed(3));
+      if (source === 'manual' && lane.pendingResult.source === 'ble') { lane.pendingResult.source = 'manual'; lane.pendingResult.correction = true; }
       lane.time = lane.dq ? null : lane.pendingResult.adjustedTime;
       persist();
       renderAll();

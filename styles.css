@@ -929,3 +929,8 @@ body { background: #eef0ea; }
 .preview-table th {
   font-size: 11px;
 }
+
+
+.queue-result-row span:nth-of-type(3) {
+  text-align: right;
+}

@@ -261,8 +261,15 @@ function nextAthleteForLane(index, advancing = false) {
 function finishedCount(categoryId, attempt) { return athletesForCategory(categoryId).filter((athlete) => hasRecordedResult(categoryId, athlete.id, attempt)).length; }
 function categoryComplete(categoryId, attempt) { const total = athletesForCategory(categoryId).length; return total > 0 && finishedCount(categoryId, attempt) >= total; }
 function autoAssignLanes() { state.lanes.forEach((lane, index) => { if (!lane.categoryId || lane.athleteId || categoryState(lane.categoryId).attempt > 2) return; lane.athleteId = pendingForCategory(lane.categoryId, index)[0]?.id || null; }); }
+function resetQualificationLanesForAttempt(categoryId) {
+  state.lanes.forEach((lane, index) => {
+    if (lane.categoryId !== categoryId) return;
+    state.lanes[index] = createLane(categoryId);
+  });
+  autoAssignLanes();
+}
 function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const race = match && ensureMatchRaces(match)[category.selectedRaceIndex]; if (match?.winnerId) { showToast('Пара завершена — выберите другую пару'); return false; } if (race && (race.time1 !== null || race.time2 !== null)) { showToast('Заезд уже начат — выберите следующий заезд после второго результата'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
-function advanceCategoryIfComplete(categoryId) { const category = categoryState(categoryId); if (category.attempt === 1 && categoryComplete(categoryId, 1)) { category.attempt = 2; addActivity(`${categoryById(categoryId).label} · попытка 01 завершена, очередь 02 готова`); } if (category.attempt === 2 && categoryComplete(categoryId, 2)) { category.attempt = 3; addActivity(`${categoryById(categoryId).label} · квалификация завершена, финальный посев готов`); } }
+function advanceCategoryIfComplete(categoryId) { const category = categoryState(categoryId); if (category.attempt === 1 && categoryComplete(categoryId, 1)) { category.attempt = 2; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · попытка 01 завершена, очередь 02 готова`); } if (category.attempt === 2 && categoryComplete(categoryId, 2)) { category.attempt = 3; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · квалификация завершена, финальный посев готов`); } }
 
 function renderSummary() {
   const active = activeCategoryIds(); const ready = active.filter((id) => categoryState(id).attempt > 2).length;
@@ -400,7 +407,13 @@ function handleFalseStart(index, number) {
 function promoteNextAthlete(index) {
   const lane = state.lanes[index];
   const previousAthleteId = lane.athleteId;
+  const attemptBefore = lane.categoryId ? categoryState(lane.categoryId).attempt : null;
   commitLaneResult(index);
+  if (lane.categoryId && categoryState(lane.categoryId).attempt !== attemptBefore) {
+    persist();
+    renderAll();
+    return;
+  }
   lane.queueHistory = Array.isArray(lane.queueHistory) ? lane.queueHistory : [];
   const attempt = lane.categoryId ? categoryState(lane.categoryId).attempt : null;
   const recorded = previousAthleteId && Number.isInteger(attempt) && hasRecordedResult(lane.categoryId, previousAthleteId, attempt);

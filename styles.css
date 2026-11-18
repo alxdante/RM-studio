@@ -1030,3 +1030,9 @@ body { background: #eef0ea; }
   color: var(--ink);
   box-shadow: none;
 }
+
+
+:root[data-theme="dark"] .match-card.selected,
+:root[data-theme="dark"] .match-card.final-match.selected {
+  background: rgba(255, 255, 255, .04);
+}

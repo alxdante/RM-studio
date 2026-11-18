@@ -703,3 +703,52 @@ body { background: #eef0ea; }
 .corrections-card .correction-value-input { width: 76px; box-sizing: border-box; padding: 8px 6px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: 12px "DM Mono", monospace; }
 .corrections-card .correction-penalty-input { width: 58px; }
 .corrections-card .modal-actions .btn { font-size: 13px; }
+
+
+.frs-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.frs-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #89918e;
+}
+
+.frs-status.online {
+  color: #23804d;
+}
+
+.frs-status.online::before {
+  background: #2fbf71;
+  box-shadow: 0 0 0 3px rgba(47, 191, 113, .16);
+}
+
+.form-field {
+  display: grid;
+  gap: 7px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.form-field small {
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+.form-field input {
+  width: 100%;
+  box-sizing: border-box;
+}

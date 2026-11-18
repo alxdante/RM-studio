@@ -891,3 +891,10 @@ body { background: #eef0ea; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+.queue-result-row span:nth-of-type(3),
+.queue-result-row span:nth-of-type(4) {
+  color: inherit;
+  font: inherit;
+}

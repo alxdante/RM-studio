@@ -1017,3 +1017,9 @@ body { background: #eef0ea; }
 .match-race-button:disabled:hover {
   color: inherit;
 }
+
+
+.match-title.match-title-complete {
+  background: rgba(183, 245, 141, .28);
+  color: var(--ink);
+}

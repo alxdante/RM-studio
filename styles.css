@@ -766,3 +766,50 @@ body { background: #eef0ea; }
 .corrections-roster-table-wrap .corrections-table {
   min-width: 760px;
 }
+
+
+.add-athlete-form {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 20px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.add-athlete-form-title {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.add-athlete-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, 2fr) repeat(4, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.add-athlete-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.add-athlete-fields label small {
+  font-weight: 500;
+}
+
+.add-athlete-fields input,
+.add-athlete-fields select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 820px) {
+  .add-athlete-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

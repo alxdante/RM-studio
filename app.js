@@ -654,10 +654,11 @@ function closeCorrectionsModal() { $('#correctionsModal').classList.add('hidden'
 function backToListsFromCorrections() { closeCorrectionsModal(); openListsModal(); }
 function backToListsFromAddGroup() { closeAddGroup(); openListsModal(); }
 function addAthleteFromCorrections() {
-  const name = String($('#addAthleteName')?.value || '').trim(); const age = Number($('#addAthleteAge')?.value); const gender = String($('#addAthleteGender')?.value || ''); const region = String($('#addAthleteRegion')?.value || '').trim(); const ratingInput = $('#addAthleteRating')?.value; const rating = normalizeRating(ratingInput);
-  if (!name || !Number.isInteger(age) || age < 1 || age > 150 || !gender || !region) return showToast('Заполните ФИО, возраст, пол и регион');
+  const name = String($('#addAthleteName')?.value || '').trim(); const rawBirthDate = String($('#addAthleteBirthDate')?.value || '').trim(); const gender = String($('#addAthleteGender')?.value || ''); const region = String($('#addAthleteRegion')?.value || '').trim(); const ratingInput = $('#addAthleteRating')?.value; const rating = normalizeRating(ratingInput);
+  const birthDate = /^\d{2}\.\d{2}\.\d{4}$/.test(rawBirthDate) ? normalizeBirthDate(rawBirthDate) : ''; const age = birthDate ? ageFromBirthDate(birthDate) : NaN;
+  if (!name || !birthDate || !Number.isInteger(age) || age < 1 || age > 150 || !gender || !region) return showToast('Заполните ФИО, дату рождения в формате ДД.ММ.ГГГГ, пол и регион');
   const ageGroup = matchingAgeGroupForAge(age); if (!ageGroup) return showToast('Для этого возраста нет подходящей группы');
-  const athlete = { id: `athlete-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name, age, gender: normalizeGenderKey(gender, age), rating, birthDate: `01.01.${new Date().getFullYear() - age}`, region, city: region, club: '', source: 'manual' };
+  const athlete = { id: `athlete-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name, age, gender: normalizeGenderKey(gender, age), rating, birthDate, region, city: region, club: '', source: 'manual' };
   state.roster.push(athlete); const categoryId = categoryForAthlete(athlete).id; state.enabledAgeGroups = [...new Set([...(state.enabledAgeGroups || []), ageGroup.id])]; state.enabledCategories = [...new Set([...(state.enabledCategories || []), categoryId])]; autoAssignLanes(); persist('Спортсмен добавлен'); renderCorrections(); renderAll(); $('#addAthleteForm').reset(); showToast(`Спортсмен «${name}» добавлен в соревнование`);
 }
 function finalBracketMatchesForAthlete(athleteId) { return CATEGORIES.flatMap((category) => { const bracket = categoryState(category.id).bracket; return bracket ? bracket.matches.filter((match) => match.athlete1 === athleteId || match.athlete2 === athleteId).map((match) => ({ categoryId: category.id, bracket, match })) : []; }); }

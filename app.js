@@ -368,10 +368,15 @@ function promoteNextAthlete(index) {
 }
 function promotePreviousAthlete(index) {
   const lane = state.lanes[index];
+  const attempt = lane?.categoryId ? categoryState(lane.categoryId).attempt : null;
   commitLaneResult(index);
   lane.queueHistory = Array.isArray(lane.queueHistory) ? lane.queueHistory : [];
-  const previousId = lane.queueHistory.pop();
-  if (!previousId) return showToast('Предыдущего спортсмена нет в истории пропуска');
+  let previousId = null;
+  while (lane.queueHistory.length) {
+    const candidateId = lane.queueHistory.pop();
+    if (!Number.isInteger(attempt) || !hasRecordedResult(lane.categoryId, candidateId, attempt)) { previousId = candidateId; break; }
+  }
+  if (!previousId) { persist(); renderAll(); return showToast('Нет предыдущего спортсмена без записанного результата'); }
   lane.athleteId = previousId;
   lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.running = false; lane.startedAt = null; lane.error = null;
   persist(); renderAll();

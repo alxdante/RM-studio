@@ -901,3 +901,9 @@ body { background: #eef0ea; }
 .queue-result-row strong {
   font-size: 14px;
 }
+
+
+.queue-result-row span:nth-of-type(3),
+.queue-result-row span:nth-of-type(4) {
+  font: 12px "Space Grotesk", system-ui, sans-serif;
+}

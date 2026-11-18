@@ -914,3 +914,16 @@ body { background: #eef0ea; }
 .queue-result-row span:nth-of-type(4) {
   font-size: 12px;
 }
+
+
+.queue-result-row span:nth-of-type(5),
+.queue-result-row span:nth-of-type(6) {
+  color: var(--muted);
+  font: 12px "DM Mono", monospace;
+}
+
+.queue-result-row strong {
+  color: var(--ink);
+  font: 12px "DM Mono", monospace;
+  font-weight: 500;
+}

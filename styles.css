@@ -919,3 +919,13 @@ body { background: #eef0ea; }
   color: var(--ink);
   font-weight: 500;
 }
+
+
+.preview-table th,
+.preview-table td {
+  font-size: 12px;
+}
+
+.preview-table th {
+  font-size: 11px;
+}

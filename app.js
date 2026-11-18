@@ -799,7 +799,9 @@ function resolveMatchWinner(match, categoryId) {
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };
   races.forEach((race) => { const winner = finalRaceWinner(race, match.athlete1, match.athlete2); if (winner) wins[winner] += 1; });
   const allRacesComplete = races.every((race) => race.time1 !== null && race.time2 !== null);
-  let winnerId = wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null;
+  const athlete1DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time1 === 'DQ'));
+  const athlete2DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time2 === 'DQ'));
+  let winnerId = athlete1DqAllRaces && !athlete2DqAllRaces ? match.athlete2 : athlete2DqAllRaces && !athlete1DqAllRaces ? match.athlete1 : wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null;
   if (!winnerId && races.length === 5 && allRacesComplete && categoryId) {
     const qualificationTime1 = bestTime(categoryId, match.athlete1);
     const qualificationTime2 = bestTime(categoryId, match.athlete2);

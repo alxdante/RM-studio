@@ -894,3 +894,10 @@ body { background: #eef0ea; }
 .queue-result-row span:nth-of-type(2) {
   font-size: 15px;
 }
+
+
+.queue-result-row span:nth-of-type(5),
+.queue-result-row span:nth-of-type(6),
+.queue-result-row strong {
+  font-size: 14px;
+}

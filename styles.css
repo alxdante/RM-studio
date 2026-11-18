@@ -1024,3 +1024,10 @@ body { background: #eef0ea; }
   color: var(--ink);
   box-shadow: none;
 }
+
+
+:root[data-theme="dark"] .match-title.match-title-complete {
+  background: rgba(183, 245, 141, .26);
+  color: var(--ink);
+  box-shadow: none;
+}

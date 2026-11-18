@@ -1051,14 +1051,3 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active {
   background: transparent;
 }
-
-
-.finals-group-tiles .lane-tab.active,
-.lane-group-picker .lane-tab.active {
-  color: #b9cbc2;
-}
-
-:root[data-theme="dark"] .finals-group-tiles .lane-tab.active,
-:root[data-theme="dark"] .lane-group-picker .lane-tab.active {
-  color: #b9cbc2;
-}

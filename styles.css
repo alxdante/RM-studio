@@ -908,3 +908,9 @@ body { background: #eef0ea; }
 .queue-result-row span:nth-of-type(4) {
   font-size: 13px;
 }
+
+
+.queue-result-row span:nth-of-type(3),
+.queue-result-row span:nth-of-type(4) {
+  font-size: 12px;
+}

@@ -1036,3 +1036,10 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .match-card.final-match.selected {
   background: rgba(255, 255, 255, .04);
 }
+
+
+:root[data-theme="dark"] .toast {
+  background: #101c1d;
+  color: #e8f2e8;
+  border: 1px solid rgba(183, 245, 141, .22);
+}

@@ -36,7 +36,7 @@ jobs:
       - name: Deploy dist to Sprinthost
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.SPRINTHOST_FTP_SERVER }}
+          server: 141.8.192.182
           username: ${{ secrets.SPRINTHOST_FTP_USERNAME }}
           password: ${{ secrets.SPRINTHOST_FTP_PASSWORD }}
           protocol: ftp

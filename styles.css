@@ -1086,3 +1086,31 @@ body { background: #eef0ea; }
 .numeric-keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .numeric-keypad-grid button { min-height: 42px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.08); color: #edf7ee; font: 700 19px "DM Mono", monospace; }
 .numeric-keypad-grid button:active { background: var(--mint); color: #102529; transform: scale(.97); }
+
+/* External information display opened from the main control window. */
+body.display-mode { min-width: 0; background: #0d2224; }
+body.display-mode .topbar,
+body.display-mode #qualificationPanel,
+body.display-mode #finalsPanel,
+body.display-mode #finalsGroupPanel,
+body.display-mode .toast,
+body.display-mode #numericKeypad { display: none !important; }
+body.display-mode .app-shell,
+body.display-mode .main-content,
+body.display-mode .page-layout,
+body.display-mode .workspace { width: 100%; max-width: none; min-height: 100vh; margin: 0; padding: 0; background: #0d2224; }
+body.display-mode .display-lane-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; padding: 22px; }
+body.display-mode .display-lane-card { min-width: 0; min-height: calc(100vh - 44px); box-sizing: border-box; padding: 24px; border: 1px solid rgba(183,245,141,.22); border-radius: 14px; background: #102b2d; color: #edf7ee; display: flex; flex-direction: column; }
+body.display-mode .display-lane-head { display: flex; justify-content: space-between; color: #b7f58d; font: 700 18px "DM Mono", monospace; letter-spacing: .08em; }
+body.display-mode .display-athlete { margin: 28px 0 18px; overflow: hidden; color: #dce8df; font: 600 clamp(20px, 3vw, 42px)/1.1 "Space Grotesk", sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+body.display-mode .display-timer-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 20%); gap: 16px; flex: 1; align-items: stretch; }
+body.display-mode .display-timer-row .lane-timer-block { height: auto; min-height: 0; margin: 0; padding: 20px; border-radius: 10px; display: grid; place-items: center; }
+body.display-mode .display-timer-row .lane-time { font-size: 150px; }
+body.display-mode .display-penalty { min-width: 0; padding: 14px 10px; border: 1px solid rgba(255,179,158,.38); border-radius: 10px; background: rgba(0,0,0,.12); color: #ffb39e; display: grid; place-items: center; align-content: center; gap: 14px; text-align: center; }
+body.display-mode .display-penalty span { font: 700 14px "DM Mono", monospace; letter-spacing: .08em; }
+body.display-mode .display-penalty strong { font: 700 clamp(34px, 6vw, 86px)/1 "DSEG7", "DM Mono", monospace; }
+@media (max-width: 700px) {
+  body.display-mode .display-lane-grid { grid-template-columns: 1fr; padding: 12px; }
+  body.display-mode .display-lane-card { min-height: calc(50vh - 18px); padding: 16px; }
+  body.display-mode .display-timer-row .lane-time { font-size: 90px; }
+}

@@ -4,6 +4,7 @@ const TX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50300406e';
 const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a3-f393-e0a9-e50e24dcca9e' }];
 const STORAGE_KEY = 'slalom-timing-control-v4';
 const THEME_KEY = 'slalom-timing-theme';
+const isDisplayMode = typeof location !== 'undefined' && new URLSearchParams(location.search).has('display');
 const TIMER_LIMIT_SECONDS = 9 * 60 + 59.99;
 
 function applyTheme(theme) {
@@ -200,9 +201,10 @@ function fitTimerFonts() {
     const block = element.closest('.lane-timer-block');
     if (!block) return;
     const available = Math.max(1, block.clientWidth - 24);
-    element.style.fontSize = '92px';
+    const baseFontSize = isDisplayMode ? 160 : 92;
+    element.style.fontSize = `${baseFontSize}px`;
     const renderedWidth = element.getBoundingClientRect().width;
-    if (renderedWidth > available) element.style.fontSize = `${Math.max(24, 92 * available / renderedWidth)}px`;
+    if (renderedWidth > available) element.style.fontSize = `${Math.max(24, baseFontSize * available / renderedWidth)}px`;
   });
 }
 function birthYearOnly(value) { const raw = String(value ?? '').trim(); const match = raw.match(/^(\d{4})(?:\.0+)?$/); const year = match ? Number(match[1]) : NaN; return year >= 1900 && year <= 2100 ? year : null; }
@@ -555,7 +557,27 @@ function wireNumericPad() {
   $$('[data-numeric-key]').forEach((button) => button.addEventListener('click', () => handleNumericPadKey(button.dataset.numericKey)));
 }
 
+function displayTimerValue(lane, now) {
+  if (lane.error) return 'ERR';
+  if (lane.dq) return '--';
+  const elapsed = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time;
+  return formatTimerDisplay(elapsed);
+}
+function renderDisplayLanes() {
+  const host = $('#laneCards');
+  if (!host) return;
+  const now = Date.now();
+  host.className = 'display-lane-grid';
+  host.innerHTML = state.lanes.slice(0, 2).map((lane, index) => {
+    const athlete = athleteById(lane.athleteId);
+    const timerError = Boolean(lane.error);
+    const penaltyValue = lane.penalties >= 5 ? lane.penalties : lane.dq ? 'DQ' : lane.penalties;
+    return `<article class="display-lane-card"><div class="display-lane-head"><span>LANE ${index + 1}</span><span>${lane.running ? 'RUNNING' : lane.dq ? 'DQ' : 'READY'}</span></div><div class="display-athlete">${escapeHtml(athlete?.name || '—')}</div><div class="display-timer-row"><div class="lane-timer-block${timerError ? ' timer-error' : ''}"><strong class="lane-time">${displayTimerValue(lane, now)}</strong></div><div class="display-penalty"><span>ШТРАФЫ</span><strong>${penaltyValue}</strong></div></div></article>`;
+  }).join('');
+  fitTimerFonts();
+}
 function renderLanes() {
+  if (isDisplayMode) return renderDisplayLanes();
   wireNumericPad();
   const numericInputMode = shouldUseNumericPad() ? 'inputmode=\"none\" readonly' : 'inputmode=\"numeric\"';
   const now = Date.now();
@@ -587,7 +609,14 @@ function setFinalCategory(categoryId) { commitPendingFinalResults(); const cat =
 function resetFinalBracket() { const categoryId = state.selectedFinalCategory; const category = categoryState(categoryId); if (!category.bracket) return showToast('Финальная сетка уже пустая'); if (!confirm(`Сбросить финальную сетку категории «${categoryById(categoryId).label}»? Квалификационные результаты сохранятся.`)) return; state.raceLog = (state.raceLog || []).filter((entry) => !(entry.phase === 'finals' && entry.categoryId === categoryId)); category.bracket = null; category.selectedMatchId = null; category.standings = []; state.lanes = [createLane(categoryId), createLane(categoryId)]; state.phaseLanes.finals = state.lanes; persist(); renderAll(); showToast('Финальная сетка и её история сброшены. Выберите плитку категории, чтобы собрать её заново.'); }
 function renderFinalGroupPanel() { const host = $('#finalsGroupPanel'); if (!host) return; const finalsPanel = $('#finalsPanel'); const workspace = document.querySelector('.workspace'); if (state.phase !== 'finals') { host.classList.add('hidden'); if (finalsPanel && finalsPanel.parentElement === host) document.querySelector('.main-content')?.append(finalsPanel); return; } host.classList.remove('hidden'); if (finalsPanel && workspace && finalsPanel.parentElement !== workspace) workspace.append(finalsPanel); const active = new Set(activeCategoryIds()); const ageOrder = new Map(sortedAgeGroups().map((group, index) => [group.id, index])); const tiles = CATEGORIES.filter((category) => active.has(category.id)).sort((a, b) => ageOrder.get(a.ageId) - ageOrder.get(b.ageId) || ((a.gender === 'girls' || a.gender === 'women') ? -1 : 1) - ((b.gender === 'girls' || b.gender === 'women') ? -1 : 1)).map((category) => { const completed = categoryState(category.id).attempt > 2; const selected = state.selectedFinalCategory === category.id; const count = athletesForCategory(category.id).length; const gender = category.label.split(' · ')[1]; const age = AGE_GROUPS.find((group) => group.id === category.ageId); return `<button class="lane-tab ${selected ? 'active' : ''} ${completed ? 'completed' : ''}" ${completed ? '' : 'disabled'} data-final-category="${category.id}"><span class="lane-tab-gender">${escapeHtml(gender)}</span><span class="lane-tab-age">${escapeHtml(age?.label || category.label)}</span><small>${count}</small></button>`; }).join(''); const tileCount = Math.max(1, CATEGORIES.filter((category) => active.has(category.id)).length); host.innerHTML = `<div class="finals-group-strip"><div class="finals-group-tiles" style="grid-template-columns:repeat(${tileCount}, minmax(0, 1fr));">${tiles}</div></div>`; $$('[data-final-category]').forEach((button) => button.addEventListener('click', () => setFinalCategory(button.dataset.finalCategory))); }
 function renderPanels() { $$('.phase-tab').forEach((button) => button.classList.toggle('active', button.dataset.phase === state.phase)); $('#qualificationPanel').classList.toggle('hidden', state.phase !== 'qualification'); $('#finalsPanel').classList.toggle('hidden', state.phase !== 'finals'); $('#laneCards').classList.toggle('finals-mode', state.phase === 'finals'); }
-function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); const mobile = shouldUseNumericPad(); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.toggle('hidden', !mobile); $('#startAllBtn').disabled = !online || reviewOnly || modeDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = false; }
+function openDisplayWindow() {
+  const url = new URL(location.href);
+  url.searchParams.delete('display');
+  url.searchParams.set('display', '1');
+  const displayWindow = window.open(url.toString(), 'sst-display', 'popup=yes,width=1280,height=720');
+  if (!displayWindow) showToast('Разрешите открытие всплывающих окон для табло');
+}
+function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = !online || reviewOnly || modeDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = false; }
 function renderFinals() { if (!state.selectedFinalCategory) { $('#bracketBoard').innerHTML = '<div class="bracket-empty">Выберите группу, чтобы открыть финальную сетку.</div>'; return; } const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
 function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); }
 
@@ -1090,16 +1119,25 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
 }
 function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const races = ensureMatchRaces(match); const unfinishedIndex = races.findIndex((race) => race.time1 === null || race.time2 === null); const raceIndex = unfinishedIndex >= 0 ? unfinishedIndex : Math.max(0, races.length - 1); selectFinalRaceForTiming(categoryId, matchId, raceIndex); }
 
-  function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#confirmDisconnectBtn').addEventListener('click', disconnectBle); document.addEventListener('pointerdown', (event) => { const confirm = $('#bleDisconnectConfirm'); if (confirm?.dataset.open === 'true' && !event.target.closest('.ble-action-wrap')) { confirm.dataset.open = 'false'; confirm.classList.add('hidden'); } }); $('#themeToggle').addEventListener('click', toggleTheme); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', openQualificationExportModal); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#cancelQualificationExportBtn').addEventListener('click', closeQualificationExportModal); $('#backToListsFromExportBtn').addEventListener('click', backToListsFromQualificationExport); $('#cancelQualificationExportBtnBottom').addEventListener('click', closeQualificationExportModal); $('#confirmQualificationExportBtn').addEventListener('click', exportSelectedQualification); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#openCorrectionsBtn').addEventListener('click', openCorrectionsModal); $('#backToListsFromCorrectionsBtn').addEventListener('click', backToListsFromCorrections); $('#closeCorrectionsBtn').addEventListener('click', closeCorrectionsModal); $('#closeCorrectionsBtnBottom').addEventListener('click', closeCorrectionsModal); $('#correctionsRows').addEventListener('click', (event) => { const save = event.target.closest('[data-correction-save]'); const replace = event.target.closest('[data-correction-replace]'); const remove = event.target.closest('[data-correction-delete]'); if (save) editQualificationResult(save.dataset.correctionSave); if (replace) replaceQualificationResult(replace.dataset.correctionReplace); if (remove) deleteQualificationResult(remove.dataset.correctionDelete); }); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#closeFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#cancelFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#confirmFinalSizeBtn').addEventListener('click', confirmFinalSize); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#backToListsFromImportBtn').addEventListener('click', backToListsFromImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $('#backToListsFromAddGroupBtn').addEventListener('click', backToListsFromAddGroup); $('#ageGroupEditorList').addEventListener('click', (event) => { const remove = event.target.closest('[data-remove-age-group]'); if (remove) removeAgeGroup(remove.dataset.removeAgeGroup); }); $('#ageGroupForm').addEventListener('submit', (event) => { event.preventDefault(); addCustomAgeGroup(); }); $('#ageGroupUnlimited').addEventListener('change', () => { $('#ageGroupMax').disabled = $('#ageGroupUnlimited').checked; }); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
+  function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#confirmDisconnectBtn').addEventListener('click', disconnectBle); $('#futureFunctionsBtn').addEventListener('click', openDisplayWindow); document.addEventListener('pointerdown', (event) => { const confirm = $('#bleDisconnectConfirm'); if (confirm?.dataset.open === 'true' && !event.target.closest('.ble-action-wrap')) { confirm.dataset.open = 'false'; confirm.classList.add('hidden'); } }); $('#themeToggle').addEventListener('click', toggleTheme); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', openQualificationExportModal); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#cancelQualificationExportBtn').addEventListener('click', closeQualificationExportModal); $('#backToListsFromExportBtn').addEventListener('click', backToListsFromQualificationExport); $('#cancelQualificationExportBtnBottom').addEventListener('click', closeQualificationExportModal); $('#confirmQualificationExportBtn').addEventListener('click', exportSelectedQualification); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#openCorrectionsBtn').addEventListener('click', openCorrectionsModal); $('#backToListsFromCorrectionsBtn').addEventListener('click', backToListsFromCorrections); $('#closeCorrectionsBtn').addEventListener('click', closeCorrectionsModal); $('#closeCorrectionsBtnBottom').addEventListener('click', closeCorrectionsModal); $('#correctionsRows').addEventListener('click', (event) => { const save = event.target.closest('[data-correction-save]'); const replace = event.target.closest('[data-correction-replace]'); const remove = event.target.closest('[data-correction-delete]'); if (save) editQualificationResult(save.dataset.correctionSave); if (replace) replaceQualificationResult(replace.dataset.correctionReplace); if (remove) deleteQualificationResult(remove.dataset.correctionDelete); }); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#closeFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#cancelFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#confirmFinalSizeBtn').addEventListener('click', confirmFinalSize); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#backToListsFromImportBtn').addEventListener('click', backToListsFromImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $('#backToListsFromAddGroupBtn').addEventListener('click', backToListsFromAddGroup); $('#ageGroupEditorList').addEventListener('click', (event) => { const remove = event.target.closest('[data-remove-age-group]'); if (remove) removeAgeGroup(remove.dataset.removeAgeGroup); }); $('#ageGroupForm').addEventListener('submit', (event) => { event.preventDefault(); addCustomAgeGroup(); }); $('#ageGroupUnlimited').addEventListener('change', () => { $('#ageGroupMax').disabled = $('#ageGroupUnlimited').checked; }); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
   function wireFrsEvents() { $('#frsConnectBtn').addEventListener('click', () => { closeListsModal(); openFrsConnectModal(); }); $('#closeFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#cancelFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#confirmFrsConnectBtn').addEventListener('click', () => connectFrsServer().catch((error) => { setFrsStatus(false); showToast(`Ошибка ФРС: ${error.message}`); })); }
   function wireRosterCorrectionEvents() { $('#correctionsRosterRows').addEventListener('click', (event) => { const remove = event.target.closest('[data-roster-delete]'); const dq = event.target.closest('[data-final-dq]'); if (remove) removeAthleteFromCompetition(remove.dataset.rosterDelete); if (dq) markAthleteFinalDQ(dq.dataset.finalDq); }); $('#correctionsAthleteSearch').addEventListener('input', renderCorrections); $('#addAthleteBirthDate').addEventListener('input', formatBirthDateInput); $('#addAthleteForm').addEventListener('submit', (event) => { event.preventDefault(); addAthleteFromCorrections(); }); }
 
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
-wireQueueResizers();
-wireEvents();
-wireFrsEvents();
-wireRosterCorrectionEvents();
-renderAll();
-setFrsStatus(Boolean(state.frs?.online), state.frs?.online ? 'online' : 'offline');
+if (isDisplayMode) {
+  document.body.classList.add('display-mode');
+  renderDisplayLanes();
+  window.addEventListener('storage', (event) => {
+    if (event.key !== STORAGE_KEY || !event.newValue) return;
+    try { state = migrateState(JSON.parse(event.newValue)); ensurePhaseLanes(); renderDisplayLanes(); } catch (_) { /* keep the last valid display state */ }
+  });
+} else {
+  wireQueueResizers();
+  wireEvents();
+  wireFrsEvents();
+  wireRosterCorrectionEvents();
+  renderAll();
+  setFrsStatus(Boolean(state.frs?.online), state.frs?.online ? 'online' : 'offline');
+}
 setInterval(() => { if (state.lanes.some((lane) => lane.running)) renderLanes(); }, 500);
-window.addEventListener('beforeunload', () => persist());
+if (!isDisplayMode) window.addEventListener('beforeunload', () => persist());

@@ -4,6 +4,7 @@ const TX_UUID = '9ecadc24-0ee5-a9e0-93f3-a3b50300406e';
 const BLE_PROFILES = [{ service: SERVICE_UUID, rx: RX_UUID, tx: TX_UUID }, { service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', rx: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', tx: '6e400003-b5a3-f393-e0a9-e50e24dcca9e' }];
 const STORAGE_KEY = 'slalom-timing-control-v4';
 const THEME_KEY = 'slalom-timing-theme';
+const TIMER_LIMIT_SECONDS = 9 * 60 + 59.99;
 
 function applyTheme(theme) {
   const dark = theme === 'dark';
@@ -187,6 +188,23 @@ function bestTime(categoryId, athleteId) { const values = [1, 2].map((attempt) =
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatBestTime(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
+function formatTimerDisplay(value) {
+  if (!Number.isFinite(value)) return '0.000';
+  if (value < 60) return Number(value).toFixed(3);
+  const minutes = Math.floor(value / 60);
+  const seconds = (value - minutes * 60).toFixed(2).padStart(5, '0');
+  return `${minutes}:${seconds}`;
+}
+function fitTimerFonts() {
+  $$('.lane-time').forEach((element) => {
+    const block = element.closest('.lane-timer-block');
+    if (!block) return;
+    const available = Math.max(1, block.clientWidth - 24);
+    element.style.fontSize = '92px';
+    const renderedWidth = element.getBoundingClientRect().width;
+    if (renderedWidth > available) element.style.fontSize = `${Math.max(24, 92 * available / renderedWidth)}px`;
+  });
+}
 function birthYearOnly(value) { const raw = String(value ?? '').trim(); const match = raw.match(/^(\d{4})(?:\.0+)?$/); const year = match ? Number(match[1]) : NaN; return year >= 1900 && year <= 2100 ? year : null; }
 function parseBirthDateValue(value) { const yearOnly = birthYearOnly(value); if (yearOnly) return new Date(Date.UTC(yearOnly, 0, 1)); if (value instanceof Date) return new Date(value.getTime()); if (typeof value === 'number' && Number.isFinite(value)) return new Date(Date.UTC(1899, 11, 30) + value * 86400000); const raw = String(value ?? '').trim(); if (!raw) return null; if (/^\d{4,6}(?:\.0+)?$/.test(raw)) return new Date(Date.UTC(1899, 11, 30) + Number(raw) * 86400000); const rus = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+.*)?$/); const parsed = rus ? new Date(Number(rus[3]), Number(rus[2]) - 1, Number(rus[1])) : new Date(raw); return Number.isNaN(parsed.getTime()) ? null : parsed; }
 function normalizeBirthDate(value) { const yearOnly = birthYearOnly(value); if (yearOnly) return String(yearOnly); const parsed = parseBirthDateValue(value); return parsed ? `${String(parsed.getDate()).padStart(2, '0')}.${String(parsed.getMonth() + 1).padStart(2, '0')}.${parsed.getFullYear()}` : String(value ?? '').trim(); }
@@ -543,9 +561,10 @@ function renderLanes() {
   const now = Date.now();
   const existingFinalsPanel = $('#finalsPanel'); const laneCardsHost = $('#laneCards'); if (existingFinalsPanel && laneCardsHost && existingFinalsPanel.parentElement === laneCardsHost) document.querySelector('.main-content')?.append(existingFinalsPanel);
   $('#laneCards').innerHTML = state.lanes.map((lane, index) => {
-    const runningTime = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time; const displayTime = lane.dq ? (Number.isFinite(lane.historyDqTime) ? formatClock(lane.historyDqTime) : '--') : formatClock(runningTime); const nextAthlete = nextAthleteForLane(index); const nextCandidates = nextAthlete ? [nextAthlete] : []; const crownCount = finalWinsForAthlete(lane.athleteId); const crowns = crownCount ? `<span class="lane-win-crowns" aria-label="Duel wins: ${crownCount}">${'♛ '.repeat(crownCount).trim()}</span>` : ''; const timerDisabled = modeIsSynchronized() && currentModeDisabled(); const timerError = ble.connected && Boolean(bleState.errors[index + 1]); const timerReady = modeIsSynchronized() && !timerDisabled && !timerError; const timerStatus = `${timerReady ? ' timer-ready' : ''}${timerDisabled ? ' timer-disabled' : ''}${timerError ? ' timer-error' : ''}`; const timerLabel = timerError ? `ERROR LANE ${index + 1}` : timerDisabled ? 'DISABLED' : timerReady ? 'READY' : '';
+    const runningTime = lane.running && Number.isFinite(lane.startedAt) ? (now - lane.startedAt) / 1000 : lane.time; const displayTime = lane.error ? 'ERR' : lane.dq ? (Number.isFinite(lane.historyDqTime) ? formatTimerDisplay(lane.historyDqTime) : '--') : formatTimerDisplay(runningTime); const nextAthlete = nextAthleteForLane(index); const nextCandidates = nextAthlete ? [nextAthlete] : []; const crownCount = finalWinsForAthlete(lane.athleteId); const crowns = crownCount ? `<span class="lane-win-crowns" aria-label="Duel wins: ${crownCount}">${'♛ '.repeat(crownCount).trim()}</span>` : ''; const timerDisabled = modeIsSynchronized() && currentModeDisabled(); const timerError = Boolean(lane.error) || (ble.connected && Boolean(bleState.errors[index + 1])); const timerReady = modeIsSynchronized() && !timerDisabled && !timerError; const timerStatus = `${timerReady ? ' timer-ready' : ''}${timerDisabled ? ' timer-disabled' : ''}${timerError ? ' timer-error' : ''}`; const timerLabel = timerError ? `ERROR LANE ${index + 1}` : timerDisabled ? 'DISABLED' : timerReady ? 'READY' : '';
     return `<div class="lane-card-wrap"><article class="lane-card ${lane.running ? 'active' : ''} ${Number.isFinite(lane.time) && !lane.running ? 'finished' : ''} ${lane.dq ? 'dq' : ''}${lane.reviewOnly ? ' review-only' : ''}"><div class="lane-top lane-group-toggle"><span class="lane-number">LANE ${index + 1}</span></div>${laneCategoryPicker(lane, index)}<div class="lane-athlete-name"><span class="lane-athlete-label">${escapeHtml(athleteById(lane.athleteId)?.name || 'Next skater')}</span></div><div class="lane-fs-controls"><button type="button" class="fs-button ${lane.falseStarts >= 1 ? 'active' : ''}" data-false-start="${index}" data-fs-number="1"${lane.reviewOnly ? ' disabled' : ''}>FS</button><button type="button" class="fs-button ${lane.falseStarts >= 2 ? 'active' : ''}" data-false-start="${index}" data-fs-number="2"${lane.reviewOnly ? ' disabled' : ''}>FS</button></div><div class="lane-timer-row"><div class="lane-timer-block${timerStatus}" title="${timerError ? escapeHtml(bleState.errors[index + 1]) : timerDisabled ? `${modeDisabledLabel()} = true` : ''}">${timerLabel ? `<span class="timer-state-label">${timerLabel}</span>` : ''}${crowns}<strong class="lane-time">${displayTime}</strong></div><div class="penalty-panel"><input data-lane-penalties="${index}" type="text" pattern="[0-9]*" autocomplete="off" ${numericInputMode} maxlength="2" max="25" value="${lane.dq ? 'DQ' : lane.penalties}" aria-label="Penalties lane ${index + 1}"${lane.reviewOnly ? ' disabled' : ''} /></div></div><div class="lane-next-row"><button data-promote-prev="${index}" class="queue-arrow queue-arrow-prev" ${lane.queueHistory?.length ? '' : 'disabled'} aria-label="Previous skater">←</button><button data-promote-next="${index}" class="next-athlete-trigger" ${nextCandidates.length || lane.pendingResult ? '' : 'disabled'}><span>${nextCandidates.length ? 'NEXT' : lane.pendingResult ? 'SAVE' : 'NO NEXT'}</span><strong>${escapeHtml(nextAthlete?.name || (lane.pendingResult ? 'record result' : ''))}</strong><b>${nextCandidates.length ? '→' : lane.pendingResult ? '✓' : ''}</b></button><div class="manual-result"><input data-manual-time="${index}" type="text" pattern="[0-9]*" autocomplete="off" ${numericInputMode} maxlength="6" placeholder="---" aria-label="Manual time lane ${index + 1}" /></div><div class="penalty-quick-controls"><div class="penalty-quick-row">${[1, 2, 3, 4].map((value) => `<button type="button" class="${lane.penalties === value && !lane.dq ? 'active' : ''}" data-quick-penalty="${index}" data-penalty-value="${value}"${lane.reviewOnly ? ' disabled' : ''}>${value}</button>`).join('')}</div><button type="button" class="penalty-dq ${lane.dq ? 'active' : ''}" data-lane-dq="${index}"${lane.reviewOnly ? ' disabled' : ''}>DQ</button></div></div></article><section class="lane-waiting"><div class="queue-result-header"><span>№</span><span data-queue-column="athlete">ATHLETE<i class="queue-resize-handle" data-queue-resize="athlete" data-queue-column-index="1" aria-label="Resize ATHLETE column"></i></span><span data-queue-column="dob">DOB<i class="queue-resize-handle" data-queue-resize="dob" data-queue-column-index="2" aria-label="Resize DOB column"></i></span><span data-queue-column="region">REGION</span><span>TT1</span><span>TT2</span><span>BEST TT</span></div><div class="waiting-list">${waitingListHtml(lane, index)}</div></section></div>`;
   }).join('');
+  fitTimerFonts();
   applyQueueColumnWidths(); updateQueueResizeLabels();
   $$('[data-lane-tab]').forEach((button) => button.addEventListener('click', () => setLaneCategory(Number(button.dataset.laneTab), button.dataset.categoryId)));
   $$('[data-promote-next]').forEach((button) => button.addEventListener('click', () => promoteNextAthlete(Number(button.dataset.promoteNext))));
@@ -572,7 +591,23 @@ function renderBle() { const online = ble.connected; const reviewOnly = state.ph
 function renderFinals() { if (!state.selectedFinalCategory) { $('#bracketBoard').innerHTML = '<div class="bracket-empty">Выберите группу, чтобы открыть финальную сетку.</div>'; return; } const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
 function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); }
 
-function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 70); }
+function stopExpiredTimers() {
+  let changed = false;
+  state.lanes.forEach((lane) => {
+    if (!lane.running || !Number.isFinite(lane.startedAt)) return;
+    const elapsed = (Date.now() - lane.startedAt) / 1000;
+    if (elapsed >= TIMER_LIMIT_SECONDS) {
+      lane.running = false;
+      lane.startedAt = null;
+      lane.time = null;
+      lane.error = 'ERR';
+      changed = true;
+    }
+  });
+  if (changed) persist();
+  return changed;
+}
+function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { stopExpiredTimers(); if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 70); }
 
 function startAllLanes() {
   if (currentModeDisabled()) return showToast(`${modeDisabledLabel()} = true`);
@@ -736,7 +771,7 @@ function parseBleLine(line) {
     if (currentModeDisabled()) return showToast(`Старт заблокирован: ${modeDisabledLabel()} = true`);
     const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1];
     const demoStart = demoStartAllowed();
-    indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false || (!demoStart && !state.lanes[index].athleteId)) return; state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); });
+    indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false || (!demoStart && !state.lanes[index].athleteId)) return; state.lanes[index].error = null; state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); });
     persist(); renderLanes(); startTicker();
   } else if (type === 'reset') {
     clearInterval(timerHandle);

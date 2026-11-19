@@ -479,8 +479,24 @@ function openNumericPad(input) {
   const pad = $('#numericKeypad');
   if (!pad) return;
   $('#numericKeypadLabel').textContent = input.matches('[data-lane-penalties]') ? 'Штраф' : 'Время';
+  pad.style.left = '0px';
+  pad.style.top = '0px';
+  pad.style.right = 'auto';
+  pad.style.bottom = 'auto';
   pad.classList.remove('hidden');
   input.focus({ preventScroll: true });
+  const rect = input.getBoundingClientRect();
+  const gap = 8;
+  const margin = 12;
+  const keypadWidth = pad.offsetWidth;
+  const keypadHeight = pad.offsetHeight;
+  const left = Math.max(margin, Math.min(rect.left, window.innerWidth - keypadWidth - margin));
+  const below = rect.bottom + gap;
+  const top = below + keypadHeight <= window.innerHeight - margin
+    ? below
+    : Math.max(margin, rect.top - keypadHeight - gap);
+  pad.style.left = `${left}px`;
+  pad.style.top = `${top}px`;
 }
 
 function handleNumericPadKey(key) {

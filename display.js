@@ -88,27 +88,11 @@ function fitDisplayLayout() {
     lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
     return;
   }
-  board.style.height = 'calc(100vh - 75px)';
-  board.style.gridTemplateRows = 'none';
-  const boardStyle = getComputedStyle(board);
-  const gap = parseFloat(boardStyle.rowGap) || 0;
-  const horizontalPadding = (parseFloat(boardStyle.paddingLeft) || 0) + (parseFloat(boardStyle.paddingRight) || 0);
-  const contentWidth = Math.max(1, board.clientWidth - horizontalPadding);
-  const horizontalBlockWidth = Math.max(1, (contentWidth - gap) / 2);
-  lanes.forEach((lane) => {
-    lane.style.width = `${horizontalBlockWidth}px`;
-    lane.style.transform = 'none';
-    lane.style.transformOrigin = 'center center';
-  });
+  board.style.height = '';
+  board.style.gridTemplateRows = '';
+  board.style.rowGap = '';
+  lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
   fitTimers();
-  const naturalHeight = Math.max(...lanes.map((lane) => lane.getBoundingClientRect().height));
-  const availableHeight = Math.max(1, board.clientHeight - gap * (lanes.length - 1));
-  const heightScale = availableHeight / (naturalHeight * lanes.length);
-  const widthScale = contentWidth / horizontalBlockWidth;
-  const scale = Math.min(heightScale, widthScale);
-  board.style.gridTemplateRows = `repeat(${lanes.length}, ${naturalHeight * scale}px)`;
-  board.style.rowGap = `${gap * scale}px`;
-  lanes.forEach((lane) => { lane.style.transform = `scale(${scale})`; lane.style.transformOrigin = 'center center'; });
 }
 
 function loadState() {

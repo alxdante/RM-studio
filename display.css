@@ -445,3 +445,13 @@ body.stacked-layout .display-lane .lane-box {
   padding-top: clamp(10px, 1.5vw, 22px);
   padding-bottom: clamp(10px, 1.5vw, 22px);
 }
+body.stacked-layout .current-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
+body.stacked-layout .penalty-container,
+body.stacked-layout .next-athlete {
+  height: clamp(52px, 6.5vw, 108px);
+  margin-top: clamp(6px, .7vw, 12px);
+  overflow: hidden;
+}
+body.stacked-layout .next-athlete { padding-top: 6px; padding-bottom: 6px; }
+body.stacked-layout .next-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
+body.stacked-layout .penalty-value { padding-top: clamp(18px, 1.8vw, 30px); padding-bottom: 4px; overflow: hidden; }

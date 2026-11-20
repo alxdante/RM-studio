@@ -779,6 +779,7 @@ body { background: #eef0ea; }
 .corrections-log-heading {
   margin-top: 20px;
   margin-bottom: 8px;
+  font-size: 14px !important;
 }
 
 .corrections-roster-table-wrap {

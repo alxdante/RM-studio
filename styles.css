@@ -468,7 +468,9 @@ body { background: #eef0ea; }
 
 /* Theme switcher and dark mode. */
 .btn-theme { width: 35px; min-width: 35px; height: 35px; min-height: 35px; padding: 0; border: 1px solid var(--line); background: transparent; color: var(--ink); font: 9px "DM Mono", monospace; letter-spacing: .08em; }
-.btn-theme:hover:not(:disabled), .btn-theme:focus, .btn-theme:focus-visible { border-color: var(--line); background: var(--paper-2); outline: none; box-shadow: none; }
+.btn-theme:hover:not(:disabled) { border-color: var(--line); background: var(--paper-2); }
+.top-future-functions:focus, .top-future-functions:focus-visible,
+.btn-theme:focus, .btn-theme:focus-visible { border-color: var(--line); background: transparent; outline: none; box-shadow: none; }
 
 :root[data-theme="dark"] {
   --ink: #e4f0e8;

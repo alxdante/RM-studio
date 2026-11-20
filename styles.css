@@ -852,6 +852,7 @@ body { background: #eef0ea; }
   min-height: 44px;
   padding: 10px 12px;
   font-size: 15px;
+  border-radius: 8px;
 }
 
 .corrections-card .add-athlete-fields input,

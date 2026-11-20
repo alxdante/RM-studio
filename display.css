@@ -346,8 +346,8 @@ body {
 .display-header > .display-fullscreen + .display-fullscreen { margin-left: 6px; }
 .layout-toggle-icon {
   display: block;
-  width: 27px;
-  height: 27px;
+  width: 37px;
+  height: 37px;
   margin: 0 auto;
 }
 .layout-toggle-icon svg,
@@ -367,14 +367,14 @@ body {
 .timer-color-icon svg { stroke: none; }
 .fullscreen-icon {
   display: block;
-  width: 27px;
-  height: 27px;
+  width: 37px;
+  height: 37px;
   margin: 0 auto;
 }
 .timer-color-icon {
   display: block;
-  width: 25px;
-  height: 25px;
+  width: 37px;
+  height: 37px;
   margin: 0 auto;
 }
 .timer-color-icon svg {

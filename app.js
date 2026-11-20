@@ -262,7 +262,9 @@ function nextAthleteForLane(index, advancing = false) {
   const order = qualificationSequence(categoryId, attempt);
   const currentPosition = order.findIndex((athlete) => athlete.id === currentId);
   if (currentPosition < 0) return null;
-  for (let position = currentPosition + 2; position < order.length; position += 2) {
+  const sharedCategory = state.lanes.some((other, otherIndex) => otherIndex !== index && other.categoryId === categoryId && other.athleteId);
+  const queueStep = sharedCategory ? 2 : 1;
+  for (let position = currentPosition + queueStep; position < order.length; position += queueStep) {
     const athlete = order[position];
     if (!skipped.has(athlete.id) && !hasRecordedResult(categoryId, athlete.id, attempt) && !otherCurrentIds.has(athlete.id)) return athlete;
   }

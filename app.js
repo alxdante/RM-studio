@@ -341,6 +341,9 @@ function commitLaneResult(index) {
 function recalculateLanePenalty(index) {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return;
+  if (lane && !lane.athleteId && Number.isFinite(lane.demoRawTime)) {
+    lane.time = Number((lane.demoRawTime + lane.penalties * 0.2).toFixed(3));
+  }
   if (lane?.pendingResult) {
     lane.pendingResult.penalties = lane.penalties;
     lane.pendingResult.dq = lane.dq;
@@ -661,6 +664,7 @@ function resetAllLanes() {
     lane.running = false;
     lane.startedAt = null;
     lane.time = null;
+    lane.demoRawTime = null;
     if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; }
     lane.error = null;
   });
@@ -715,7 +719,8 @@ function applyLaneResult(index, time, source = 'ble') {
   lane.running = false;
   lane.startedAt = null;
   if (!lane.athleteId) {
-    lane.time = Number(result.toFixed(3));
+    lane.demoRawTime = result;
+    lane.time = Number((result + lane.penalties * 0.2).toFixed(3));
     lane.error = null;
     persist();
     renderAll();

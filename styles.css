@@ -714,7 +714,9 @@ body { background: #eef0ea; }
 .corrections-card .corrections-table th, .corrections-card .corrections-table td { padding: 12px 9px; font-size: 13px; }
 .corrections-card .corrections-table th { font-size: 11px; }
 .corrections-card .corrections-table select { padding: 8px; font-size: 12px; border-radius: 6px; }
-.corrections-card .correction-value-input { width: 76px; box-sizing: border-box; padding: 8px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 12px "DM Mono", monospace; }
+.corrections-card .correction-value-input { width: 76px; box-sizing: border-box; padding: 8px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); font: 600 16px "DM Mono", monospace; text-align: center; appearance: textfield; -moz-appearance: textfield; }
+.corrections-card .correction-value-input::-webkit-inner-spin-button,
+.corrections-card .correction-value-input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
 .corrections-card .correction-penalty-input { width: 58px; }
 .corrections-card .modal-actions .btn { font-size: 13px; }
 

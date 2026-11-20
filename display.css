@@ -312,9 +312,9 @@ body {
   transform: translateX(-50%);
   text-align: center;
 }
-.next-athlete-name { font-size: clamp(22px, 3vw, 52px); }
+.next-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
 @media (max-width: 720px) {
-  .next-athlete-name { font-size: clamp(20px, 6vw, 36px); }
+  .next-athlete-name { font-size: clamp(18px, 5.2vw, 32px); }
 }
 
 /* Final polish for the permanently dark display header. */

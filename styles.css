@@ -1114,3 +1114,31 @@ body.display-mode .display-penalty strong { font: 700 clamp(34px, 6vw, 86px)/1 "
   body.display-mode .display-lane-card { min-height: calc(50vh - 18px); padding: 16px; }
   body.display-mode .display-timer-row .lane-time { font-size: 90px; }
 }
+
+/* Reference-style external panel: black timing board with green headers and red DSEG timers. */
+.top-future-functions { font-size: 11px; }
+body.display-mode { background: #111; color: #fff; font-family: "Courier New", monospace; text-align: center; padding: 1.5vw 0; }
+body.display-mode .app-shell,
+body.display-mode .main-content,
+body.display-mode .page-layout,
+body.display-mode .workspace { background: #111; }
+body.display-mode .display-lane-grid { display: flex; justify-content: space-between; gap: 1%; padding: 0 10px; box-sizing: border-box; width: 100%; margin-top: 1vw; }
+body.display-mode .display-lane-card { width: 49.5%; min-width: 0; min-height: 0; box-sizing: border-box; padding: 0; border: 0; border-radius: 0; background: transparent; color: #fff; display: flex; flex-direction: column; }
+body.display-mode .display-lane-head { display: block; color: #0f0; font: bold 2.5vw/1 "Courier New", monospace; letter-spacing: 0; margin-bottom: 1vw; text-align: center; }
+body.display-mode .display-lane-head span:last-child { display: none; }
+body.display-mode .display-athlete { order: 3; margin: .8vw 0 0; color: #aaa; font: bold 1.6vw/1.2 "Courier New", monospace; text-overflow: ellipsis; white-space: nowrap; }
+body.display-mode .display-timer-row { display: flex; flex-direction: column; gap: 1vw; flex: none; align-items: stretch; }
+body.display-mode .display-timer-row .lane-timer-block { height: auto; min-height: 0; padding: 35px 5px; border: 2px solid #333; border-radius: 0; background: #000; display: block; box-sizing: border-box; }
+body.display-mode .display-timer-row .lane-timer-block.timer-ready,
+body.display-mode .display-timer-row .lane-timer-block.timer-error { border-color: #0f0; box-shadow: inset 0 0 15px rgba(0,255,0,.2); }
+body.display-mode .display-timer-row .lane-time { display: block; width: 100%; overflow: hidden; color: #f00; font-family: "DSEG7", "Courier New", monospace; font-size: 11.5vw; line-height: 1; letter-spacing: -.02em; text-shadow: 0 0 25px #500; white-space: nowrap; }
+body.display-mode .display-penalty { order: 2; display: flex; justify-content: flex-end; align-items: center; gap: 1vw; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: #aaa; text-align: right; }
+body.display-mode .display-penalty span { font: bold 1.6vw "Courier New", monospace; letter-spacing: 0; }
+body.display-mode .display-penalty strong { width: 10vw; height: 10vw; max-width: 180px; max-height: 180px; min-width: 60px; min-height: 60px; box-sizing: border-box; border: 2px solid #333; background: #000; color: #ffaa00; display: grid; place-items: center; font: bold 5vw/1 "DSEG7", "Courier New", monospace; }
+@media (max-width: 700px) {
+  body.display-mode .display-lane-grid { gap: 1%; padding: 0 6px; }
+  body.display-mode .display-lane-head { font-size: 5vw; }
+  body.display-mode .display-athlete,
+  body.display-mode .display-penalty span { font-size: 3vw; }
+  body.display-mode .display-timer-row .lane-time { font-size: 11.5vw; }
+}

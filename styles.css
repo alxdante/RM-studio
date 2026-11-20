@@ -718,6 +718,12 @@ body { background: #eef0ea; }
 .corrections-card .correction-value-input::-webkit-inner-spin-button,
 .corrections-card .correction-value-input::-webkit-outer-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
 .corrections-card .correction-penalty-input { width: 58px; }
+.corrections-card .correction-attempt-group { white-space: nowrap; background: color-mix(in srgb, var(--paper-2) 62%, transparent); border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.corrections-card .correction-attempt-one { border-left-color: var(--orange); }
+.corrections-card .correction-attempt-two { border-left-color: var(--teal); }
+.corrections-card .correction-empty-value { display: inline-block; width: 76px; padding: 8px 6px; color: var(--muted); text-align: center; font: 600 15px "DM Mono", monospace; }
+.corrections-card .correction-attempt-group .correction-delete { margin-left: 8px; padding: 7px 8px; border: 1px solid currentColor; border-radius: 6px; background: transparent; font: 600 11px "DM Mono", monospace; }
+.corrections-card .correction-attempt-group .correction-delete:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .corrections-card .modal-actions .btn { font-size: 13px; }
 
 

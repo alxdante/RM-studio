@@ -316,3 +316,6 @@ body {
 @media (max-width: 720px) {
   .next-athlete-name { font-size: clamp(16px, 5vw, 30px); }
 }
+
+/* Final polish for the permanently dark display header. */
+.display-header { background: #2b2b2b !important; }

@@ -907,7 +907,19 @@ function confirmImport() { if (!pendingImport?.roster?.length) return; if (state
 function openListsModal() { renderListsSummary(); $('#listsModal').classList.remove('hidden'); }
 function closeListsModal() { $('#listsModal').classList.add('hidden'); }
 function renderListsSummary() { const count = $('#listsRosterCount'); if (count) count.textContent = String(state.roster.length); }
-function qualificationLogEntries() { const superseded = new Set((state.raceLog || []).filter((entry) => entry.correctionOf && entry.correctionAction).map((entry) => entry.correctionOf)); return (state.raceLog || []).filter((entry) => entry.phase === 'qualification' && !entry.correctionAction && !superseded.has(entry.id)).slice().reverse(); }
+function qualificationLogEntries() {
+  const entries = [];
+  state.roster.forEach((athlete) => {
+    const categoryId = categoryForAthlete(athlete).id;
+    [1, 2].forEach((attempt) => {
+      if (!hasRecordedResult(categoryId, athlete.id, attempt)) return;
+      const log = latestQualificationLog(categoryId, athlete.id, attempt);
+      if (!log) return;
+      entries.push({ ...log, adjustedTime: isQualificationDQ(categoryId, athlete.id, attempt) ? null : getTime(categoryId, athlete.id, attempt), penalties: getPenalty(categoryId, athlete.id, attempt), dq: isQualificationDQ(categoryId, athlete.id, attempt) });
+    });
+  });
+  return entries.sort((a, b) => (b.at || 0) - (a.at || 0));
+}
 function openCorrectionsModal() { closeListsModal(); renderCorrections(); $('#correctionsModal').classList.remove('hidden'); }
 function closeCorrectionsModal() { $('#correctionsModal').classList.add('hidden'); }
 function backToListsFromCorrections() { closeCorrectionsModal(); openListsModal(); }

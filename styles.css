@@ -273,9 +273,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .ble-disconnect-confirm span { display: block; text-align: center; }
 .ble-disconnect-confirm button { width: 100%; min-height: 42px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.08); color: #edf7ee; font: 700 14px "DM Mono", monospace; cursor: pointer; }
 .ble-disconnect-confirm button:hover, .ble-disconnect-confirm button:active { background: var(--mint); color: #102529; }
-.top-future-functions { display: none; padding: .7vw 1.5vw; min-height: 35px; background: #222; color: #fff; border: 1px solid #444; font-size: clamp(11px, 1.1vw, 16px); cursor: pointer; }
+.top-future-functions { display: none; }
 .top-future-functions:not(.hidden) { display: inline-flex; }
-.top-future-functions:hover:not(:disabled) { background: #333; border-color: #444; transform: none; }
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }
 .topbar { min-height: 46px; padding: 4px 22px; gap: 16px; }

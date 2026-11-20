@@ -398,11 +398,14 @@ body.green-timers .timer-color-icon .color-fill { fill: #ff0000; }
   left: 50%;
   right: auto;
   width: max-content;
-  transform: translateX(-50%);
+  transform: translate(-50%, -3px);
   text-align: center;
 }
+.penalty-number { transform: translateY(-3px); }
+.next-athlete-label { font-size: clamp(9px, .8vw, 14px); }
 .next-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
 @media (max-width: 720px) {
+  .next-athlete-label { font-size: clamp(10px, 2.8vw, 17px); }
   .next-athlete-name { font-size: clamp(18px, 5.2vw, 32px); }
 }
 

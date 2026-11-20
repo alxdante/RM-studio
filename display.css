@@ -177,3 +177,75 @@ body {
     height: clamp(58px, 17vw, 100px);
   }
 }
+
+/* Display header and compact labels inside the data panels. */
+.display-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1vw, 16px);
+  margin: 0 auto clamp(10px, 1.5vw, 22px);
+  padding: 0 clamp(8px, 1vw, 18px);
+}
+.display-brand-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(28px, 3vw, 52px);
+  height: clamp(28px, 3vw, 52px);
+  border: 2px solid #0f0;
+  color: #0f0;
+  font: 700 clamp(9px, .9vw, 16px)/1 "Courier New", monospace;
+  letter-spacing: -.08em;
+}
+.display-brand-mark i {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: clamp(8px, .8vw, 14px);
+  height: clamp(8px, .8vw, 14px);
+  border-right: 2px solid #ffaa00;
+  border-bottom: 2px solid #ffaa00;
+}
+.display-header h1 {
+  margin: 0;
+  color: #fff;
+  font: 500 clamp(18px, 2vw, 34px)/1 "Space Grotesk", "Courier New", sans-serif;
+  letter-spacing: -.06em;
+}
+.display-header h1 strong { color: #ffaa00; font-weight: 600; }
+.lane-title { display: none; }
+.lane-box { position: relative; }
+.lane-label {
+  position: absolute;
+  z-index: 1;
+  top: clamp(7px, .8vw, 14px);
+  left: clamp(8px, .9vw, 16px);
+  color: #0f0;
+  font: bold clamp(10px, 1vw, 18px)/1 "Courier New", monospace;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.penalty-container {
+  justify-content: stretch;
+  align-items: stretch;
+}
+.penalty-value {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(22px, 2.2vw, 38px) clamp(8px, 1vw, 16px) clamp(6px, .7vw, 12px);
+}
+.penalty-label {
+  position: absolute;
+  top: clamp(5px, .6vw, 10px);
+  left: clamp(7px, .8vw, 13px);
+  color: #ffaa00;
+  font-size: clamp(9px, .8vw, 14px);
+  letter-spacing: .06em;
+}
+.penalty-number { display: block; font: inherit; }

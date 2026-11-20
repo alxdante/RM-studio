@@ -10,79 +10,111 @@
 html, body { min-height: 100%; }
 body {
   margin: 0;
-  padding: 1.5vw 0;
+  padding: clamp(10px, 1.5vw, 24px) 0;
   background: #111;
   color: #fff;
   font-family: "Courier New", monospace;
   text-align: center;
 }
 .display-board {
-  display: flex;
-  justify-content: space-between;
-  gap: 1%;
-  width: 100%;
-  padding: 0 10px;
-  margin-top: 1vw;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.4vw, 22px);
+  width: min(100%, 1900px);
+  margin: 0 auto;
+  padding: 0 clamp(8px, 1vw, 18px);
 }
-.display-lane { width: 49.5%; min-width: 0; }
+.display-lane {
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+  min-width: 0;
+  align-content: start;
+}
 .lane-title {
-  margin-bottom: 1vw;
+  margin: 0 0 clamp(8px, 1vw, 16px);
   color: #0f0;
-  font: bold 2.5vw/1 "Courier New", monospace;
+  font: bold clamp(20px, 2.5vw, 48px)/1 "Courier New", monospace;
   text-transform: uppercase;
 }
 .lane-box {
+  display: grid;
+  place-items: center;
   width: 100%;
+  min-height: clamp(150px, 31vw, 500px);
   overflow: hidden;
-  padding: 35px 5px;
-  border: 2px solid #333;
+  padding: clamp(18px, 3vw, 48px) clamp(5px, .8vw, 14px);
+  border: max(2px, .12vw) solid #333;
   background: #000;
 }
 .lane-box.active { border-color: #0f0; box-shadow: inset 0 0 15px rgba(0,255,0,.2); }
-.lane-box.error { border-color: #f33; }
+.lane-box.error { border-color: #f33; box-shadow: inset 0 0 15px rgba(255,0,0,.16); }
 .timer {
   display: block;
   width: 100%;
   overflow: hidden;
   color: #f00;
-  font: 700 11.5vw/1 "DSEG7-Local", monospace;
+  font: 700 clamp(54px, 11.5vw, 220px)/1 "DSEG7-Local", monospace;
   letter-spacing: -.02em;
   text-shadow: 0 0 25px #500;
-  white-space: nowrap;
-}
-.athlete {
-  margin: .8vw 0 0;
-  overflow: hidden;
-  color: #aaa;
-  font: bold 1.6vw/1.2 "Courier New", monospace;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .penalty-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 1vw;
-  margin-top: 1vw;
+  gap: clamp(8px, 1vw, 18px);
+  min-height: clamp(92px, 11vw, 190px);
+  margin-top: clamp(8px, 1vw, 16px);
 }
-.penalty-label { color: #aaa; font: bold 1.6vw "Courier New", monospace; }
+.penalty-label {
+  color: #aaa;
+  font: bold clamp(14px, 1.6vw, 30px) "Courier New", monospace;
+}
 .penalty-value {
   display: grid;
   place-items: center;
-  width: 10vw;
-  height: 10vw;
-  min-width: 60px;
-  min-height: 60px;
-  max-width: 180px;
-  max-height: 180px;
-  border: 2px solid #333;
+  width: clamp(84px, 11vw, 190px);
+  height: clamp(84px, 11vw, 190px);
+  overflow: hidden;
+  border: max(2px, .12vw) solid #333;
   background: #000;
   color: #ffaa00;
-  font: 700 5vw/1 "DSEG7-Local", monospace;
+  font: 700 clamp(34px, 5vw, 92px)/1 "DSEG7-Local", monospace;
 }
-@media (max-width: 700px) {
-  .display-board { gap: 1%; padding: 0 6px; }
-  .lane-title { font-size: 5vw; }
-  .athlete, .penalty-label { font-size: 3vw; }
-  .timer { font-size: 11.5vw; }
+.next-athlete {
+  display: grid;
+  gap: 5px;
+  min-height: clamp(58px, 7vw, 112px);
+  margin-top: clamp(8px, 1vw, 16px);
+  padding: clamp(8px, 1vw, 16px) clamp(10px, 1.3vw, 22px);
+  overflow: hidden;
+  border: max(2px, .12vw) solid #333;
+  background: #000;
+  color: #fff;
+  text-align: left;
+}
+.next-athlete-label {
+  color: #0f0;
+  font: bold clamp(10px, .9vw, 16px) "Courier New", monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.next-athlete-name {
+  overflow: hidden;
+  color: #ddd;
+  font: bold clamp(16px, 1.8vw, 32px)/1.1 "Courier New", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  body { padding-top: 8px; }
+  .display-board { grid-template-columns: 1fr; gap: 18px; }
+  .display-lane { width: 100%; }
+  .lane-title { font-size: clamp(20px, 7vw, 34px); }
+  .lane-box { min-height: clamp(150px, 52vw, 300px); }
+  .timer { font-size: clamp(52px, 18vw, 120px); }
+  .penalty-container { min-height: clamp(76px, 18vw, 130px); }
+  .penalty-label { font-size: clamp(13px, 4vw, 22px); }
+  .penalty-value { width: clamp(76px, 18vw, 130px); height: clamp(76px, 18vw, 130px); font-size: clamp(30px, 9vw, 64px); }
+  .next-athlete { min-height: 64px; }
 }

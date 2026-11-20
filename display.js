@@ -25,7 +25,7 @@ function fitTimers() {
   board.querySelectorAll('.timer').forEach((timer) => {
     const box = timer.closest('.lane-box');
     const available = Math.max(1, box.clientWidth - 12);
-    const base = Math.max(54, Math.min(220, window.innerWidth * 0.115));
+    const base = Math.max(54, Math.min(260, box.clientWidth * 0.23));
     timer.style.fontSize = `${base}px`;
     const width = timer.getBoundingClientRect().width;
     if (width > available) timer.style.fontSize = `${Math.max(30, base * available / width)}px`;
@@ -45,7 +45,7 @@ function render() {
     const athlete = roster.find((item) => item.id === lane.athleteId);
     const penalty = lane.penalties >= 5 ? lane.penalties : lane.dq ? 'DQ' : Number(lane.penalties || 0);
     const statusClass = lane.error ? ' error' : lane.running ? ' active' : '';
-    return `<section class="display-lane"><div class="lane-box${statusClass}"><span class="lane-label">LANE ${index + 1}</span><strong class="timer">${timerValue(lane, now)}</strong></div><div class="penalty-container"><strong class="penalty-value"><span class="penalty-label">PENALTIES</span><span class="penalty-number">${penalty}</span></strong></div><div class="next-athlete"><span class="next-athlete-label">Следующий спортсмен</span><strong class="next-athlete-name">${escapeHtml(athlete?.name || '—')}</strong></div></section>`;
+    return `<section class="display-lane"><div class="lane-box${statusClass}"><span class="lane-label">LANE ${index + 1}</span><strong class="timer">${timerValue(lane, now)}</strong></div><div class="penalty-container"><strong class="penalty-value"><span class="penalty-label">PENALTIES</span><span class="penalty-number">${penalty}</span></strong></div><div class="next-athlete"><span class="next-athlete-label">Next skater</span><strong class="next-athlete-name">${escapeHtml(athlete?.name || '—')}</strong></div></section>`;
   }).join('');
   fitTimers();
 }

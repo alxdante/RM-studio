@@ -959,7 +959,7 @@ function renderCorrections() {
     const tone = attempt === 1 ? 'correction-attempt-one' : 'correction-attempt-two';
     if (!entry) return `<td class="correction-attempt-cell ${tone}">—</td><td class="correction-attempt-cell ${tone}">—</td><td class="correction-attempt-actions ${tone}">—</td>`;
     const result = entry.dq ? '' : (entry.adjustedTime ?? '');
-    return `<td class="correction-attempt-cell ${tone}"><input class="correction-value-input" data-correction-result="${escapeHtml(entry.id)}" type="number" min="0.001" step="0.001" value="${result}" placeholder="DQ" /></td><td class="correction-attempt-cell ${tone}"><input class="correction-value-input correction-penalty-input" data-correction-penalty="${escapeHtml(entry.id)}" type="number" min="0" max="25" step="1" value="${entry.penalties || 0}" /></td><td class="correction-attempt-actions ${tone}"><button type="button" class="text-button correction-delete" data-correction-delete="${escapeHtml(entry.id)}">DEL</button><button type="button" class="text-button correction-dq" data-correction-dq="${escapeHtml(entry.id)}">DQ</button></td>`;
+    return `<td class="correction-attempt-cell ${tone}"><input class="correction-value-input" data-correction-result="${escapeHtml(entry.id)}" type="number" min="0.001" step="0.001" value="${result}" placeholder="DQ" /></td><td class="correction-attempt-cell ${tone}"><input class="correction-value-input correction-penalty-input" data-correction-penalty="${escapeHtml(entry.id)}" type="number" min="0" max="25" step="1" value="${entry.penalties || 0}" /></td><td class="correction-attempt-actions ${tone}"><button type="button" class="text-button correction-delete" data-correction-delete="${escapeHtml(entry.id)}">DEL</button><button type="button" class="text-button correction-dq${entry.dq ? ' correction-dq-active' : ''}" data-correction-dq="${escapeHtml(entry.id)}">DQ</button></td>`;
   };
   host.innerHTML = rows.size ? [...rows.values()].map((row) => {
     const athlete = athleteById(row.athleteId); const category = categoryById(row.categoryId); const first = row.attempts[1]; const second = row.attempts[2];
@@ -986,9 +986,17 @@ function editQualificationResults(entryIds) {
   persist('Результаты исправлены'); renderCorrections(); renderAll();
 }
 function markQualificationDq(entryId) {
-  const resultInput = $(`[data-correction-result="${entryId}"]`); const penaltyInput = $(`[data-correction-penalty="${entryId}"]`);
-  if (!resultInput || !penaltyInput) return;
-  resultInput.value = ''; penaltyInput.value = '5'; editQualificationResults([entryId]);
+  const entry = correctionEntryById(entryId); const resultInput = $(`[data-correction-result="${entryId}"]`); const penaltyInput = $(`[data-correction-penalty="${entryId}"]`);
+  if (!entry || !resultInput || !penaltyInput) return;
+  if (entry.dq) {
+    resultInput.value = entry.preDqAdjustedTime ?? '';
+    penaltyInput.value = '0';
+  } else {
+    entry.preDqAdjustedTime = entry.adjustedTime ?? '';
+    resultInput.value = '';
+    penaltyInput.value = '5';
+  }
+  editQualificationResults([entryId]);
 }
 function deleteQualificationResult(entryId) {
   const entry = correctionEntryById(entryId); if (!entry) return; if (qualificationHasFinalBracket(entry.categoryId)) return showToast('Для категории уже создана финальная сетка. Корректировки финалов будут добавлены отдельно.'); if (!confirm('Удалить этот результат? Спортсмен снова сможет пройти эту попытку. Запись останется в журнале.')) return; clearQualificationValue(entry.categoryId, entry.athleteId, entry.attempt); recordCorrection(entry, 'delete', { athleteId: entry.athleteId }); state.lanes.forEach((lane) => { if (lane.categoryId === entry.categoryId && lane.athleteId === entry.athleteId) Object.assign(lane, createLane(entry.categoryId)); }); recomputeQualificationAttempt(entry.categoryId); autoAssignLanes(); persist('Результат удалён для повторного старта'); renderCorrections(); renderAll(); showToast('Результат удалён, спортсмен снова доступен в очереди');

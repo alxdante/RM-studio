@@ -355,16 +355,6 @@ body {
   transform: translateX(-2px);
 }
 
-body.stacked-layout .display-board {
-  grid-template-columns: minmax(0, 1fr);
-  max-width: 1900px;
-  gap: clamp(18px, 2.5vh, 30px);
-  height: calc(100vh - 75px);
-  align-content: center;
-  align-items: center;
-}
-body.stacked-layout .display-lane { height: auto; min-height: 0; width: 100%; justify-self: center; }
-
 /* Final display typography and neutral gray header. */
 .display-header { background: #2b2b2b; }
 .penalty-label {
@@ -426,7 +416,7 @@ body { padding-top: 4px; padding-bottom: 4px; }
   .current-athlete-name { font-size: clamp(18px, 5.2vw, 32px); }
 }
 
-/* Stacked mode reuses the same single-column layout as a narrow viewport. */
+/* Stacked mode changes only the outer grid; each lane keeps horizontal-mode sizing. */
 body.stacked-layout .display-board {
   grid-template-columns: 1fr;
   gap: 18px;
@@ -438,18 +428,5 @@ body.stacked-layout .display-board {
 body.stacked-layout .display-lane {
   width: 100%;
   justify-self: stretch;
-  grid-template-columns: minmax(0, 1fr) clamp(58px, 17vw, 100px);
-  column-gap: 6px;
   transform: none;
 }
-body.stacked-layout .lane-box {
-  min-height: clamp(70px, 25vw, 150px);
-  padding: 6px 4px;
-}
-body.stacked-layout .timer { font-size: clamp(52px, 18vw, 120px); }
-body.stacked-layout .penalty-container { width: clamp(58px, 17vw, 100px); gap: 4px; }
-body.stacked-layout .penalty-label { font-size: clamp(10px, 2.8vw, 17px); }
-body.stacked-layout .penalty-value { width: 100%; height: 100%; font-size: clamp(24px, 8vw, 52px); }
-body.stacked-layout .next-athlete { min-height: clamp(58px, 17vw, 100px); padding: 7px; }
-body.stacked-layout .next-athlete-label { font-size: clamp(7px, 2.2vw, 12px); }
-body.stacked-layout .next-athlete-name { font-size: clamp(12px, 3.4vw, 20px); }

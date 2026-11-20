@@ -343,6 +343,17 @@ body {
 .display-fullscreen:hover,
 .display-fullscreen:focus-visible { background: rgba(244,243,237,.14); outline: none; }
 .display-header .display-fullscreen + .display-fullscreen { margin-left: 6px; }
+.layout-toggle-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(244,243,237,.7);
+  border-radius: 50%;
+  font: 16px/1 Arial, sans-serif;
+  letter-spacing: -4px;
+  transform: translateX(-2px);
+}
 
 body.stacked-layout .display-board {
   grid-template-columns: minmax(0, 1fr);

@@ -158,5 +158,5 @@ function render() {
 
 render();
 window.addEventListener('storage', (event) => { if (event.key === STORAGE_KEY) render(); });
-setInterval(render, 1000 / 60);
+setInterval(render, 1000 / 30);
 window.addEventListener('resize', () => { fitTimers(); fitDisplayLayout(); });

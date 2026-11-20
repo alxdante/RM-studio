@@ -689,7 +689,7 @@ body { background: #eef0ea; }
 .corrections-table .text-button { margin-left: 6px; white-space: nowrap; }
 .correction-delete { color: #a34f39; }
 
-.lists-card { position: relative; }
+.lists-card { position: relative; padding-top: 10px; }
 .lists-card > .card-head { justify-content: flex-end; margin-bottom: 0; }
 .lists-card > .card-head > div, .lists-card > .modal-meta { display: none; }
 .lists-card .lists-summary { margin-top: 0; min-height: 66px; box-sizing: border-box; }
@@ -705,7 +705,7 @@ body { background: #eef0ea; }
 .lists-card .eyebrow, .corrections-card .eyebrow { font-size: 11px; }
 .lists-card .modal-meta, .corrections-card .modal-meta { font-size: 13px; line-height: 1.55; }
 .lists-card .lists-summary { padding: 18px; }
-.lists-card .lists-summary span { font-size: 11px; }
+.lists-card .lists-summary span { font-size: 13px; }
 .lists-card .list-action { padding: 15px 16px; gap: 6px; }
 .lists-card .list-action span { font-size: 13px; }
 .lists-card .list-action small { font-size: 10px; line-height: 1.4; }

@@ -726,6 +726,7 @@ body { background: #eef0ea; }
 .corrections-card .correction-attempt-actions .correction-delete,
 .corrections-card .correction-attempt-actions .correction-dq { margin-left: 4px; padding: 7px 8px; border: 1px solid currentColor; border-radius: 6px; background: transparent; font: 600 11px "DM Mono", monospace; }
 .corrections-card .correction-attempt-actions .correction-delete { color: #a34f39; }
+.corrections-card .correction-attempt-actions .correction-delete-locked { opacity: .45; cursor: not-allowed; }
 .corrections-card .correction-attempt-actions .correction-dq { color: var(--orange); }
 .corrections-card .correction-attempt-actions .correction-dq-active { background: var(--orange); color: #fff; box-shadow: 0 0 0 2px color-mix(in srgb, var(--orange) 25%, transparent); }
 .corrections-card .correction-attempt-actions .correction-delete:hover,

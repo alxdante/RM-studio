@@ -16,8 +16,6 @@ else narrowLayoutQuery.addListener(syncResponsiveLayoutClass);
 function updateStackedButton() {
   if (!stackedToggle) return;
   const active = document.body.classList.contains('stacked-layout');
-  const icon = stackedToggle.querySelector('.layout-toggle-icon');
-  if (icon) icon.textContent = '↻↺';
   stackedToggle.setAttribute('aria-label', active ? 'Расположить панели рядом' : 'Расположить панели вертикально');
   stackedToggle.title = active ? 'Расположить панели рядом' : 'Расположить панели вертикально';
 }

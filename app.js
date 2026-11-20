@@ -980,6 +980,7 @@ function editQualificationResults(entryIds) {
     const resultInput = $(`[data-correction-result="${entry.id}"]`); const penaltyInput = $(`[data-correction-penalty="${entry.id}"]`);
     const penalties = Math.min(25, Math.max(0, Math.floor(Number(penaltyInput?.value || 0)))); const result = Number(resultInput?.value); const dq = penalties >= 5;
     if (!dq && (!Number.isFinite(result) || result <= 0)) return showToast('Введите корректное время или штраф 5 для DQ');
+    if (dq && !entry.dq) entry.preDqAdjustedTime = Number.isFinite(result) && result > 0 ? Number(result.toFixed(3)) : entry.adjustedTime;
     const adjustedTime = dq ? null : Number(result.toFixed(3)); const rawTime = dq ? 0 : Number((adjustedTime - penalties * 0.2).toFixed(3)); const category = categoryState(entry.categoryId); category.attempts[entry.attempt][entry.athleteId] = dq ? 0 : adjustedTime; category.rawAttempts[entry.attempt][entry.athleteId] = rawTime; category.penalties[entry.attempt][entry.athleteId] = penalties; category.dq[entry.attempt][entry.athleteId] = dq;
     entry.adjustedTime = adjustedTime; entry.rawTime = rawTime; entry.penalties = penalties; entry.dq = dq; entry.updatedAt = Date.now();
     recomputeQualificationAttempt(entry.categoryId);
@@ -990,6 +991,7 @@ function markQualificationDq(entryId) {
   const entry = correctionEntryById(entryId); const resultInput = $(`[data-correction-result="${entryId}"]`); const penaltyInput = $(`[data-correction-penalty="${entryId}"]`);
   if (!entry || !resultInput || !penaltyInput) return;
   if (entry.dq) {
+    if (!Number.isFinite(Number(entry.preDqAdjustedTime)) || Number(entry.preDqAdjustedTime) <= 0) return deleteQualificationResult(entryId);
     resultInput.value = entry.preDqAdjustedTime ?? '';
     penaltyInput.value = '0';
   } else {

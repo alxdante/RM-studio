@@ -545,7 +545,8 @@ function handleNumericPadKey(key) {
     formatManualInputDigits(input, key === 'backspace' ? digits.slice(0, -1) : `${digits}${key}`);
   } else {
     const digits = (input.value || '').replace(/\D/g, '');
-    input.value = (key === 'backspace' ? digits.slice(0, -1) : `${digits}${key}`).replace(/^0+/, '').slice(0, 2);
+    const nextDigits = (key === 'backspace' ? digits.slice(0, -1) : `${digits}${key}`).replace(/^0+/, '').slice(0, 2);
+    input.value = nextDigits || '0';
     input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 }
@@ -591,7 +592,7 @@ function renderLanes() {
   $$('[data-lane-tab]').forEach((button) => button.addEventListener('click', () => setLaneCategory(Number(button.dataset.laneTab), button.dataset.categoryId)));
   $$('[data-promote-next]').forEach((button) => button.addEventListener('click', () => promoteNextAthlete(Number(button.dataset.promoteNext))));
   $$('[data-promote-prev]').forEach((button) => button.addEventListener('click', () => promotePreviousAthlete(Number(button.dataset.promotePrev))));
-  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('pointerdown', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('focus', () => { if (input.value === '0') input.value = ''; }); input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2); }); input.addEventListener('change', () => { const index = Number(input.dataset.lanePenalties); setLanePenalties(index, input.value); }); });
+  $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('pointerdown', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2) || '0'; }); input.addEventListener('change', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2) || '0'; const index = Number(input.dataset.lanePenalties); setLanePenalties(index, input.value); }); });
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
   $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (lane.dq) clearFinalDQ(index); else setLaneDQ(index); return; } if (lane.dq) { lane.dq = false; recalculateLanePenalty(index); } else setLaneDQ(index); }));
   $$('[data-false-start]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.falseStart); const lane = state.lanes[index]; const number = Number(button.dataset.fsNumber); if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number); }));

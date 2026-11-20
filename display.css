@@ -360,17 +360,10 @@ body.stacked-layout .display-board {
   max-width: 1900px;
   gap: clamp(12px, 2vh, 24px);
   height: calc(100vh - 75px);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  align-content: center;
+  align-items: center;
 }
-body.stacked-layout .display-lane { height: 100%; min-height: 0; }
-body.stacked-layout .display-lane .lane-box { min-height: 0; padding-top: 4px; padding-bottom: 4px; }
-body.stacked-layout .current-athlete { margin-bottom: 2px; }
-body.stacked-layout .current-athlete-name { font-size: clamp(12px, 1.5vw, 22px); }
-body.stacked-layout .penalty-container,
-body.stacked-layout .next-athlete { height: clamp(46px, 7vh, 72px); margin-top: 5px; }
-body.stacked-layout .next-athlete { padding-top: 4px; padding-bottom: 4px; }
-body.stacked-layout .next-athlete-name { font-size: clamp(14px, 1.8vw, 26px); }
-body.stacked-layout .penalty-value { padding-top: 16px; padding-bottom: 2px; }
+body.stacked-layout .display-lane { height: auto; min-height: 0; width: 100%; }
 
 /* Final display typography and neutral gray header. */
 .display-header { background: #2b2b2b; }
@@ -433,25 +426,11 @@ body { padding-top: 4px; padding-bottom: 4px; }
   .current-athlete-name { font-size: clamp(18px, 5.2vw, 32px); }
 }
 
-/* Stacked mode uses the regular panel proportions and scales the whole board uniformly. */
+/* Stacked mode keeps each timer as one centered, uniformly scaled block. */
 body.stacked-layout .display-board {
   height: auto;
-  grid-template-rows: none;
+  height: calc(100vh - 75px);
   width: 100%;
+  align-content: center;
+  align-items: center;
 }
-body.stacked-layout .display-lane { height: auto; }
-body.stacked-layout .display-lane .lane-box {
-  min-height: clamp(90px, 18vw, 280px);
-  padding-top: clamp(10px, 1.5vw, 22px);
-  padding-bottom: clamp(10px, 1.5vw, 22px);
-}
-body.stacked-layout .current-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
-body.stacked-layout .penalty-container,
-body.stacked-layout .next-athlete {
-  height: clamp(52px, 6.5vw, 108px);
-  margin-top: clamp(6px, .7vw, 12px);
-  overflow: hidden;
-}
-body.stacked-layout .next-athlete { padding-top: 6px; padding-bottom: 6px; }
-body.stacked-layout .next-athlete-name { font-size: clamp(20px, 2.6vw, 46px); }
-body.stacked-layout .penalty-value { padding-top: clamp(18px, 1.8vw, 30px); padding-bottom: 4px; overflow: hidden; }

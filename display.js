@@ -14,7 +14,7 @@ function updateStackedButton() {
 function toggleStackedLayout() {
   document.body.classList.toggle('stacked-layout');
   updateStackedButton();
-  requestAnimationFrame(fitTimers);
+  requestAnimationFrame(() => { fitTimers(); fitDisplayLayout(); });
 }
 stackedToggle?.addEventListener('click', toggleStackedLayout);
 updateStackedButton();
@@ -78,6 +78,28 @@ function fitTimers() {
   });
 }
 
+function fitDisplayLayout() {
+  const lanes = [...board.querySelectorAll('.display-lane')];
+  if (!lanes.length) return;
+  if (!document.body.classList.contains('stacked-layout')) {
+    board.style.height = '';
+    board.style.gridTemplateRows = '';
+    board.style.rowGap = '';
+    lanes.forEach((lane) => { lane.style.transform = ''; lane.style.transformOrigin = ''; });
+    return;
+  }
+  board.style.height = 'calc(100vh - 75px)';
+  board.style.gridTemplateRows = 'none';
+  lanes.forEach((lane) => { lane.style.transform = 'none'; lane.style.transformOrigin = 'center center'; });
+  const gap = parseFloat(getComputedStyle(board).rowGap) || 0;
+  const naturalHeight = Math.max(...lanes.map((lane) => lane.getBoundingClientRect().height));
+  const availableHeight = Math.max(1, board.clientHeight - gap * (lanes.length - 1));
+  const scale = Math.min(1, availableHeight / (naturalHeight * lanes.length));
+  board.style.gridTemplateRows = `repeat(${lanes.length}, ${naturalHeight * scale}px)`;
+  board.style.rowGap = `${gap * scale}px`;
+  lanes.forEach((lane) => { lane.style.transform = `scale(${scale})`; lane.style.transformOrigin = 'center center'; });
+}
+
 function loadState() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
 }
@@ -95,9 +117,10 @@ function render() {
     return `<section class="display-lane"><div class="current-athlete"><strong class="current-athlete-name">${escapeHtml(athlete?.name || '—')}</strong></div><div class="lane-box${statusClass}"><span class="lane-label">LANE ${index + 1}</span><strong class="timer">${timerValue(lane, now)}</strong></div><div class="penalty-container"><strong class="penalty-value"><span class="penalty-label">PENALTIES</span><span class="penalty-number">${penalty}</span></strong></div><div class="next-athlete"><span class="next-athlete-label">Next skater</span><strong class="next-athlete-name">${escapeHtml(nextAthlete?.name || '—')}</strong></div></section>`;
   }).join('');
   fitTimers();
+  fitDisplayLayout();
 }
 
 render();
 window.addEventListener('storage', (event) => { if (event.key === STORAGE_KEY) render(); });
 setInterval(render, 100);
-window.addEventListener('resize', fitTimers);
+window.addEventListener('resize', () => { fitTimers(); fitDisplayLayout(); });

@@ -87,18 +87,36 @@ function fitTimers() {
 function fitDisplayLayout() {
   const lanes = [...board.querySelectorAll('.display-lane')];
   if (!lanes.length) return;
-  if (!document.body.classList.contains('stacked-layout')) {
-    board.style.height = '';
-    board.style.gridTemplateRows = '';
-    board.style.rowGap = '';
-    lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
-    return;
-  }
-  board.style.height = '';
+  const stacked = document.body.classList.contains('stacked-layout');
+  const boardStyle = getComputedStyle(board);
+  const padding = (parseFloat(boardStyle.paddingLeft) || 0) + (parseFloat(boardStyle.paddingRight) || 0);
+  const contentWidth = Math.max(1, board.clientWidth - padding);
+
   board.style.gridTemplateRows = '';
   board.style.rowGap = '';
-  lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
+
+  if (!stacked) {
+    board.style.height = '';
+    lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
+    fitTimers();
+    return;
+  }
+
+  board.style.height = 'calc(100vh - 68px)';
+  const gap = parseFloat(boardStyle.rowGap) || 0;
+  lanes.forEach((lane) => {
+    lane.style.width = `${contentWidth}px`;
+    lane.style.transform = 'none';
+    lane.style.transformOrigin = 'center center';
+  });
   fitTimers();
+  const naturalHeights = lanes.map((lane) => lane.getBoundingClientRect().height);
+  const availableHeight = Math.max(1, board.clientHeight - gap * (lanes.length - 1));
+  const totalNaturalHeight = naturalHeights.reduce((sum, height) => sum + height, 0);
+  const scale = Math.min(1, availableHeight / Math.max(1, totalNaturalHeight));
+  board.style.gridTemplateRows = naturalHeights.map((height) => `${height * scale}px`).join(' ');
+  board.style.rowGap = `${gap * scale}px`;
+  lanes.forEach((lane) => { lane.style.transform = `scale(${scale})`; });
 }
 
 function loadState() {

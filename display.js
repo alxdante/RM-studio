@@ -68,17 +68,31 @@ function timerValue(lane, now) {
 }
 
 function fitTimers() {
+  const stacked = document.body.classList.contains('stacked-layout');
+  if (stacked) {
+    board.style.zoom = '1';
+    board.style.width = '100%';
+  }
   board.querySelectorAll('.timer').forEach((timer) => {
     const box = timer.closest('.lane-box');
     const available = Math.max(1, box.clientWidth - 12);
-    const stacked = document.body.classList.contains('stacked-layout');
-    const base = stacked
-      ? Math.max(54, Math.min(220, box.clientWidth * 0.20))
-      : Math.max(54, Math.min(260, box.clientWidth * 0.23));
+    const base = Math.max(54, Math.min(260, box.clientWidth * 0.23));
     timer.style.fontSize = `${base}px`;
     const width = timer.getBoundingClientRect().width;
     if (width > available) timer.style.fontSize = `${Math.max(30, base * available / width)}px`;
   });
+  if (stacked) fitStackedBoard();
+}
+
+function fitStackedBoard() {
+  board.style.zoom = '1';
+  board.style.width = '100%';
+  const top = board.getBoundingClientRect().top;
+  const availableHeight = Math.max(1, window.innerHeight - top - 6);
+  const naturalHeight = Math.max(1, board.scrollHeight);
+  const scale = Math.min(1, availableHeight / naturalHeight);
+  board.style.zoom = String(scale);
+  board.style.width = `${100 / scale}%`;
 }
 
 function loadState() {

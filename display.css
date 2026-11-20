@@ -118,3 +118,35 @@ body {
   .penalty-value { width: clamp(76px, 18vw, 130px); height: clamp(76px, 18vw, 130px); font-size: clamp(30px, 9vw, 64px); }
   .next-athlete { min-height: 64px; }
 }
+
+/* Compact lower row: penalties and next athlete stay side by side. */
+.display-lane {
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  grid-template-rows: auto auto auto;
+  column-gap: clamp(6px, .8vw, 14px);
+}
+.lane-title,
+.lane-box { grid-column: 1 / -1; }
+.lane-box {
+  min-height: clamp(110px, 23vw, 360px);
+  padding: clamp(12px, 2vw, 30px) clamp(4px, .6vw, 10px);
+}
+.penalty-container,
+.next-athlete { grid-row: 3; min-width: 0; margin-top: clamp(6px, .7vw, 12px); }
+.penalty-container { grid-column: 1; justify-content: flex-end; gap: clamp(4px, .6vw, 10px); }
+.penalty-label { font-size: clamp(11px, 1.25vw, 24px); }
+.penalty-value { width: clamp(62px, 8vw, 140px); height: clamp(62px, 8vw, 140px); font-size: clamp(26px, 3.8vw, 72px); }
+.next-athlete { grid-column: 2; min-height: clamp(62px, 8vw, 140px); margin-top: clamp(6px, .7vw, 12px); padding: clamp(7px, .8vw, 13px); }
+.next-athlete-label { font-size: clamp(8px, .7vw, 13px); }
+.next-athlete-name { font-size: clamp(13px, 1.35vw, 25px); }
+
+@media (max-width: 720px) {
+  .display-lane { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); column-gap: 6px; }
+  .lane-box { min-height: clamp(105px, 37vw, 220px); padding: clamp(10px, 3vw, 20px) 4px; }
+  .penalty-container { gap: 4px; }
+  .penalty-label { font-size: clamp(10px, 2.8vw, 17px); }
+  .penalty-value { width: clamp(58px, 17vw, 100px); height: clamp(58px, 17vw, 100px); font-size: clamp(24px, 8vw, 52px); }
+  .next-athlete { min-height: clamp(58px, 17vw, 100px); padding: 7px; }
+  .next-athlete-label { font-size: clamp(7px, 2.2vw, 12px); }
+  .next-athlete-name { font-size: clamp(12px, 3.4vw, 20px); }
+}

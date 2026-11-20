@@ -2,6 +2,7 @@ const STORAGE_KEY = 'slalom-timing-control-v4';
 const board = document.getElementById('displayBoard');
 const stackedToggle = document.getElementById('stackedToggle');
 const fullscreenToggle = document.getElementById('fullscreenToggle');
+const timerColorToggle = document.getElementById('timerColorToggle');
 const narrowLayoutQuery = window.matchMedia('(max-width: 720px)');
 
 function syncResponsiveLayoutClass() {
@@ -32,7 +33,7 @@ function fullscreenElement() { return document.fullscreenElement || document.web
 function updateFullscreenButton() {
   if (!fullscreenToggle) return;
   const active = Boolean(fullscreenElement());
-  fullscreenToggle.textContent = active ? '×' : '⛶';
+  fullscreenToggle.classList.toggle('is-active', active);
   fullscreenToggle.setAttribute('aria-label', active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим');
   fullscreenToggle.title = active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим';
 }
@@ -55,6 +56,19 @@ fullscreenToggle?.addEventListener('click', toggleFullscreen);
 document.addEventListener('fullscreenchange', updateFullscreenButton);
 document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
 updateFullscreenButton();
+
+function updateTimerColorButton() {
+  if (!timerColorToggle) return;
+  const active = document.body.classList.contains('green-timers');
+  timerColorToggle.setAttribute('aria-pressed', String(active));
+  timerColorToggle.setAttribute('aria-label', active ? 'Вернуть красный цвет таймеров' : 'Сделать таймеры зелёными');
+  timerColorToggle.title = active ? 'Вернуть красный цвет таймеров' : 'Сделать таймеры зелёными';
+}
+timerColorToggle?.addEventListener('click', () => {
+  document.body.classList.toggle('green-timers');
+  updateTimerColorButton();
+});
+updateTimerColorButton();
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));

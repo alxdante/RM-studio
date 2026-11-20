@@ -14,8 +14,9 @@
     <header class="display-header" aria-label="SpeedSlalom Timing">
       <div class="display-brand-mark"><span>SST</span><i></i></div>
       <h1>SpeedSlalom <strong>Timing</strong></h1>
-      <button id="stackedToggle" class="display-fullscreen" type="button" aria-label="Расположить панели вертикально" title="Расположить панели вертикально"><span class="layout-toggle-icon">↻↺</span></button>
-      <button id="fullscreenToggle" class="display-fullscreen" type="button" aria-label="Открыть полноэкранный режим" title="Открыть полноэкранный режим">⛶</button>
+      <button id="stackedToggle" class="display-fullscreen" type="button" aria-label="Расположить панели вертикально" title="Расположить панели вертикально"><span class="layout-toggle-icon" aria-hidden="true"></span></button>
+      <button id="fullscreenToggle" class="display-fullscreen" type="button" aria-label="Открыть полноэкранный режим" title="Открыть полноэкранный режим"><span class="fullscreen-icon" aria-hidden="true"></span></button>
+      <button id="timerColorToggle" class="display-fullscreen" type="button" aria-label="Сделать таймеры зелёными" title="Сделать таймеры зелёными" aria-pressed="false"><span class="timer-color-icon" aria-hidden="true"></span></button>
     </header>
     <main id="displayBoard" class="display-board" aria-label="Информационное табло"></main>
     <script src="display.js"></script>

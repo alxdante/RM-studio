@@ -72,9 +72,10 @@ body {
   background: #000;
 }
 .lane-box.active,
-.lane-box.ready { border-color: #0f0; box-shadow: inset 0 0 15px rgba(0,255,0,.2); }
+.lane-box.active { border-color: #0f0; box-shadow: inset 0 0 15px rgba(0,255,0,.2); }
+.lane-box.ready { border-color: #008f2d; box-shadow: inset 0 0 15px rgba(0,255,0,.2); }
 .lane-box.error { border-color: #f33; box-shadow: inset 0 0 15px rgba(255,0,0,.16); }
-.lane-box.disabled { border-color: #c8ccd0; box-shadow: inset 0 0 15px rgba(200,204,208,.12); }
+.lane-box.disabled { border-color: #8b9196; box-shadow: inset 0 0 15px rgba(200,204,208,.12); }
 .timer-status-label {
   position: absolute;
   z-index: 1;

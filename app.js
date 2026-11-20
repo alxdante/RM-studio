@@ -639,7 +639,7 @@ function stopExpiredTimers() {
   if (changed) persist();
   return changed;
 }
-function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { stopExpiredTimers(); if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 70); }
+function startTicker() { clearInterval(timerHandle); timerHandle = setInterval(() => { stopExpiredTimers(); if (!state.lanes.some((lane) => lane.running)) return clearInterval(timerHandle); renderLanes(); }, 1000 / 60); }
 
 function startAllLanes() {
   if (currentModeDisabled()) return showToast(`${modeDisabledLabel()} = true`);

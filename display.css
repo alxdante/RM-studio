@@ -103,7 +103,7 @@ body {
 .next-athlete-name {
   overflow: hidden;
   color: #DDDDDD;
-  font: 500 clamp(16px, 1.8vw, 32px)/1.1 "DM Mono", monospace;
+  font: 600 clamp(16px, 1.8vw, 32px)/1.1 "Space Grotesk", system-ui, sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

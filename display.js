@@ -71,7 +71,10 @@ function fitTimers() {
   board.querySelectorAll('.timer').forEach((timer) => {
     const box = timer.closest('.lane-box');
     const available = Math.max(1, box.clientWidth - 12);
-    const base = Math.max(54, Math.min(260, box.clientWidth * 0.23));
+    const stacked = document.body.classList.contains('stacked-layout');
+    const base = stacked
+      ? Math.max(36, Math.min(140, box.clientWidth * 0.12))
+      : Math.max(54, Math.min(260, box.clientWidth * 0.23));
     timer.style.fontSize = `${base}px`;
     const width = timer.getBoundingClientRect().width;
     if (width > available) timer.style.fontSize = `${Math.max(30, base * available / width)}px`;

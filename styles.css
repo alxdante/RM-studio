@@ -689,7 +689,7 @@ body { background: #eef0ea; }
 .corrections-table .text-button { margin-left: 6px; white-space: nowrap; }
 .correction-delete { color: #a34f39; }
 
-.lists-card { position: relative; padding-top: 10px; }
+.lists-card { position: relative; padding-top: 10px; border-radius: 14px; overflow: hidden; }
 .lists-card > .card-head { justify-content: flex-end; margin-bottom: 0; }
 .lists-card > .card-head > div, .lists-card > .modal-meta { display: none; }
 .lists-card .lists-summary { margin-top: 0; min-height: 66px; box-sizing: border-box; }

@@ -277,6 +277,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .ble-disconnect-confirm button:hover, .ble-disconnect-confirm button:active { background: var(--mint); color: #102529; }
 .top-future-functions { display: none; }
 .top-future-functions:not(.hidden) { display: inline-flex; }
+.top-future-functions:hover:not(:disabled) { border-color: var(--line); background: transparent; }
 .top-disconnect { color: var(--muted); margin-left: 2px; white-space: nowrap; }
 .top-disconnect:hover:not(:disabled) { color: var(--orange); }
 .topbar { min-height: 46px; padding: 4px 22px; gap: 16px; }

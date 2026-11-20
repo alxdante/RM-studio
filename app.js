@@ -113,6 +113,7 @@ let bleState = {
   errors: { 1: null, 2: null }
 };
 let timerHandle = null;
+let bleResetLock = false;
 let toastHandle = null;
 let pendingImport = null;
 let pendingFinalBracketCategoryId = null;
@@ -668,6 +669,7 @@ function startTicker() { clearInterval(timerHandle); timerHandle = setInterval((
 
 function startAllLanes() {
   if (currentModeDisabled()) return showToast(`${modeDisabledLabel()} = true`);
+  bleResetLock = false;
   const demoStart = demoStartAllowed();
   let started = 0;
   state.lanes.forEach((lane, index) => {
@@ -688,6 +690,8 @@ function startAllLanes() {
 }
 function resetAllLanes() {
   clearInterval(timerHandle);
+  timerHandle = null;
+  bleResetLock = true;
   state.lanes.forEach((lane) => {
     lane.running = false;
     lane.startedAt = null;
@@ -832,6 +836,7 @@ function parseBleLine(line) {
     }
     renderLanes();
   } else if (type === 'start') {
+    if (bleResetLock) return;
     if (currentModeDisabled()) return showToast(`Старт заблокирован: ${modeDisabledLabel()} = true`);
     const indices = payload.lane == null ? [0, 1] : [Number(payload.lane) - 1];
     const demoStart = demoStartAllowed();

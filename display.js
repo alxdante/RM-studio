@@ -1,6 +1,22 @@
 const STORAGE_KEY = 'slalom-timing-control-v4';
 const board = document.getElementById('displayBoard');
+const stackedToggle = document.getElementById('stackedToggle');
 const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+function updateStackedButton() {
+  if (!stackedToggle) return;
+  const active = document.body.classList.contains('stacked-layout');
+  stackedToggle.textContent = active ? '↔' : '↕';
+  stackedToggle.setAttribute('aria-label', active ? 'Расположить панели рядом' : 'Расположить панели вертикально');
+  stackedToggle.title = active ? 'Расположить панели рядом' : 'Расположить панели вертикально';
+}
+function toggleStackedLayout() {
+  document.body.classList.toggle('stacked-layout');
+  updateStackedButton();
+  requestAnimationFrame(fitTimers);
+}
+stackedToggle?.addEventListener('click', toggleStackedLayout);
+updateStackedButton();
 
 function fullscreenElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
 function updateFullscreenButton() {

@@ -7,7 +7,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { touch-action: manipulation; }
+html, body { touch-action: manipulation; overflow: hidden; }
 html, body { min-height: 100%; }
 body {
   margin: 0;
@@ -24,6 +24,7 @@ body {
   width: min(100%, 1900px);
   margin: 0 auto;
   padding: 0 clamp(8px, 1vw, 18px);
+  overflow: hidden;
 }
 .display-lane {
   display: grid;
@@ -419,14 +420,28 @@ body { padding-top: 4px; padding-bottom: 4px; }
 /* Stacked mode changes only the outer grid; each lane keeps horizontal-mode sizing. */
 body.stacked-layout .display-board {
   grid-template-columns: 1fr;
-  gap: 18px;
-  height: auto;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(8px, 1.5vh, 18px);
+  height: calc(100vh - 68px);
   width: 100%;
-  align-content: start;
+  align-content: stretch;
   align-items: stretch;
 }
 body.stacked-layout .display-lane {
   width: 100%;
+  min-height: 0;
   justify-self: stretch;
+  grid-template-rows: auto minmax(0, 1fr) clamp(52px, 8vh, 100px);
+  overflow: hidden;
   transform: none;
 }
+body.stacked-layout .current-athlete,
+body.stacked-layout .lane-box,
+body.stacked-layout .penalty-container,
+body.stacked-layout .next-athlete { min-height: 0; }
+body.stacked-layout .lane-box { height: auto; }
+body.stacked-layout .penalty-container {
+  width: clamp(52px, 8vh, 100px);
+  height: clamp(52px, 8vh, 100px);
+}
+body.stacked-layout .display-lane { grid-template-columns: minmax(0, 1fr) clamp(52px, 8vh, 100px); }

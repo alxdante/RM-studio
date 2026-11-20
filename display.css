@@ -336,7 +336,8 @@ body {
   border: 1px solid rgba(244,243,237,.55);
   background: transparent;
   color: #f4f3ed;
-  font: 24px/1 Arial, sans-serif;
+  font: 20px/1 Arial, sans-serif;
+  letter-spacing: -4px;
   cursor: pointer;
 }
 .display-fullscreen:hover,

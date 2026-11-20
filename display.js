@@ -6,7 +6,7 @@ const fullscreenToggle = document.getElementById('fullscreenToggle');
 function updateStackedButton() {
   if (!stackedToggle) return;
   const active = document.body.classList.contains('stacked-layout');
-  stackedToggle.textContent = active ? '↔' : '↕';
+  stackedToggle.textContent = '↻↺';
   stackedToggle.setAttribute('aria-label', active ? 'Расположить панели рядом' : 'Расположить панели вертикально');
   stackedToggle.title = active ? 'Расположить панели рядом' : 'Расположить панели вертикально';
 }

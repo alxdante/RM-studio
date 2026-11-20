@@ -31,6 +31,30 @@ body {
   min-width: 0;
   align-content: start;
 }
+.current-athlete {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin-bottom: clamp(6px, .8vw, 12px);
+  padding: clamp(7px, .8vw, 13px) clamp(8px, 1vw, 16px);
+  overflow: hidden;
+  border: max(2px, .12vw) solid #333;
+  background: #000;
+  text-align: left;
+}
+.current-athlete-label {
+  color: #0f0;
+  font: bold clamp(8px, .7vw, 13px) "Courier New", monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.current-athlete-name {
+  overflow: hidden;
+  color: #f4f3ed;
+  font: 600 clamp(16px, 2.2vw, 36px)/1.1 "Space Grotesk", system-ui, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .lane-title {
   margin: 0 0 clamp(8px, 1vw, 16px);
   color: #0f0;

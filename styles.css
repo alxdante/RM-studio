@@ -17,7 +17,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .eyebrow, .mini-label { font: 9px/1.4 "DM Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 6px; }
 .accent { color: var(--orange); } .mono { font-family: "DM Mono", monospace; } .muted { color: var(--muted); }
 .event-fields { display: flex; gap: 20px; flex: 1; } .event-fields label { display: grid; gap: 5px; min-width: 140px; } .event-fields label span { color: var(--muted); font: 9px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .09em; }
-.event-fields input { border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); outline: none; padding: 3px 0 5px; font-size: 12px; width: 100%; }
+.event-fields input { border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); outline: none; padding: 3px 0 5px; font-size: 13px; width: 100%; }
 .event-fields input:focus { border-color: var(--orange); }
 .top-actions { display: flex; align-items: center; gap: 8px; } .save-status { color: #889490; font: 9px "DM Mono", monospace; margin-right: 4px; white-space: nowrap; }
 .btn { border: 0; min-height: 35px; padding: 0 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; transition: .2s ease; white-space: nowrap; }
@@ -396,8 +396,9 @@ body { background: #eef0ea; }
 .event-control-cluster { flex: 1 1 auto; width: auto; max-width: none; min-width: 0; gap: 10px; }
 .event-control-cluster .event-fields { flex: 0 1 430px; width: auto; max-width: 430px; min-width: 0; gap: 10px; }
 .event-control-cluster .event-fields label:first-child { flex: 0 1 280px; max-width: 280px; min-width: 120px; }
-.event-control-cluster .event-fields label:last-child { flex: 0 1 112px; min-width: 92px; }
-.event-control-cluster .event-fields input[type="date"] { padding-right: 0; }
+.event-control-cluster .event-fields label:last-child { flex: 0 0 104px; min-width: 104px; border-bottom: 1px solid var(--line); }
+.event-control-cluster .event-fields label:last-child:focus-within { border-bottom-color: var(--orange); }
+.event-control-cluster .event-fields input[type="date"] { padding-right: 0; border-bottom: 0; }
 .event-control-cluster .event-fields input[type="date"]::-webkit-datetime-edit { padding: 0; }
 .event-control-cluster .event-fields input[type="date"]::-webkit-calendar-picker-indicator { margin-left: 0; transform: translateX(-22px); }
 .event-control-cluster .run-controls { position: static; flex: 0 1 auto; gap: 6px; transform: none; margin: 0 auto 0 28px; white-space: nowrap; }

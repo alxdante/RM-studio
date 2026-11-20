@@ -132,7 +132,7 @@ function ensureXlsx() {
   return xlsxLoader;
 }
 
-function persist(message = 'Сохранено только что') { ensurePhaseLanes(); state.lanes.forEach((lane, index) => { lane.displayNextAthleteId = state.phase === 'qualification' ? (nextAthleteForLane(index)?.id || null) : null; }); state.phaseLanes[state.phase] = state.lanes; state.eventName = $('#eventName')?.value || state.eventName; state.eventDate = $('#eventDate')?.value || state.eventDate; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); if ($('#saveStatus')) $('#saveStatus').textContent = message; }
+function persist(message = 'Сохранено только что') { ensurePhaseLanes(); state.lanes.forEach((lane, index) => { lane.displayNextAthleteId = state.phase === 'qualification' ? (nextAthleteForLane(index)?.id || null) : null; }); state.phaseLanes[state.phase] = state.lanes; state.eventName = $('#eventName')?.value || state.eventName; state.eventDate = $('#eventDate')?.value || state.eventDate; localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateDocumentTitle(); if ($('#saveStatus')) $('#saveStatus').textContent = message; }
 let frsSyncTimer = null; let frsFullSyncTimer = null;
 function setFrsStatus(online, message = online ? 'online' : 'offline') { state.frs ||= emptyFrsState(); state.frs.online = online; const indicator = $('#frsOnlineStatus'); if (indicator) { indicator.textContent = message; indicator.classList.toggle('online', online); } }
 function frsApiUrl(pathname) { return `${String(state.frs?.serverUrl || '').replace(/\/$/, '')}${pathname}`; }
@@ -195,6 +195,10 @@ function formatTimerDisplay(value) {
   const minutes = Math.floor(value / 60);
   const seconds = (value - minutes * 60).toFixed(2).padStart(5, '0');
   return `${minutes}:${seconds}`;
+}
+function updateDocumentTitle() {
+  const eventName = String(state?.eventName || '').trim();
+  document.title = eventName ? `SpeedSlalom Timing · ${eventName}` : 'SpeedSlalom Timing';
 }
 function fitTimerFonts() {
   $$('.lane-time').forEach((element) => {
@@ -295,7 +299,9 @@ function advanceCategoryIfComplete(categoryId) { const category = categoryState(
 
 function renderSummary() {
   const active = activeCategoryIds(); const ready = active.filter((id) => categoryState(id).attempt > 2).length;
-  $('#eventName').value = state.eventName; $('#eventDate').value = state.eventDate; $('#queueMeta').textContent = `${active.length} ${active.length === 1 ? 'category' : 'categories'}`; $('#categoryMeta').textContent = `${ready} / ${active.length} KO`; }
+  updateDocumentTitle();
+  $('#eventName').value = state.eventName; $('#eventDate').value = state.eventDate; $('#queueMeta').textContent = `${active.length} ${active.length === 1 ? 'category' : 'categories'}`; $('#categoryMeta').textContent = `${ready} / ${active.length} KO`;
+}
 
 function laneCategoryPicker(lane, laneIndex) {
   const isEnabled = (category) => Array.isArray(state.enabledCategories) ? state.enabledCategories.includes(category.id) : state.enabledAgeGroups?.includes(category.ageId);

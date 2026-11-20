@@ -73,7 +73,7 @@ function fitTimers() {
     const available = Math.max(1, box.clientWidth - 12);
     const stacked = document.body.classList.contains('stacked-layout');
     const base = stacked
-      ? Math.max(36, Math.min(140, box.clientWidth * 0.12))
+      ? Math.max(54, Math.min(220, box.clientWidth * 0.20))
       : Math.max(54, Math.min(260, box.clientWidth * 0.23));
     timer.style.fontSize = `${base}px`;
     const width = timer.getBoundingClientRect().width;

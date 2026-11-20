@@ -399,7 +399,7 @@ body { background: #eef0ea; }
 .event-control-cluster .event-fields label:last-child { flex: 0 1 112px; min-width: 92px; }
 .event-control-cluster .event-fields input[type="date"] { padding-right: 0; }
 .event-control-cluster .event-fields input[type="date"]::-webkit-datetime-edit { padding: 0; }
-.event-control-cluster .event-fields input[type="date"]::-webkit-calendar-picker-indicator { margin-left: -22px; }
+.event-control-cluster .event-fields input[type="date"]::-webkit-calendar-picker-indicator { margin-left: 0; transform: translateX(-22px); }
 .event-control-cluster .run-controls { position: static; flex: 0 1 auto; gap: 6px; transform: none; margin: 0 auto 0 28px; white-space: nowrap; }
 .event-control-cluster .run-controls .btn { flex: 1 1 70px; min-width: 60px; padding: 0 10px; }
 .top-phase-switch, .top-actions { flex: 0 0 auto; min-width: max-content; }

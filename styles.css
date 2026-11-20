@@ -256,9 +256,9 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .add-group-card .modal-meta { font-size: 11px; }
 .add-group-card .age-editor-row { padding: 12px 13px; }
 .add-group-card .age-editor-head strong { font-size: 14px; }
-.add-group-card .age-editor-head small, .add-group-card .age-editor-category small { font-size: 9px; }
-.add-group-card .age-editor-category { font-size: 12px; }
-.add-group-card .age-editor-category .text-button, .add-group-card .age-editor-remove { font-size: 10px; }
+.add-group-card .age-editor-head small, .add-group-card .age-editor-category small { font-size: 10px; }
+.add-group-card .age-editor-category { font-size: 14px; }
+.add-group-card .age-editor-category .text-button, .add-group-card .age-editor-remove { font-size: 11px; }
 .add-group-card .age-group-form-title { font-size: 14px; }
 .add-group-card .age-group-form label { font-size: 10px; }
 .add-group-card .age-group-form input[type="number"], .add-group-card .age-group-form select { min-height: 35px; font-size: 11px; }
@@ -267,7 +267,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .add-group-card .age-editor-remove, .add-group-card .age-group-form .btn { border-radius: 6px; }
 .add-group-card .age-editor-category > div { min-width: 0; }
 .add-group-card .age-editor-category strong, .add-group-card .age-editor-category small { display: block; }
-.add-group-card .age-editor-category strong { font-size: 12px; }
+.add-group-card .age-editor-category strong { font-size: 14px; }
 .add-group-card .age-editor-category small { margin-top: 5px; }
 
 .ble-action-wrap { position: relative; display: inline-flex; }

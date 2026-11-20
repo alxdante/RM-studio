@@ -102,7 +102,7 @@ body {
 .next-athlete-name {
   overflow: hidden;
   color: #ddd;
-  font: bold clamp(16px, 1.8vw, 32px)/1.1 "Courier New", monospace;
+  font: 500 clamp(16px, 1.8vw, 32px)/1.1 "DM Mono", monospace;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

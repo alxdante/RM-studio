@@ -384,8 +384,8 @@ function recalculateLanePenalty(index) {
     }
   }
   if (state.phase === 'qualification' && lane?.athleteId && lane.categoryId) {
-    const category = categoryState(lane.categoryId); const attempt = [category.attempt, 1, 2].find((candidate) => candidate <= 2 && Number.isFinite(category.attempts[candidate]?.[lane.athleteId]));
-    if (attempt) {
+    const category = categoryState(lane.categoryId); const attempt = category.attempt;
+    if (attempt <= 2 && Number.isFinite(category.attempts[attempt]?.[lane.athleteId])) {
       category.rawAttempts ||= { 1: {}, 2: {} };
       category.rawAttempts[attempt] ||= {};
       category.dq ||= { 1: {}, 2: {} }; category.dq[attempt] ||= {};

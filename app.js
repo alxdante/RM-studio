@@ -71,7 +71,7 @@ function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategor
 
 function createInitialState() {
   const roster = [];
-  const state = { eventName: 'Urban Flow Open', eventDate: new Date().toISOString().slice(0, 10), phase: 'qualification', roster, enabledAgeGroups: AGE_GROUPS.map((group) => group.id), enabledCategories: CATEGORIES.map((category) => category.id), ageGroups: [...AGE_GROUPS], customAgeGroups: AGE_GROUPS.filter((group) => !group.standard), categories: createCategoryStates(), lanes: lanesForRoster(roster), selectedFinalCategory: CATEGORIES[0].id, activity: [], raceLog: [], frs: emptyFrsState() };
+  const state = { eventName: 'Urban Flow Open', eventDate: new Date().toISOString().slice(0, 10), phase: 'qualification', roster, enabledAgeGroups: AGE_GROUPS.map((group) => group.id), enabledCategories: CATEGORIES.map((category) => category.id), ageGroups: [...AGE_GROUPS], customAgeGroups: AGE_GROUPS.filter((group) => !group.standard), categories: createCategoryStates(), lanes: lanesForRoster(roster), selectedFinalCategory: CATEGORIES[0].id, activity: [], raceLog: [], timerMode: { mode: null, qualificationDisable: false, raceDisable: false }, frs: emptyFrsState() };
   state.lanes.forEach((lane) => { lane.athleteId = state.roster.filter((athlete) => categoryForAthlete(athlete).id === lane.categoryId).sort((a, b) => Number(a.rating) - Number(b.rating))[0]?.id || null; });
   return state;
 }
@@ -155,7 +155,7 @@ function phaseToBleCommand(phase) { return phase === 'qualification' ? 'Q' : 'R'
 function currentModeDisabled() { return state.phase === 'qualification' ? bleState.qualificationDisable : bleState.raceDisable; }
 function modeDisabledLabel() { return state.phase === 'qualification' ? 'qualification_disable' : 'race_disable'; }
 function modeIsSynchronized() { return ble.connected && bleState.mode === phaseToBleMode(state.phase); }
-function clearBleTelemetry() { ble.buffer = ''; bleState = { mode: null, raceDisable: false, qualificationDisable: false, errors: { 1: null, 2: null } }; renderLanes(); renderBle(); }
+function clearBleTelemetry() { ble.buffer = ''; bleState = { mode: null, raceDisable: false, qualificationDisable: false, errors: { 1: null, 2: null } }; state.timerMode = { mode: null, qualificationDisable: false, raceDisable: false }; persist(); renderLanes(); renderBle(); }
 function switchPhase(phase, { notifyBle = true } = {}) {
   if (!['qualification', 'finals'].includes(phase) || phase === state.phase) return false;
   if (hasActiveTimers()) {
@@ -790,6 +790,8 @@ function parseBleLine(line) {
     bleState.mode = nextMode || bleState.mode;
     bleState.raceDisable = nextRaceDisable;
     bleState.qualificationDisable = nextQualificationDisable;
+    state.timerMode = { mode: bleState.mode, qualificationDisable: bleState.qualificationDisable, raceDisable: bleState.raceDisable };
+    if (stateChanged) persist();
     const nextPhase = payload.mode === 'qualification' ? 'qualification' : payload.mode === 'race' ? 'finals' : null;
     if (!nextPhase) { if (stateChanged) { renderLanes(); renderBle(); } return; }
     if (nextPhase === state.phase) { if (stateChanged) { renderLanes(); renderBle(); } return; }

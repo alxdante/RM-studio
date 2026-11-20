@@ -347,7 +347,7 @@ body {
 
 /* Compact board: keep the athlete name above the timer without creating another panel. */
 body { padding-top: 4px; padding-bottom: 4px; }
-.display-board { gap: clamp(5px, .8vw, 12px); padding-left: clamp(5px, .8vw, 12px); padding-right: clamp(5px, .8vw, 12px); }
+.display-board { gap: clamp(8px, 1.4vw, 22px); padding-left: clamp(5px, .8vw, 12px); padding-right: clamp(5px, .8vw, 12px); }
 .display-lane { grid-template-rows: auto auto auto auto; }
 .current-athlete {
   display: block;
@@ -375,12 +375,13 @@ body { padding-top: 4px; padding-bottom: 4px; }
 .next-athlete {
   height: clamp(52px, 6.5vw, 108px);
   min-height: 0;
-  margin-top: 4px;
+  margin-top: clamp(6px, .7vw, 12px);
 }
 .next-athlete { padding-top: 6px; padding-bottom: 6px; }
 .penalty-value { padding-top: clamp(18px, 1.8vw, 30px); padding-bottom: 4px; }
 .display-header { min-height: 40px; margin-top: -4px; margin-bottom: 15px; padding-top: 3px; padding-bottom: 3px; }
 @media (max-width: 720px) {
+  .display-board { gap: 18px; }
   .display-header { margin-top: -4px; margin-bottom: 15px; }
   .lane-box { min-height: clamp(70px, 25vw, 150px); padding-top: 6px; padding-bottom: 6px; }
   .penalty-container,

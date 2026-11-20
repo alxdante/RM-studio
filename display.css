@@ -362,7 +362,7 @@ body { padding-top: 4px; padding-bottom: 4px; }
   display: block;
   overflow: hidden;
   color: #909090;
-  font: 600 clamp(14px, 1.6vw, 26px)/1 "Space Grotesk", system-ui, sans-serif;
+  font: 600 clamp(16px, 1.8vw, 30px)/1 "Space Grotesk", system-ui, sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -379,11 +379,11 @@ body { padding-top: 4px; padding-bottom: 4px; }
 }
 .next-athlete { padding-top: 6px; padding-bottom: 6px; }
 .penalty-value { padding-top: clamp(18px, 1.8vw, 30px); padding-bottom: 4px; }
-.display-header { min-height: 40px; margin-top: -4px; margin-bottom: 5px; padding-top: 3px; padding-bottom: 3px; }
+.display-header { min-height: 40px; margin-top: -4px; margin-bottom: 15px; padding-top: 3px; padding-bottom: 3px; }
 @media (max-width: 720px) {
-  .display-header { margin-top: -4px; margin-bottom: 5px; }
+  .display-header { margin-top: -4px; margin-bottom: 15px; }
   .lane-box { min-height: clamp(70px, 25vw, 150px); padding-top: 6px; padding-bottom: 6px; }
   .penalty-container,
   .next-athlete { height: clamp(50px, 14vw, 84px); }
-  .current-athlete-name { font-size: clamp(13px, 4vw, 22px); }
+  .current-athlete-name { font-size: clamp(15px, 4.5vw, 24px); }
 }

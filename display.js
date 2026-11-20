@@ -1,5 +1,34 @@
 const STORAGE_KEY = 'slalom-timing-control-v4';
 const board = document.getElementById('displayBoard');
+const fullscreenToggle = document.getElementById('fullscreenToggle');
+
+function fullscreenElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+function updateFullscreenButton() {
+  if (!fullscreenToggle) return;
+  const active = Boolean(fullscreenElement());
+  fullscreenToggle.textContent = active ? '×' : '⛶';
+  fullscreenToggle.setAttribute('aria-label', active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим');
+  fullscreenToggle.title = active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим';
+}
+async function toggleFullscreen() {
+  try {
+    if (fullscreenElement()) {
+      if (document.exitFullscreen) await document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    } else {
+      const root = document.documentElement;
+      if (root.requestFullscreen) await root.requestFullscreen();
+      else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    }
+  } catch (_) {
+    fullscreenToggle?.blur();
+  }
+  updateFullscreenButton();
+}
+fullscreenToggle?.addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+updateFullscreenButton();
 
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));

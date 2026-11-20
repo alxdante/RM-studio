@@ -327,6 +327,20 @@ body {
 .display-brand-mark { border-color: #f4f3ed; color: #f4f3ed; }
 .display-header h1 { color: #f4f3ed; }
 .display-header h1 strong { color: #ff7445; }
+.display-fullscreen {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid rgba(244,243,237,.55);
+  background: transparent;
+  color: #f4f3ed;
+  font: 24px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+.display-fullscreen:hover,
+.display-fullscreen:focus-visible { background: rgba(244,243,237,.14); outline: none; }
 
 /* Final display typography and neutral gray header. */
 .display-header { background: #2b2b2b; }

@@ -693,6 +693,9 @@ function resetAllLanes() {
     lane.startedAt = null;
     lane.time = null;
     lane.demoRawTime = null;
+    lane.pendingResult = null;
+    lane.pendingFinalResult = null;
+    lane.finalRawTime = null;
     if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; }
     lane.error = null;
   });

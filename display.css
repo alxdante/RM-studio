@@ -249,3 +249,50 @@ body {
   letter-spacing: .06em;
 }
 .penalty-number { display: block; font: inherit; }
+
+/* Match the main site's header branding exactly. */
+.display-header {
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 46px;
+  margin: -1.5vw 0 clamp(10px, 1.5vw, 22px);
+  padding: 4px 22px;
+  background: #f7f8f3;
+  text-align: left;
+}
+.display-brand-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border: 1px solid #102a2b;
+  color: #102a2b;
+  font: 12px "DM Mono", monospace;
+  letter-spacing: -1px;
+}
+.display-brand-mark i {
+  right: -3px;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: #ff7445;
+}
+.display-header h1 {
+  font: 500 19px/.9 "Space Grotesk", system-ui, sans-serif;
+  letter-spacing: -.06em;
+  color: #102a2b;
+}
+.display-header h1 strong { color: #ff7445; font-weight: 600; }
+.display-lane {
+  grid-template-columns: minmax(0, 1fr) clamp(62px, 8vw, 140px);
+}
+.penalty-container { width: clamp(62px, 8vw, 140px); }
+.penalty-value { width: 100%; height: 100%; }
+@media (max-width: 720px) {
+  .display-header { margin-top: -8px; padding: 4px 14px; }
+  .display-brand-mark { width: 38px; height: 38px; flex-basis: 38px; }
+  .display-header h1 { font-size: 17px; }
+  .display-lane { grid-template-columns: minmax(0, 1fr) clamp(58px, 17vw, 100px); }
+  .penalty-container { width: clamp(58px, 17vw, 100px); }
+}

@@ -5,6 +5,7 @@
   font-family: "Space Grotesk", system-ui, sans-serif; color: var(--ink); background: var(--paper); font-synthesis: none;
 }
 * { box-sizing: border-box; }
+html, body { touch-action: manipulation; }
 body { margin: 0; min-width: 320px; background: var(--paper); }
 button, input, select { font: inherit; } button { cursor: pointer; } button:disabled { cursor: not-allowed; opacity: .45; }
 .app-shell { min-height: 100vh; background: var(--paper); }

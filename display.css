@@ -296,3 +296,9 @@ body {
   .display-lane { grid-template-columns: minmax(0, 1fr) clamp(58px, 17vw, 100px); }
   .penalty-container { width: clamp(58px, 17vw, 100px); }
 }
+
+/* The display header is permanently dark; the control window's theme is irrelevant here. */
+.display-header { background: #111d1f; }
+.display-brand-mark { border-color: #f4f3ed; color: #f4f3ed; }
+.display-header h1 { color: #f4f3ed; }
+.display-header h1 strong { color: #ff7445; }

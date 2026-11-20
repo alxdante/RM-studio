@@ -149,12 +149,9 @@ function render() {
     const athlete = roster.find((item) => item.id === lane.athleteId);
     const nextAthlete = roster.find((item) => item.id === lane.displayNextAthleteId);
     const penalty = lane.penalties >= 5 ? lane.penalties : lane.dq ? 'DQ' : Number(lane.penalties || 0);
-    const timerMode = state.timerMode || {};
-    const modeName = state.phase === 'finals' ? 'race' : 'qualification';
-    const modeSynchronized = timerMode.mode === modeName;
-    const disabled = modeSynchronized && Boolean(state.phase === 'finals' ? timerMode.raceDisable : timerMode.qualificationDisable);
-    const statusClass = disabled ? ' disabled' : lane.error ? ' error' : lane.running ? ' active' : ' ready';
-    const statusLabel = disabled ? 'DISABLED' : lane.error ? 'ERROR' : lane.running ? 'RUNNING' : 'READY';
+    const timerStatus = Array.isArray(state.timerStatuses) ? state.timerStatuses[index] : 'neutral';
+    const statusClass = timerStatus === 'error' ? ' error' : timerStatus === 'disabled' ? ' disabled' : timerStatus === 'ready' ? ' ready' : '';
+    const statusLabel = timerStatus === 'error' ? 'ERROR' : timerStatus === 'disabled' ? 'DISABLED' : timerStatus === 'ready' ? 'READY' : '';
     return `<section class="display-lane"><div class="current-athlete"><strong class="current-athlete-name">${escapeHtml(athlete?.name || '—')}</strong></div><div class="lane-box${statusClass}"><span class="lane-label">LANE ${index + 1}</span><span class="timer-status-label">${statusLabel}</span><strong class="timer">${timerValue(lane, now)}</strong></div><div class="penalty-container"><strong class="penalty-value"><span class="penalty-label">PENALTIES</span><span class="penalty-number">${penalty}</span></strong></div><div class="next-athlete"><span class="next-athlete-label">Next skater</span><strong class="next-athlete-name">${escapeHtml(nextAthlete?.name || '—')}</strong></div></section>`;
   }).join('');
   fitTimers();

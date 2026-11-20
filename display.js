@@ -85,13 +85,19 @@ function fitDisplayLayout() {
     board.style.height = '';
     board.style.gridTemplateRows = '';
     board.style.rowGap = '';
-    lanes.forEach((lane) => { lane.style.transform = ''; lane.style.transformOrigin = ''; });
+    lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
     return;
   }
   board.style.height = 'calc(100vh - 75px)';
   board.style.gridTemplateRows = 'none';
-  lanes.forEach((lane) => { lane.style.transform = 'none'; lane.style.transformOrigin = 'center center'; });
   const gap = parseFloat(getComputedStyle(board).rowGap) || 0;
+  const horizontalBlockWidth = Math.max(1, (board.clientWidth - gap) / 2);
+  lanes.forEach((lane) => {
+    lane.style.width = `${horizontalBlockWidth}px`;
+    lane.style.transform = 'none';
+    lane.style.transformOrigin = 'center center';
+  });
+  fitTimers();
   const naturalHeight = Math.max(...lanes.map((lane) => lane.getBoundingClientRect().height));
   const availableHeight = Math.max(1, board.clientHeight - gap * (lanes.length - 1));
   const scale = Math.min(1, availableHeight / (naturalHeight * lanes.length));

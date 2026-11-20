@@ -492,8 +492,7 @@ function formatManualInputDigits(input, digits) {
   const clean = String(digits || '').replace(/\D/g, '').slice(0, 5);
   input.dataset.rawDigits = clean;
   if (!clean) { input.value = ''; return; }
-  const padded = clean.padStart(4, '0');
-  input.value = `${padded.slice(0, -3)}.${padded.slice(-3)}`;
+  input.value = clean.length === 1 ? `${clean}.` : `${clean[0]}.${clean.slice(1)}`;
 }
 
 function closeNumericPad() {

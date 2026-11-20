@@ -417,7 +417,8 @@ body { padding-top: 4px; padding-bottom: 4px; }
 }
 
 /* Stacked mode scales each complete lane as one unit. */
-body.stacked-layout .display-board {
+body.stacked-layout .display-board,
+body.responsive-stacked-layout .display-board {
   grid-template-columns: 1fr;
   gap: clamp(8px, 1.4vw, 22px);
   height: calc(100vh - 68px);
@@ -425,7 +426,8 @@ body.stacked-layout .display-board {
   align-content: center;
   align-items: center;
 }
-body.stacked-layout .display-lane {
+body.stacked-layout .display-lane,
+body.responsive-stacked-layout .display-lane {
   justify-self: center;
   transform: none;
 }

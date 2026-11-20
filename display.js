@@ -2,6 +2,15 @@ const STORAGE_KEY = 'slalom-timing-control-v4';
 const board = document.getElementById('displayBoard');
 const stackedToggle = document.getElementById('stackedToggle');
 const fullscreenToggle = document.getElementById('fullscreenToggle');
+const narrowLayoutQuery = window.matchMedia('(max-width: 720px)');
+
+function syncResponsiveLayoutClass() {
+  document.body.classList.toggle('responsive-stacked-layout', narrowLayoutQuery.matches);
+  requestAnimationFrame(() => { fitTimers(); fitDisplayLayout(); });
+}
+syncResponsiveLayoutClass();
+if (narrowLayoutQuery.addEventListener) narrowLayoutQuery.addEventListener('change', syncResponsiveLayoutClass);
+else narrowLayoutQuery.addListener(syncResponsiveLayoutClass);
 
 function updateStackedButton() {
   if (!stackedToggle) return;
@@ -82,7 +91,7 @@ function fitTimers() {
 function fitDisplayLayout() {
   const lanes = [...board.querySelectorAll('.display-lane')];
   if (!lanes.length) return;
-  const stacked = document.body.classList.contains('stacked-layout');
+  const stacked = document.body.classList.contains('stacked-layout') || document.body.classList.contains('responsive-stacked-layout');
   const boardStyle = getComputedStyle(board);
   const padding = (parseFloat(boardStyle.paddingLeft) || 0) + (parseFloat(boardStyle.paddingRight) || 0);
   const contentWidth = Math.max(1, board.clientWidth - padding);

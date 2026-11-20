@@ -972,15 +972,15 @@ function qualificationHasFinalBracket(categoryId) { return Boolean(categoryState
 function recomputeQualificationAttempt(categoryId) { const category = categoryState(categoryId); category.attempt = categoryComplete(categoryId, 1) ? (categoryComplete(categoryId, 2) ? 3 : 2) : 1; }
 function clearQualificationValue(categoryId, athleteId, attempt) { const category = categoryState(categoryId); for (const key of ['attempts', 'rawAttempts', 'penalties', 'dq', 'falseStarts']) { if (category[key]?.[attempt]) delete category[key][attempt][athleteId]; } }
 function recordCorrection(entry, action, extra = {}) { const correction = { id: `correction-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: Date.now(), phase: 'qualification', correctionAction: action, correctionOf: entry.id, categoryId: entry.categoryId, attempt: entry.attempt, source: 'correction', ...extra }; state.raceLog.push(correction); }
-function editQualificationResults(entryIds) {
+function editQualificationResults(entryIds, forceDqIds = [], forceClearDqIds = []) {
   const entries = entryIds.map((id) => id ? correctionEntryById(id) : null).filter(Boolean);
   if (!entries.length) return;
   if (entries.some((entry) => qualificationHasFinalBracket(entry.categoryId))) return showToast('Для категории уже создана финальная сетка.');
   for (const entry of entries) {
     const resultInput = $(`[data-correction-result="${entry.id}"]`); const penaltyInput = $(`[data-correction-penalty="${entry.id}"]`);
-    const penalties = Math.min(25, Math.max(0, Math.floor(Number(penaltyInput?.value || 0)))); const result = Number(resultInput?.value); const dq = penalties >= 5;
+    const penalties = Math.min(25, Math.max(0, Math.floor(Number(penaltyInput?.value || 0)))); const result = Number(resultInput?.value); const forceDq = forceDqIds.includes(entry.id); const forceClearDq = forceClearDqIds.includes(entry.id); const dq = forceDq || (!forceClearDq && penalties >= 5);
     if (!dq && (!Number.isFinite(result) || result <= 0)) return showToast('Введите корректное время или штраф 5 для DQ');
-    if (dq && !entry.dq) entry.preDqAdjustedTime = Number.isFinite(result) && result > 0 ? Number(result.toFixed(3)) : entry.adjustedTime;
+    if (dq && !entry.dq) { entry.preDqAdjustedTime = Number.isFinite(result) && result > 0 ? Number(result.toFixed(3)) : entry.adjustedTime; entry.preDqPenalties = penalties; }
     const adjustedTime = dq ? null : Number(result.toFixed(3)); const rawTime = dq ? 0 : Number((adjustedTime - penalties * 0.2).toFixed(3)); const category = categoryState(entry.categoryId); category.attempts[entry.attempt][entry.athleteId] = dq ? 0 : adjustedTime; category.rawAttempts[entry.attempt][entry.athleteId] = rawTime; category.penalties[entry.attempt][entry.athleteId] = penalties; category.dq[entry.attempt][entry.athleteId] = dq;
     entry.adjustedTime = adjustedTime; entry.rawTime = rawTime; entry.penalties = penalties; entry.dq = dq; entry.updatedAt = Date.now();
     recomputeQualificationAttempt(entry.categoryId);
@@ -993,13 +993,15 @@ function markQualificationDq(entryId) {
   if (entry.dq) {
     if (!Number.isFinite(Number(entry.preDqAdjustedTime)) || Number(entry.preDqAdjustedTime) <= 0) return deleteQualificationResult(entryId);
     resultInput.value = entry.preDqAdjustedTime ?? '';
-    penaltyInput.value = '0';
+    const restoredPenalties = Number(entry.preDqPenalties ?? entry.penalties ?? 0);
+    penaltyInput.value = restoredPenalties >= 5 ? '0' : restoredPenalties;
+    editQualificationResults([entryId], [], [entryId]);
   } else {
     entry.preDqAdjustedTime = entry.adjustedTime ?? '';
+    entry.preDqPenalties = entry.penalties ?? 0;
     resultInput.value = '';
-    penaltyInput.value = '5';
+    editQualificationResults([entryId], [entryId]);
   }
-  editQualificationResults([entryId]);
 }
 function deleteQualificationResult(entryId) {
   const entry = correctionEntryById(entryId); if (!entry) return; const category = categoryState(entry.categoryId); if (entry.attempt === 1 && category.attempt >= 2 && finishedCount(entry.categoryId, 2) > 0) return showToast('Нельзя удалить TT1 после первого результата TT2'); if (qualificationHasFinalBracket(entry.categoryId)) return showToast('Для категории уже создана финальная сетка. Корректировки финалов будут добавлены отдельно.'); if (!confirm('Удалить этот результат? Спортсмен снова сможет пройти эту попытку. Запись останется в журнале.')) return; clearQualificationValue(entry.categoryId, entry.athleteId, entry.attempt); recordCorrection(entry, 'delete', { athleteId: entry.athleteId }); state.lanes.forEach((lane) => { if (lane.categoryId === entry.categoryId && lane.athleteId === entry.athleteId) Object.assign(lane, createLane(entry.categoryId)); }); recomputeQualificationAttempt(entry.categoryId); autoAssignLanes(); persist('Результат удалён для повторного старта'); renderCorrections(); renderAll(); showToast('Результат удалён, спортсмен снова доступен в очереди');

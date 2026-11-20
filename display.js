@@ -31,7 +31,6 @@ function fullscreenElement() { return document.fullscreenElement || document.web
 function updateFullscreenButton() {
   if (!fullscreenToggle) return;
   const active = Boolean(fullscreenElement());
-  fullscreenToggle.classList.toggle('is-active', active);
   fullscreenToggle.setAttribute('aria-label', active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим');
   fullscreenToggle.title = active ? 'Выйти из полноэкранного режима' : 'Открыть полноэкранный режим';
 }

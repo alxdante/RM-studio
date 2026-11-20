@@ -98,8 +98,9 @@ function fitDisplayLayout() {
 
   board.style.height = 'calc(100vh - 68px)';
   const gap = parseFloat(boardStyle.rowGap) || 0;
+  const baseWidth = Math.max(1, (contentWidth - gap) / 2);
   lanes.forEach((lane) => {
-    lane.style.width = `${contentWidth}px`;
+    lane.style.width = `${baseWidth}px`;
     lane.style.transform = 'none';
     lane.style.transformOrigin = 'center center';
   });
@@ -107,7 +108,9 @@ function fitDisplayLayout() {
   const naturalHeights = lanes.map((lane) => lane.getBoundingClientRect().height);
   const availableHeight = Math.max(1, board.clientHeight - gap * (lanes.length - 1));
   const totalNaturalHeight = naturalHeights.reduce((sum, height) => sum + height, 0);
-  const scale = Math.min(1, availableHeight / Math.max(1, totalNaturalHeight));
+  const heightScale = availableHeight / Math.max(1, totalNaturalHeight);
+  const widthScale = contentWidth / baseWidth;
+  const scale = Math.min(heightScale, widthScale);
   board.style.gridTemplateRows = naturalHeights.map((height) => `${height * scale}px`).join(' ');
   board.style.rowGap = `${gap * scale}px`;
   lanes.forEach((lane) => { lane.style.transform = `scale(${scale})`; });

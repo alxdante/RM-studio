@@ -344,3 +344,46 @@ body {
 
 /* Final polish for the permanently dark display header. */
 .display-header { background: #2b2b2b !important; }
+
+/* Compact board: keep the athlete name above the timer without creating another panel. */
+body { padding-top: 4px; padding-bottom: 4px; }
+.display-board { gap: clamp(5px, .8vw, 12px); padding-left: clamp(5px, .8vw, 12px); padding-right: clamp(5px, .8vw, 12px); }
+.display-lane { grid-template-rows: auto auto auto auto; }
+.current-athlete {
+  display: block;
+  min-height: 0;
+  margin: 0 0 3px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.current-athlete-name {
+  display: block;
+  overflow: hidden;
+  color: #909090;
+  font: 600 clamp(14px, 1.6vw, 26px)/1 "Space Grotesk", system-ui, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lane-box {
+  min-height: clamp(76px, 14vw, 220px);
+  padding-top: clamp(7px, 1vw, 16px);
+  padding-bottom: clamp(7px, 1vw, 16px);
+}
+.penalty-container,
+.next-athlete {
+  height: clamp(52px, 6.5vw, 108px);
+  min-height: 0;
+  margin-top: 4px;
+}
+.next-athlete { padding-top: 6px; padding-bottom: 6px; }
+.penalty-value { padding-top: clamp(18px, 1.8vw, 30px); padding-bottom: 4px; }
+.display-header { min-height: 40px; margin-top: -4px; margin-bottom: 5px; padding-top: 3px; padding-bottom: 3px; }
+@media (max-width: 720px) {
+  .display-header { margin-top: -4px; margin-bottom: 5px; }
+  .lane-box { min-height: clamp(70px, 25vw, 150px); padding-top: 6px; padding-bottom: 6px; }
+  .penalty-container,
+  .next-athlete { height: clamp(50px, 14vw, 84px); }
+  .current-athlete-name { font-size: clamp(13px, 4vw, 22px); }
+}

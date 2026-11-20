@@ -71,16 +71,11 @@ function fitTimers() {
   board.querySelectorAll('.timer').forEach((timer) => {
     const box = timer.closest('.lane-box');
     if (!box) return;
-    const boxStyle = getComputedStyle(box);
-    const available = Math.max(1, box.clientWidth - parseFloat(boxStyle.paddingLeft) - parseFloat(boxStyle.paddingRight) - 4);
-    const availableHeight = Math.max(1, box.clientHeight - parseFloat(boxStyle.paddingTop) - parseFloat(boxStyle.paddingBottom) - 4);
+    const available = Math.max(1, box.clientWidth - 12);
     const base = Math.max(54, Math.min(260, box.clientWidth * 0.23));
     timer.style.fontSize = `${base}px`;
     const width = timer.getBoundingClientRect().width;
-    const height = timer.getBoundingClientRect().height;
-    const widthScale = width > available ? available / width : 1;
-    const heightScale = height > availableHeight ? availableHeight / height : 1;
-    timer.style.fontSize = `${Math.max(30, base * Math.min(widthScale, heightScale))}px`;
+    if (width > available) timer.style.fontSize = `${Math.max(30, base * available / width)}px`;
   });
 }
 
@@ -98,7 +93,6 @@ function fitDisplayLayout() {
   if (!stacked) {
     board.style.height = '';
     lanes.forEach((lane) => { lane.style.width = ''; lane.style.transform = ''; lane.style.transformOrigin = ''; });
-    fitTimers();
     return;
   }
 

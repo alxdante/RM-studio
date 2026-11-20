@@ -24,7 +24,6 @@ body {
   width: min(100%, 1900px);
   margin: 0 auto;
   padding: 0 clamp(8px, 1vw, 18px);
-  overflow: hidden;
 }
 .display-lane {
   display: grid;

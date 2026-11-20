@@ -362,6 +362,9 @@ body {
   stroke-linecap: square;
   stroke-linejoin: miter;
 }
+.layout-toggle-icon svg { stroke: none; }
+.fullscreen-icon svg { stroke: #ffffff; stroke-width: 1; }
+.timer-color-icon svg { stroke: none; }
 .fullscreen-icon {
   display: block;
   width: 27px;
@@ -380,14 +383,14 @@ body {
 }
 .timer-color-icon .color-frame {
   fill: none;
-  stroke: #a9a9a9;
-  stroke-width: 2;
+  stroke: #ffffff;
+  stroke-width: 1;
 }
 .timer-color-icon .color-fill {
   fill: #00ff00;
 }
 body.green-timers .timer { color: #48ff78; text-shadow: 0 0 25px #174d27; }
-body.green-timers .timer-color-icon .color-fill { fill: #f33; }
+body.green-timers .timer-color-icon .color-fill { fill: #ff0000; }
 body.green-timers #timerColorToggle { border-color: #48ff78; }
 
 /* Final display typography and neutral gray header. */

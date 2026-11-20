@@ -31,5 +31,8 @@ await writeFile(path.join(dist, 'index.html'), html);
 for (const file of ['xlsx.full.min.js', 'DSEG7Classic-BoldItalic.ttf', '.nojekyll']) {
   await cp(path.join(root, file), path.join(dist, file));
 }
+for (const file of ['display.html', 'display.css', 'display.js']) {
+  await cp(path.join(root, file), path.join(dist, file));
+}
 
 console.log(`Built ${path.relative(root, dist)}: ${jsName}, ${cssName}`);

@@ -1,0 +1,55 @@
+const STORAGE_KEY = 'slalom-timing-control-v4';
+const board = document.getElementById('displayBoard');
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+}
+
+function formatTime(value) {
+  if (!Number.isFinite(value)) return '0.000';
+  if (value < 60) return value.toFixed(3);
+  const minutes = Math.floor(value / 60);
+  return `${minutes}:${(value - minutes * 60).toFixed(2).padStart(5, '0')}`;
+}
+
+function timerValue(lane, now) {
+  if (lane.error) return 'ERR';
+  if (lane.dq) return '--';
+  const value = lane.running && Number.isFinite(lane.startedAt)
+    ? (now - lane.startedAt) / 1000
+    : lane.time;
+  return formatTime(value);
+}
+
+function fitTimers() {
+  board.querySelectorAll('.timer').forEach((timer) => {
+    const box = timer.closest('.lane-box');
+    const available = Math.max(1, box.clientWidth - 12);
+    timer.style.fontSize = '11.5vw';
+    const width = timer.getBoundingClientRect().width;
+    if (width > available) timer.style.fontSize = `${Math.max(24, 11.5 * available / width)}vw`;
+  });
+}
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+
+function render() {
+  const state = loadState();
+  const roster = Array.isArray(state.roster) ? state.roster : [];
+  const lanes = Array.isArray(state.lanes) ? state.lanes.slice(0, 2) : [];
+  const now = Date.now();
+  board.innerHTML = lanes.map((lane, index) => {
+    const athlete = roster.find((item) => item.id === lane.athleteId);
+    const penalty = lane.penalties >= 5 ? lane.penalties : lane.dq ? 'DQ' : Number(lane.penalties || 0);
+    const statusClass = lane.error ? ' error' : lane.running ? ' active' : '';
+    return `<section class="display-lane"><div class="lane-title">LANE ${index + 1}</div><div class="lane-box${statusClass}"><strong class="timer">${timerValue(lane, now)}</strong></div><div class="athlete">${escapeHtml(athlete?.name || '—')}</div><div class="penalty-container"><span class="penalty-label">ШТРАФ:</span><strong class="penalty-value">${penalty}</strong></div></section>`;
+  }).join('');
+  fitTimers();
+}
+
+render();
+window.addEventListener('storage', (event) => { if (event.key === STORAGE_KEY) render(); });
+setInterval(render, 100);
+window.addEventListener('resize', fitTimers);

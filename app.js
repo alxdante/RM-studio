@@ -1096,10 +1096,10 @@ function finalRaceWinner(race, athlete1, athlete2) {
   if (dq1 && dq2) return null;
   if (dq1 && race.time2 !== null) return athlete2;
   if (dq2 && race.time1 !== null) return athlete1;
-  if (Number.isFinite(race.time1) && Number.isFinite(race.time2)) return race.time1 <= race.time2 ? athlete1 : athlete2;
+  if (Number.isFinite(race.time1) && Number.isFinite(race.time2) && race.time1 !== race.time2) return race.time1 < race.time2 ? athlete1 : athlete2;
   return null;
 }
-function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return Boolean(previous && previous.time1 !== null && previous.time1 !== undefined && previous.time2 !== null && previous.time2 !== undefined && finalRaceWinner(previous, match.athlete1, match.athlete2)); }
+function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return Boolean(previous && previous.time1 !== null && previous.time1 !== undefined && previous.time2 !== null && previous.time2 !== undefined && (finalRaceWinner(previous, match.athlete1, match.athlete2) || (Number.isFinite(previous.time1) && Number.isFinite(previous.time2) && previous.time1 === previous.time2))); }
 function resolveMatchWinner(match, categoryId) {
   const races = ensureMatchRaces(match);
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };
@@ -1108,11 +1108,6 @@ function resolveMatchWinner(match, categoryId) {
   const athlete1DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time1 === 'DQ'));
   const athlete2DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time2 === 'DQ'));
   let winnerId = athlete1DqAllRaces && !athlete2DqAllRaces ? match.athlete2 : athlete2DqAllRaces && !athlete1DqAllRaces ? match.athlete1 : wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null;
-  if (!winnerId && races.length === 5 && allRacesComplete && categoryId) {
-    const qualificationTime1 = bestTime(categoryId, match.athlete1);
-    const qualificationTime2 = bestTime(categoryId, match.athlete2);
-    if (Number.isFinite(qualificationTime1) && Number.isFinite(qualificationTime2) && qualificationTime1 !== qualificationTime2) winnerId = qualificationTime1 < qualificationTime2 ? match.athlete1 : match.athlete2;
-  }
   match.winnerId = winnerId;
   match.loserId = winnerId ? (winnerId === match.athlete1 ? match.athlete2 : match.athlete1) : null;
   if (!winnerId && allRacesComplete && races.length < 5) races.push({ time1: null, time2: null, penalty1: 0, penalty2: 0, falseStarts1: 0, falseStarts2: 0, source1: null, source2: null });

@@ -288,7 +288,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .event-fields label:first-child { flex: 0 0 280px; }
 .run-controls { position: absolute; left: 50%; display: flex; gap: 6px; transform: translateX(-50%); }
 .run-controls .btn { min-width: 76px; min-height: 30px; padding: 0 14px; font-size: 10px; font-weight: 600; }
-.run-start, .run-reset { font-family: "Space Grotesk", sans-serif; }
+.run-start, .run-reset { font-family: "Space Grotesk", sans-serif; border-radius: 4px; }
 .run-start { background: #b7f58d; color: #0d2224; }
 .run-start:hover:not(:disabled) { background: #d1fcae; }
 .run-reset { background: #ff8068; color: #321512; }

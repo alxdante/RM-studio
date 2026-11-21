@@ -1099,7 +1099,7 @@ function finalRaceWinner(race, athlete1, athlete2) {
   if (Number.isFinite(race.time1) && Number.isFinite(race.time2) && race.time1 !== race.time2) return race.time1 < race.time2 ? athlete1 : athlete2;
   return null;
 }
-function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return Boolean(previous && previous.time1 !== null && previous.time1 !== undefined && previous.time2 !== null && previous.time2 !== undefined && (finalRaceWinner(previous, match.athlete1, match.athlete2) || (Number.isFinite(previous.time1) && Number.isFinite(previous.time2) && previous.time1 === previous.time2))); }
+function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return Boolean(previous && previous.time1 !== null && previous.time1 !== undefined && previous.time2 !== null && previous.time2 !== undefined && (finalRaceWinner(previous, match.athlete1, match.athlete2) || (Number.isFinite(previous.time1) && Number.isFinite(previous.time2) && previous.time1 === previous.time2) || (previous.time1 === 'DQ' && previous.time2 === 'DQ'))); }
 function resolveMatchWinner(match, categoryId) {
   const races = ensureMatchRaces(match);
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };

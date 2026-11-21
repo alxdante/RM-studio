@@ -445,8 +445,8 @@ body { background: #eef0ea; }
 .lane-group-picker .lane-tab.active .lane-tab-gender, .lane-group-picker .lane-tab.active small { color: inherit; opacity: .75; }
 .lane-group-picker .lane-tab.active { background: var(--mint); border-color: var(--mint); color: var(--ink); }
 .lane-group-picker .lane-tab.active small { color: var(--ink); opacity: .7; }
-.lane-card { min-height: 300px; padding-top: 7px; padding-bottom: 8px; }
-.lane-grid.finals-mode .lane-card { min-height: 300px; padding-bottom: 6px; }
+.lane-card { min-height: 290px; padding-top: 7px; padding-bottom: 8px; }
+.lane-grid.finals-mode .lane-card { min-height: 290px; padding-bottom: 6px; }
 
 @media (max-width: 620px) {
   .lane-next-row { grid-template-columns: 28px 150px minmax(0, 1fr) 110px 110px; gap: 4px; }

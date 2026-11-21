@@ -166,11 +166,11 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-timer-row .lane-timer-block { margin: 0; }
 .lane-timer-block { justify-items: center; text-align: center; }
 .penalty-panel { padding: 0; background: transparent; border: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; }
-.penalty-panel span { color: #ff9a78; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
-.penalty-panel input { width: 100%; height: 132px; min-height: 132px; box-sizing: border-box; margin: 0; border: 1px solid rgba(255,128,104,.72); background: rgba(255,116,69,.16); color: #ff9a78; padding: 4px 3px; outline: none; font: italic 700 76px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; appearance: textfield; caret-color: transparent; text-shadow: 0 0 12px rgba(255,116,69,.22); }
+.penalty-panel span { color: #ffb39e; font: 8px "DM Mono", monospace; letter-spacing: .1em; }
+.penalty-panel input { width: 100%; height: 132px; min-height: 132px; box-sizing: border-box; margin: 0; border: 1px solid rgba(255,179,158,.5); background: rgba(0,0,0,.12); color: #ffb39e; padding: 4px 3px; outline: none; font: italic 700 76px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; appearance: textfield; caret-color: transparent; }
 .penalty-panel input::-webkit-inner-spin-button, .penalty-panel input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .penalty-quick-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3px; }
-.penalty-quick-row button, .penalty-dq { height: 24px; border: 1px solid rgba(255,128,104,.72); background: rgba(255,116,69,.16); color: #ff9a78; padding: 0; font: 600 12px "Space Grotesk", sans-serif; }
+.penalty-quick-row button, .penalty-dq { height: 24px; border: 1px solid rgba(255,179,158,.5); background: rgba(255,116,69,.16); color: #ffb39e; padding: 0; font: 600 12px "Space Grotesk", sans-serif; }
 .penalty-quick-row button.active, .penalty-dq.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }
 .penalty-quick-row button:hover, .penalty-dq:hover { background: rgba(255,116,69,.3); border-color: #ffb39e; }
 .penalty-quick-row button.active:hover, .penalty-dq.active:hover { background: #ff8068; color: #321512; }
@@ -185,7 +185,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .fs-button:hover { border-color: #ffb39e; background: rgba(255,116,69,.22); }
 .fs-button.active { background: #ff8068; border-color: #ffb39e; color: #321512; box-shadow: 0 0 0 1px rgba(255,179,158,.35); }
 .fs-button.active:hover { background: #ff8068; color: #321512; }
-.penalty-panel em { color: #ff9a78; font: 8px "DM Mono", monospace; font-style: normal; }
+.penalty-panel em { color: #ffb39e; font: 8px "DM Mono", monospace; font-style: normal; }
 .lane-control-row { display: block; }
 @media (max-width: 520px) { .lane-timer-row { grid-template-columns: minmax(0, 1fr) 110px; } .penalty-panel input { width: 58px; } }
 
@@ -1119,6 +1119,11 @@ body { background: #eef0ea; }
 .numeric-keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .numeric-keypad-grid button { min-height: 42px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.08); color: #edf7ee; font: 700 19px "DM Mono", monospace; }
 .numeric-keypad-grid button:active { background: var(--mint); color: #102529; transform: scale(.97); }
+.numeric-keypad.penalty-mode { border-color: rgba(255,179,158,.55); background: rgba(50,21,18,.98); }
+.numeric-keypad.penalty-mode .numeric-keypad-head { color: #ffb39e; }
+.numeric-keypad.penalty-mode .numeric-keypad-head button { border-color: rgba(255,179,158,.55); background: rgba(255,116,69,.16); color: #ffb39e; }
+.numeric-keypad.penalty-mode .numeric-keypad-grid button { border-color: rgba(255,179,158,.38); background: rgba(255,116,69,.14); color: #ffddd2; }
+.numeric-keypad.penalty-mode .numeric-keypad-grid button:active { background: #ff8068; color: #321512; }
 .manual-overwrite-confirm { position: fixed; z-index: 1100; left: 50%; top: 50%; width: min(320px, calc(100vw - 32px)); padding: 14px; border: 1px solid rgba(183,245,141,.35); border-radius: 14px; background: rgba(13,34,36,.98); box-shadow: 0 18px 45px rgba(0,0,0,.38); color: #edf7ee; transform: translate(-50%, -50%); }
 .manual-overwrite-confirm.hidden { display: none; }
 .manual-overwrite-head { color: var(--mint); font: 700 17px "DM Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }

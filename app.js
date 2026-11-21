@@ -562,6 +562,7 @@ function openNumericPad(input) {
   const pad = $('#numericKeypad');
   if (!pad) return;
   $('#numericKeypadLabel').textContent = input.matches('[data-lane-penalties]') ? 'Штраф' : 'Время';
+  pad.classList.toggle('penalty-mode', input.matches('[data-lane-penalties]'));
   pad.style.left = '0px';
   pad.style.top = '0px';
   pad.style.right = 'auto';

@@ -332,7 +332,7 @@ function commitLaneResult(index) {
   const lane = state.lanes[index]; const pending = lane?.pendingResult;
   if (!lane || !pending || !lane.categoryId || !lane.athleteId) return false;
   const category = categoryState(pending.categoryId || lane.categoryId); const attempt = pending.attempt;
-  if (attempt > 2 || Number.isFinite(category.attempts[attempt]?.[lane.athleteId])) return false;
+  if (attempt > 2 || (Number.isFinite(category.attempts[attempt]?.[lane.athleteId]) && !pending.overwrite)) return false;
   category.rawAttempts ||= { 1: {}, 2: {} }; category.rawAttempts[attempt] ||= {};
   category.dq ||= { 1: {}, 2: {} }; category.dq[attempt] ||= {};
   category.falseStarts ||= { 1: {}, 2: {} }; category.falseStarts[attempt] ||= {};
@@ -499,6 +499,7 @@ function shouldUseNumericPad() {
 
 let activeNumericInput = null;
 let numericPadWired = false;
+let pendingManualOverwrite = null;
 
 function setManualTimeDigits(input, digits) {
   const clean = String(digits || '').replace(/\D/g, '').slice(0, 5);
@@ -509,6 +510,50 @@ function setManualTimeDigits(input, digits) {
 function closeNumericPad() {
   activeNumericInput = null;
   $('#numericKeypad')?.classList.add('hidden');
+}
+
+function manualOverwriteExists(index) {
+  const lane = state.lanes[index];
+  if (!lane?.athleteId) return false;
+  if (state.phase === 'qualification') {
+    const category = categoryState(lane.categoryId);
+    return category.attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, category.attempt);
+  }
+  const category = categoryState(state.selectedFinalCategory);
+  const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId);
+  const race = match && ensureMatchRaces(match)[category.selectedRaceIndex];
+  const side = match?.athlete1 === lane.athleteId ? 'time1' : match?.athlete2 === lane.athleteId ? 'time2' : null;
+  return Boolean(race && side && race[side] !== null && race[side] !== undefined);
+}
+
+function clearManualOverwriteInput() {
+  const input = pendingManualOverwrite?.input;
+  if (input) { input.dataset.rawDigits = ''; input.value = ''; }
+}
+
+function closeManualOverwrite() {
+  clearManualOverwriteInput();
+  pendingManualOverwrite = null;
+  $('#manualOverwriteConfirm')?.classList.add('hidden');
+}
+
+function requestManualOverwrite(index, time, input) {
+  pendingManualOverwrite = { index, time, input };
+  const athlete = athleteById(state.lanes[index]?.athleteId)?.name || 'спортсмена';
+  const text = $('#manualOverwriteConfirmText');
+  if (text) text.textContent = `Результат ${athlete} уже введён. Перезаписать?`;
+  closeNumericPad();
+  $('#manualOverwriteConfirm')?.classList.remove('hidden');
+}
+
+function confirmManualOverwrite() {
+  const pending = pendingManualOverwrite;
+  if (!pending) return;
+  const input = pending.input;
+  pendingManualOverwrite = null;
+  $('#manualOverwriteConfirm')?.classList.add('hidden');
+  applyLaneResult(pending.index, pending.time, 'manual', true);
+  if (input) { input.dataset.rawDigits = ''; input.value = ''; }
 }
 
 function openNumericPad(input) {
@@ -744,12 +789,15 @@ function recordFinalDQ(index) {
   commitFinalLaneResult(index); persist(); renderAll();
   return true;
 }
-function applyLaneResult(index, time, source = 'ble') {
+function applyLaneResult(index, time, source = 'ble', allowOverwrite = false) {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
   if (!lane) return showToast(`Дорожка ${index + 1} не найдена`);
   const result = Number(time);
   if (!Number.isFinite(result) || result <= 0) return showToast('Получено некорректное время');
+  if (source === 'manual' && !allowOverwrite && manualOverwriteExists(index)) {
+    return requestManualOverwrite(index, result, document.querySelector(`[data-manual-time="${index}"]`));
+  }
 
   lane.running = false;
   lane.startedAt = null;
@@ -778,15 +826,8 @@ function applyLaneResult(index, time, source = 'ble') {
       renderAll();
       return;
     }
-    if (Number.isFinite(getTime(lane.categoryId, lane.athleteId, attempt))) {
-      lane.time = null;
-      prepareLaneForStart(index);
-      persist();
-      renderAll();
-      return showToast('Результат этого спортсмена уже записан и не может быть перезаписан');
-    }
     lane.time = lane.dq ? null : adjustedTime;
-    lane.pendingResult = { categoryId: lane.categoryId, attempt, rawTime: result, adjustedTime, penalties: lane.penalties, dq: lane.dq, source };
+    lane.pendingResult = { categoryId: lane.categoryId, attempt, rawTime: result, adjustedTime, penalties: lane.penalties, dq: lane.dq, source, overwrite: allowOverwrite };
   } else {
     lane.finalRawTime = result;
     lane.time = lane.dq ? null : adjustedTime;
@@ -1192,7 +1233,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
 }
 function selectMatchForTiming(categoryId, matchId) { commitPendingFinalResults(false); const match = getMatch(categoryState(categoryId).bracket, matchId); if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен'); const races = ensureMatchRaces(match); const unfinishedIndex = races.findIndex((race) => race.time1 === null || race.time2 === null); const raceIndex = unfinishedIndex >= 0 ? unfinishedIndex : Math.max(0, races.length - 1); selectFinalRaceForTiming(categoryId, matchId, raceIndex); }
 
-  function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#confirmDisconnectBtn').addEventListener('click', disconnectBle); $('#futureFunctionsBtn').addEventListener('click', openDisplayWindow); document.addEventListener('pointerdown', (event) => { const confirm = $('#bleDisconnectConfirm'); if (confirm?.dataset.open === 'true' && !event.target.closest('.ble-action-wrap')) { confirm.dataset.open = 'false'; confirm.classList.add('hidden'); } }); $('#themeToggle').addEventListener('click', toggleTheme); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', openQualificationExportModal); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#cancelQualificationExportBtn').addEventListener('click', closeQualificationExportModal); $('#backToListsFromExportBtn').addEventListener('click', backToListsFromQualificationExport); $('#cancelQualificationExportBtnBottom').addEventListener('click', closeQualificationExportModal); $('#confirmQualificationExportBtn').addEventListener('click', exportSelectedQualification); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#openCorrectionsBtn').addEventListener('click', openCorrectionsModal); $('#backToListsFromCorrectionsBtn').addEventListener('click', backToListsFromCorrections); $('#closeCorrectionsBtn').addEventListener('click', closeCorrectionsModal); $('#closeCorrectionsBtnBottom').addEventListener('click', closeCorrectionsModal); $('#correctionsRows').addEventListener('click', (event) => { const save = event.target.closest('[data-correction-save]'); const remove = event.target.closest('[data-correction-delete]'); const dq = event.target.closest('[data-correction-dq]'); if (save) editQualificationResults([save.dataset.correctionSave, save.dataset.correctionSaveSecond]); if (remove) deleteQualificationResult(remove.dataset.correctionDelete); if (dq) markQualificationDq(dq.dataset.correctionDq); }); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#closeFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#cancelFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#confirmFinalSizeBtn').addEventListener('click', confirmFinalSize); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#backToListsFromImportBtn').addEventListener('click', backToListsFromImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $('#backToListsFromAddGroupBtn').addEventListener('click', backToListsFromAddGroup); $('#ageGroupEditorList').addEventListener('click', (event) => { const remove = event.target.closest('[data-remove-age-group]'); if (remove) removeAgeGroup(remove.dataset.removeAgeGroup); }); $('#ageGroupForm').addEventListener('submit', (event) => { event.preventDefault(); addCustomAgeGroup(); }); $('#ageGroupUnlimited').addEventListener('change', () => { $('#ageGroupMax').disabled = $('#ageGroupUnlimited').checked; }); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
+  function wireEvents() { $('#startAllBtn').addEventListener('click', startAllLanes); $('#resetAllBtn').addEventListener('click', resetAllLanes); $('#bleBtn').addEventListener('click', connectBle); $('#confirmDisconnectBtn').addEventListener('click', disconnectBle); $('#futureFunctionsBtn').addEventListener('click', openDisplayWindow); document.addEventListener('pointerdown', (event) => { const confirm = $('#bleDisconnectConfirm'); if (confirm?.dataset.open === 'true' && !event.target.closest('.ble-action-wrap')) { confirm.dataset.open = 'false'; confirm.classList.add('hidden'); } }); $('#themeToggle').addEventListener('click', toggleTheme); $('#manualOverwriteNo').addEventListener('click', closeManualOverwrite); $('#manualOverwriteYes').addEventListener('click', confirmManualOverwrite); $('#listsBtn').addEventListener('click', openListsModal); $('#closeListsBtn').addEventListener('click', closeListsModal); $('#rosterFileInput').addEventListener('change', () => { const file = $('#rosterFileInput').files?.[0]; if (file) importWorkbook(file); $('#rosterFileInput').value = ''; }); $('#exportRosterBtn').addEventListener('click', openQualificationExportModal); $('#exportProtocolBtn').addEventListener('click', exportFinalProtocolWorkbook); $('#cancelQualificationExportBtn').addEventListener('click', closeQualificationExportModal); $('#backToListsFromExportBtn').addEventListener('click', backToListsFromQualificationExport); $('#cancelQualificationExportBtnBottom').addEventListener('click', closeQualificationExportModal); $('#confirmQualificationExportBtn').addEventListener('click', exportSelectedQualification); $('#exportRaceLogBtn').addEventListener('click', exportRaceLogWorkbook); $('#openCorrectionsBtn').addEventListener('click', openCorrectionsModal); $('#backToListsFromCorrectionsBtn').addEventListener('click', backToListsFromCorrections); $('#closeCorrectionsBtn').addEventListener('click', closeCorrectionsModal); $('#closeCorrectionsBtnBottom').addEventListener('click', closeCorrectionsModal); $('#correctionsRows').addEventListener('click', (event) => { const save = event.target.closest('[data-correction-save]'); const remove = event.target.closest('[data-correction-delete]'); const dq = event.target.closest('[data-correction-dq]'); if (save) editQualificationResults([save.dataset.correctionSave, save.dataset.correctionSaveSecond]); if (remove) deleteQualificationResult(remove.dataset.correctionDelete); if (dq) markQualificationDq(dq.dataset.correctionDq); }); $('#addGroupFromListsBtn').addEventListener('click', () => { closeListsModal(); openAddGroup(); }); $('#clearRosterBtn').addEventListener('click', clearRoster); $('#resetStorageBtn').addEventListener('click', resetSavedData); $('#resetFinalBracketBtn').addEventListener('click', resetFinalBracket); $('#closeFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#cancelFinalSizeBtn').addEventListener('click', closeFinalSizeModal); $('#confirmFinalSizeBtn').addEventListener('click', confirmFinalSize); $('#confirmImportBtn').addEventListener('click', confirmImport); $('#cancelImportBtn').addEventListener('click', cancelImport); $('#backToListsFromImportBtn').addEventListener('click', backToListsFromImport); $('#cancelImportBtnBottom').addEventListener('click', cancelImport); $('#closeAddGroupBtn').addEventListener('click', closeAddGroup); $('#backToListsFromAddGroupBtn').addEventListener('click', backToListsFromAddGroup); $('#ageGroupEditorList').addEventListener('click', (event) => { const remove = event.target.closest('[data-remove-age-group]'); if (remove) removeAgeGroup(remove.dataset.removeAgeGroup); }); $('#ageGroupForm').addEventListener('submit', (event) => { event.preventDefault(); addCustomAgeGroup(); }); $('#ageGroupUnlimited').addEventListener('change', () => { $('#ageGroupMax').disabled = $('#ageGroupUnlimited').checked; }); $('#eventName').addEventListener('change', () => { state.eventName = $('#eventName').value; persist(); }); $('#eventDate').addEventListener('change', () => { state.eventDate = $('#eventDate').value; persist(); }); $$('.phase-tab').forEach((button) => button.addEventListener('click', () => switchPhase(button.dataset.phase))); }
   function wireFrsEvents() { $('#frsConnectBtn').addEventListener('click', () => { closeListsModal(); openFrsConnectModal(); }); $('#closeFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#cancelFrsConnectBtn').addEventListener('click', closeFrsConnectModal); $('#confirmFrsConnectBtn').addEventListener('click', () => connectFrsServer().catch((error) => { setFrsStatus(false); showToast(`Ошибка ФРС: ${error.message}`); })); }
   function wireRosterCorrectionEvents() { $('#correctionsRosterRows').addEventListener('click', (event) => { const remove = event.target.closest('[data-roster-delete]'); const dq = event.target.closest('[data-final-dq]'); if (remove) removeAthleteFromCompetition(remove.dataset.rosterDelete); if (dq) markAthleteFinalDQ(dq.dataset.finalDq); }); $('#correctionsAthleteSearch').addEventListener('input', renderCorrections); $('#addAthleteBirthDate').addEventListener('input', formatBirthDateInput); $('#addAthleteForm').addEventListener('submit', (event) => { event.preventDefault(); addAthleteFromCorrections(); }); }
 

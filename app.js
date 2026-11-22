@@ -1142,12 +1142,13 @@ function finalRaceWinner(race, athlete1, athlete2) {
   if (Number.isFinite(race.time1) && Number.isFinite(race.time2) && race.time1 !== race.time2) return race.time1 < race.time2 ? athlete1 : athlete2;
   return null;
 }
-function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return Boolean(previous && previous.time1 !== null && previous.time1 !== undefined && previous.time2 !== null && previous.time2 !== undefined && (finalRaceWinner(previous, match.athlete1, match.athlete2) || (Number.isFinite(previous.time1) && Number.isFinite(previous.time2) && previous.time1 === previous.time2) || (previous.time1 === 'DQ' && previous.time2 === 'DQ'))); }
+function finalRaceComplete(race) { return Boolean(race && race.time1 !== null && race.time1 !== undefined && race.time2 !== null && race.time2 !== undefined); }
+function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return finalRaceComplete(previous) && !match.winnerId; }
 function resolveMatchWinner(match, categoryId) {
   const races = ensureMatchRaces(match);
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };
   races.forEach((race) => { const winner = finalRaceWinner(race, match.athlete1, match.athlete2); if (winner) wins[winner] += 1; });
-  const allRacesComplete = races.every((race) => race.time1 !== null && race.time2 !== null);
+  const allRacesComplete = races.every(finalRaceComplete);
   const athlete1DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time1 === 'DQ'));
   const athlete2DqAllRaces = Boolean(match.athlete1 && match.athlete2 && races.length && races.every((race) => race.time2 === 'DQ'));
   let winnerId = athlete1DqAllRaces && !athlete2DqAllRaces ? match.athlete2 : athlete2DqAllRaces && !athlete1DqAllRaces ? match.athlete1 : wins[match.athlete1] >= 2 ? match.athlete1 : wins[match.athlete2] >= 2 ? match.athlete2 : null;

@@ -1256,40 +1256,6 @@ function resolveMatch(categoryId, matchId) { const category = categoryState(cate
 function renderMatch(categoryId, match) { const races = ensureMatchRaces(match); const a1 = athleteById(match.athlete1); const a2 = athleteById(match.athlete2); const category = categoryState(categoryId); const selected = category.selectedMatchId === match.id; const completed = Boolean(match.winnerId); const gridStyle = `style="grid-template-columns:minmax(120px,1fr) repeat(${races.length},64px)"`; const raceHeaders = races.map((_, index) => `<button type="button" class="match-race-button ${category.selectedMatchId === match.id && category.selectedRaceIndex === index ? 'active' : ''}" data-final-race="${match.id}" data-race-index="${index}"${finalRaceSelectionAllowed(match, index) ? '' : ' disabled'}>RUN ${index + 1}</button>`).join(''); const row = (athlete, side) => `<div class="match-athlete ${match.winnerId === athlete?.id ? 'winner' : ''}" ${gridStyle}><strong class="${match.winnerId === athlete?.id ? 'winner-name' : ''}">${athlete ? escapeHtml(athlete.name) : '— / bye'}</strong>${races.map((race, index) => { const value = athlete ? finalRaceStoredValue(categoryId, match, index, athlete.id).value : null; const opponentValue = athlete?.id === match.athlete1 ? finalRaceStoredValue(categoryId, match, index, match.athlete2).value : finalRaceStoredValue(categoryId, match, index, match.athlete1).value; const raceWinner = athlete && opponentValue !== null && opponentValue !== undefined && value !== null && value !== undefined ? finalRaceWinner({ time1: athlete.id === match.athlete1 ? value : opponentValue, time2: athlete.id === match.athlete2 ? value : opponentValue }, match.athlete1, match.athlete2) : null; return `<span class="match-race-value ${raceWinner === athlete?.id ? 'race-winner' : ''}">${value ?? '—'}</span>`; }).join('')}</div>`; return `<article class="match-card ${match.isSmall ? 'final-match' : ''} ${selected ? 'selected' : ''}" data-match="${match.id}"><div class="match-title ${completed ? 'match-title-complete' : ''}"><span>${match.label}</span></div><div class="match-race-head" ${gridStyle}><span>ATHLETE</span>${raceHeaders}</div>${row(a1, 1)}${row(a2, 2)}</article>`; }
 function renderBracket() { const categoryId = state.selectedFinalCategory; syncBracketBeforeRender(categoryId); const bracket = categoryState(categoryId).bracket; if (!bracket) { $('#bracketBoard').innerHTML = `<div class="bracket-empty">Сетка ещё не собрана. Когда категория завершит обе попытки, выберите размер финала и соберите сетку.</div>`; return; } const rounds = Math.log2(bracket.size); const columns = []; for (let round = 0; round < rounds; round += 1) { const matches = bracket.matches.filter((match) => match.round === round); if (round === rounds - 1) columns.push(`<div class="bracket-column">${renderMatch(categoryId, getMatch(bracket, 'small-final'))}</div>`); columns.push(`<div class="bracket-column">${matches.map((match) => renderMatch(categoryId, match)).join('')}</div>`); } $('#bracketBoard').innerHTML = `<div class="bracket-grid">${columns.join('')}</div>`; const board = $('#bracketBoard'); board.querySelectorAll('[data-final-race]').forEach((raceButton) => raceButton.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); selectFinalRaceForTiming(categoryId, raceButton.dataset.finalRace, Number(raceButton.dataset.raceIndex)); })); board.onclick = (event) => { if (event.target.closest('[data-final-race]')) return; const card = event.target.closest('[data-match]'); if (card && board.contains(card)) selectMatchForTiming(categoryId, card.dataset.match); }; }
 
-function wirePullToRefresh() {
-  const shell = $('.app-shell');
-  if (!shell || !window.PointerEvent) return;
-  let startX = 0; let startY = 0; let tracking = false; let pulling = false; let offset = 0;
-  const blocked = (target) => target.closest('.lane-waiting, .bracket-board, input, select, button, textarea, [role="dialog"]');
-  const reset = (reload = false) => {
-    shell.classList.remove('pulling', 'pull-ready');
-    shell.style.setProperty('--pull-offset', '0px');
-    if (reload) window.setTimeout(() => window.location.reload(), 120);
-  };
-  document.addEventListener('pointerdown', (event) => {
-    if (event.pointerType !== 'touch' || blocked(event.target)) return;
-    if (event.clientY > 112 && !event.target.closest('.topbar, #finalsGroupPanel, .lane-card')) return;
-    startX = event.clientX; startY = event.clientY; tracking = true; pulling = false; offset = 0;
-  }, { passive: true });
-  document.addEventListener('pointermove', (event) => {
-    if (!tracking || event.pointerType !== 'touch') return;
-    const dx = event.clientX - startX; const dy = event.clientY - startY;
-    if (!pulling && (dy <= 0 || Math.abs(dx) > Math.abs(dy) * .8)) { tracking = false; return; }
-    pulling = true; offset = Math.min(86, Math.max(0, dy) * .52);
-    event.preventDefault();
-    shell.classList.add('pulling'); shell.classList.toggle('pull-ready', offset >= 62);
-    shell.style.setProperty('--pull-offset', `${offset}px`);
-  }, { passive: false });
-  document.addEventListener('pointerup', (event) => {
-    if (event.pointerType !== 'touch') return;
-    if (!tracking && !pulling) return;
-    const shouldReload = pulling && offset >= 62;
-    tracking = false; pulling = false; reset(shouldReload);
-  }, { passive: true });
-  document.addEventListener('pointercancel', (event) => { if (event.pointerType !== 'touch') return; tracking = false; pulling = false; reset(); }, { passive: true });
-}
-
-
 function finalLaneAthletes(match, raceIndex) { return raceIndex % 2 === 1 ? [match.athlete2, match.athlete1] : [match.athlete1, match.athlete2]; }
 function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   const category = categoryState(categoryId);
@@ -1346,7 +1312,6 @@ if (isDisplayMode) {
   wireEvents();
   wireFrsEvents();
   wireRosterCorrectionEvents();
-  wirePullToRefresh();
   renderAll();
   setFrsStatus(Boolean(state.frs?.online), state.frs?.online ? 'online' : 'offline');
 }

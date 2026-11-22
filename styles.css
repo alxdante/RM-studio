@@ -553,6 +553,21 @@ body:not(.display-mode) .workspace > #finalsPanel > .bracket-board > .bracket-gr
 body.finals-layout:not(.display-mode) .app-shell { width: 100%; max-width: none; margin-left: 0; margin-right: 0; }
 body.finals-layout:not(.display-mode) .main-content { width: 100%; max-width: none; }
 
+/* Native page scrolling: upper content scrolls with the document, lower race areas keep their own touch scroll. */
+body:not(.display-mode) { overflow-x: hidden; overflow-y: auto; }
+body:not(.display-mode) .app-shell { height: auto; min-height: 100dvh; display: block; overflow: visible; transform: none !important; transition: none !important; }
+body:not(.display-mode) .main-content { height: auto; min-height: 0; overflow: visible; }
+body:not(.display-mode) .page-layout,
+body:not(.display-mode) .workspace { height: auto; min-height: 0; }
+body:not(.display-mode) .workspace { display: block; }
+body:not(.display-mode) .app-shell::before { display: none; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) { position: relative; display: grid; flex: none; min-height: 0; grid-auto-rows: auto; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-card-wrap { display: block; min-height: 0; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-waiting { height: min(42vh, 460px); max-height: calc(100dvh - 390px); min-height: 150px; overflow: auto; touch-action: pan-y; }
+body:not(.display-mode) .lane-grid.finals-mode { position: relative; display: grid; flex: none; min-height: 0; }
+body:not(.display-mode) #finalsPanel { display: block; flex: none; min-height: 0; }
+body:not(.display-mode) #finalsPanel .bracket-board { height: min(62vh, 760px); min-height: 240px; overflow: auto; touch-action: pan-y; }
+
 /* Neutral charcoal dark theme and restrained winner emphasis. */
 .match-race-value.race-winner { background: transparent; color: #356847; font-weight: 700; text-decoration: underline; text-decoration-color: var(--mint-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .match-athlete .winner-name { background: rgba(183, 245, 141, .16); }

@@ -813,7 +813,13 @@ function handleDesktopShortcut(event) {
   const isReset = key === 'r' || key === 'к' || event.code === 'KeyR';
   if (!isStart && !isReset) return;
   event.preventDefault();
-  (isStart ? $('#startAllBtn') : $('#resetAllBtn'))?.click();
+  const button = isStart ? $('#startAllBtn') : $('#resetAllBtn');
+  if (!button || button.disabled) return;
+  button.classList.remove('keyboard-pressed');
+  void button.offsetWidth;
+  button.classList.add('keyboard-pressed');
+  window.setTimeout(() => button.classList.remove('keyboard-pressed'), 150);
+  button.click();
 }
 
 function commitFinalLaneResult(index) {

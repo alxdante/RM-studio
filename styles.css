@@ -295,6 +295,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .run-start:hover:not(:disabled) { background: #d1fcae; }
 .run-reset { background: #ff8068; color: #321512; }
 .run-reset:hover:not(:disabled) { background: #ff9b87; }
+.run-start.keyboard-pressed { background: #d1fcae; transform: translateY(1px) scale(.97); box-shadow: inset 0 2px 0 rgba(13,34,36,.16); }
+.run-reset.keyboard-pressed { background: #ff9b87; transform: translateY(1px) scale(.97); box-shadow: inset 0 2px 0 rgba(50,21,18,.16); }
 .run-controls .btn:disabled { background: #d7dad4; color: #9ca29b; border-color: transparent; opacity: .65; cursor: not-allowed; }
 .top-actions { gap: 7px; }
 .btn-ble { min-width: 132px; justify-content: center; gap: 6px; padding-left: 10px; padding-right: 10px; }

@@ -401,9 +401,9 @@ function recalculateLanePenalty(index) {
       if (side && raceIndex >= 0) {
         const rawTime = Number(lane.finalRawTime);
       races[raceIndex][side] = lane.dq ? 'DQ' : (Number.isFinite(rawTime) ? Number((rawTime + lane.penalties * 0.2).toFixed(3)) : races[raceIndex][side]);
-      races[raceIndex][`penalty${side === 'time1' ? 1 : 2}`] = lane.dq ? 5 : lane.penalties;
+      races[raceIndex][`penalty${side === 'time1' ? 1 : 2}`] = lane.penalties;
       lane.time = lane.dq ? null : races[raceIndex][side];
-      appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${raceIndex}|${lane.athleteId}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex, rawTime: Number.isFinite(rawTime) ? rawTime : null, adjustedTime: lane.dq ? null : races[raceIndex][side], penalties: lane.dq ? 5 : lane.penalties, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: lane.dq ? 'manual-dq' : 'manual' });
+      appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${raceIndex}|${lane.athleteId}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex, rawTime: Number.isFinite(rawTime) ? rawTime : null, adjustedTime: lane.dq ? null : races[raceIndex][side], penalties: lane.penalties, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: lane.dq ? 'manual-dq' : 'manual' });
       resolveMatch(state.selectedFinalCategory, match.id);
       }
     }

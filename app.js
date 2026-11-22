@@ -186,7 +186,9 @@ function getTime(categoryId, athleteId, attempt) { return categoryState(category
 function getPenalty(categoryId, athleteId, attempt) { return Number(categoryState(categoryId).penalties?.[attempt]?.[athleteId] || 0); }
 function isQualificationDQ(categoryId, athleteId, attempt) { return Boolean(categoryState(categoryId).dq?.[attempt]?.[athleteId]); }
 function hasRecordedResult(categoryId, athleteId, attempt) { return Number.isFinite(getTime(categoryId, athleteId, attempt)) || isQualificationDQ(categoryId, athleteId, attempt); }
-function bestTime(categoryId, athleteId) { const values = [1, 2].map((attempt) => isQualificationDQ(categoryId, athleteId, attempt) ? null : getTime(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)); return values.length ? Math.min(...values) : null; }
+function qualificationTimes(categoryId, athleteId) { return [1, 2].map((attempt) => isQualificationDQ(categoryId, athleteId, attempt) ? null : getTime(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)).sort((a, b) => a - b); }
+function bestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[0] ?? null; }
+function secondBestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[1] ?? null; }
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatBestTime(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
@@ -1153,7 +1155,18 @@ function resolveMatchWinner(match, categoryId) {
   if (!winnerId && allRacesComplete && races.length >= 5) {
     const athlete1QualificationTime = bestTime(categoryId, match.athlete1);
     const athlete2QualificationTime = bestTime(categoryId, match.athlete2);
-    if (Number.isFinite(athlete1QualificationTime) && Number.isFinite(athlete2QualificationTime) && athlete1QualificationTime !== athlete2QualificationTime) winnerId = athlete1QualificationTime < athlete2QualificationTime ? match.athlete1 : match.athlete2;
+    if (Number.isFinite(athlete1QualificationTime) && Number.isFinite(athlete2QualificationTime)) {
+      if (athlete1QualificationTime !== athlete2QualificationTime) winnerId = athlete1QualificationTime < athlete2QualificationTime ? match.athlete1 : match.athlete2;
+      else {
+        const athlete1SecondBest = secondBestTime(categoryId, match.athlete1);
+        const athlete2SecondBest = secondBestTime(categoryId, match.athlete2);
+        if (Number.isFinite(athlete1SecondBest) || Number.isFinite(athlete2SecondBest)) {
+          const athlete1TieBreak = athlete1SecondBest ?? Infinity;
+          const athlete2TieBreak = athlete2SecondBest ?? Infinity;
+          if (athlete1TieBreak !== athlete2TieBreak) winnerId = athlete1TieBreak < athlete2TieBreak ? match.athlete1 : match.athlete2;
+        }
+      }
+    }
   }
   match.winnerId = winnerId;
   match.loserId = winnerId ? (winnerId === match.athlete1 ? match.athlete2 : match.athlete1) : null;

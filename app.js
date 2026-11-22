@@ -186,10 +186,11 @@ function getTime(categoryId, athleteId, attempt) { return categoryState(category
 function getPenalty(categoryId, athleteId, attempt) { return Number(categoryState(categoryId).penalties?.[attempt]?.[athleteId] || 0); }
 function isQualificationDQ(categoryId, athleteId, attempt) { return Boolean(categoryState(categoryId).dq?.[attempt]?.[athleteId]); }
 function hasRecordedResult(categoryId, athleteId, attempt) { return Number.isFinite(getTime(categoryId, athleteId, attempt)) || isQualificationDQ(categoryId, athleteId, attempt); }
-function qualificationTimes(categoryId, athleteId) { return [1, 2].map((attempt) => isQualificationDQ(categoryId, athleteId, attempt) ? null : getTime(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)).sort((a, b) => a - b); }
+function qualificationTimes(categoryId, athleteId) { return [1, 2].map((attempt) => qualificationAttemptSortValue(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)).sort((a, b) => a - b); }
 function bestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[0] ?? null; }
 function secondBestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[1] ?? null; }
 function qualificationAttemptSortValue(categoryId, athleteId, attempt) { return isQualificationDQ(categoryId, athleteId, attempt) ? Infinity : (getTime(categoryId, athleteId, attempt) ?? Infinity); }
+function qualificationBestSortValue(categoryId, athleteId) { const value = bestTime(categoryId, athleteId); return Number.isFinite(value) ? value : Infinity; }
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatBestTime(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
@@ -237,7 +238,7 @@ function qualificationOrder(categoryId, attempt = categoryState(categoryId).atte
     const finished = baseOrder.filter((athlete) => hasRecordedResult(categoryId, athlete.id, 2)).sort((a, b) => { const aDQ = isQualificationDQ(categoryId, a.id, 2); const bDQ = isQualificationDQ(categoryId, b.id, 2); if (aDQ !== bDQ) return aDQ ? -1 : 1; return qualificationAttemptSortValue(categoryId, b.id, 2) - qualificationAttemptSortValue(categoryId, a.id, 2) || qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || ratingOrder(a, b); });
     return [...waiting, ...finished];
   }
-  return baseOrder.sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return -1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return 1; return (bBest ?? -Infinity) - (aBest ?? -Infinity) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'); });
+  return baseOrder.sort((a, b) => qualificationBestSortValue(categoryId, b.id) - qualificationBestSortValue(categoryId, a.id) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
 }
 // When one category is assigned to both qualification lanes, keep the athlete
 // already occupying the other lane out of this lane's candidates. This makes
@@ -249,7 +250,7 @@ function qualificationSequence(categoryId, attempt) {
   const base = (a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru');
   if (attempt === 1) return athletes.sort(base);
   if (attempt === 2) return athletes.sort((a, b) => qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || base(a, b));
-  return athletes.sort((a, b) => (bestTime(categoryId, b.id) ?? -Infinity) - (bestTime(categoryId, a.id) ?? -Infinity) || base(a, b));
+  return athletes.sort((a, b) => qualificationBestSortValue(categoryId, b.id) - qualificationBestSortValue(categoryId, a.id) || base(a, b));
 }
 function nextAthleteForLane(index, advancing = false) {
   const lane = state.lanes[index];
@@ -1105,7 +1106,7 @@ function clearRoster() {
   showToast('Список, результаты и финальные сетки очищены');
 }
 
-function qualificationRanking(categoryId) { return athletesForCategory(categoryId).slice().sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return 1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return -1; return (aBest ?? Infinity) - (bBest ?? Infinity) || Number(b.rating) - Number(a.rating); }); }
+function qualificationRanking(categoryId) { return athletesForCategory(categoryId).slice().sort((a, b) => qualificationBestSortValue(categoryId, a.id) - qualificationBestSortValue(categoryId, b.id) || Number(b.rating) - Number(a.rating)); }
 function roundLabel(size, round) { const finalRound = Math.log2(size) - 1; if (round === finalRound) return 'Final'; if (round === finalRound - 1) return 'Semi-Final'; const stageSize = 2 ** (finalRound - round + 1); return stageSize === 8 ? 'Quarter-Final' : `Round of ${stageSize}`; }
 function buildBracket(categoryId, size) { const seeded = qualificationRanking(categoryId).filter((athlete) => Number.isFinite(bestTime(categoryId, athlete.id))).slice(0, size); const matches = []; const rounds = Math.log2(size); for (let index = 0; index < size / 2; index += 1) matches.push({ id: `r0m${index}`, round: 0, index, label: roundLabel(size, 0), athlete1: seeded[index]?.id || null, athlete2: seeded[size - index - 1]?.id || null, time1: null, time2: null, winnerId: null, loserId: null }); for (let round = 1; round < rounds; round += 1) for (let index = 0; index < size / (2 ** (round + 1)); index += 1) matches.push({ id: `r${round}m${index}`, round, index, label: roundLabel(size, round), athlete1: null, athlete2: null, time1: null, time2: null, winnerId: null, loserId: null }); matches.push({ id: 'small-final', round: rounds, index: 0, label: 'Consolation Final', athlete1: null, athlete2: null, time1: null, time2: null, winnerId: null, loserId: null, isSmall: true }); const bracket = { size, matches, selectedMatchId: matches[0]?.id || null }; resolveAutoAdvances(bracket, categoryId); return bracket; }
 function getMatch(bracket, id) { return bracket.matches.find((match) => match.id === id); }

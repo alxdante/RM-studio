@@ -520,6 +520,26 @@ body { background: #eef0ea; }
 :root[data-theme="dark"] .lane-tab:hover:not(:disabled):not(.active) { color: var(--ink); }
 :root[data-theme="dark"] .top-actions .btn-theme { color: var(--ink); }
 
+/* Experimental viewport layout: keep the page fixed and scroll only the lower race areas. */
+html, body { height: 100%; }
+body:not(.display-mode) { overflow: hidden; }
+body:not(.display-mode) .app-shell { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+body:not(.display-mode) .topbar { flex: 0 0 auto; }
+body:not(.display-mode) .main-content { flex: 1 1 auto; min-height: 0; height: auto; padding-bottom: 0; overflow: hidden; }
+body:not(.display-mode) .page-layout,
+body:not(.display-mode) .workspace { height: 100%; min-height: 0; }
+body:not(.display-mode) .workspace { display: flex; flex-direction: column; }
+body:not(.display-mode) #finalsGroupPanel { position: static; flex: 0 0 auto; }
+body:not(.display-mode) .lane-grid { min-height: 0; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) { position: static; flex: 1 1 auto; min-height: 0; margin-bottom: 0; grid-auto-rows: minmax(0, 1fr); }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-card { position: static; flex: 0 0 auto; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-card-wrap { min-height: 0; display: flex; flex-direction: column; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-waiting { flex: 1 1 auto; min-height: 0; overflow: auto; }
+body:not(.display-mode) .lane-grid.finals-mode { position: static; flex: 0 0 auto; min-height: 0; }
+body:not(.display-mode) .lane-grid.finals-mode .lane-card { position: static; }
+body:not(.display-mode) #finalsPanel { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+body:not(.display-mode) #finalsPanel .bracket-board { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; overscroll-behavior: contain; }
+
 /* Neutral charcoal dark theme and restrained winner emphasis. */
 .match-race-value.race-winner { background: transparent; color: #356847; font-weight: 700; text-decoration: underline; text-decoration-color: var(--mint-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .match-athlete .winner-name { background: rgba(183, 245, 141, .16); }

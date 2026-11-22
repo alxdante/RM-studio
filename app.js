@@ -513,8 +513,10 @@ function setManualTimeDigits(input, digits) {
 }
 
 function closeNumericPad() {
+  const input = activeNumericInput;
   activeNumericInput = null;
   $('#numericKeypad')?.classList.add('hidden');
+  if (input?.matches('[data-manual-time]') && !String(input.dataset.rawDigits || '')) input.blur();
 }
 
 function manualOverwriteExists(index) {

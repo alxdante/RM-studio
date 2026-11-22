@@ -624,6 +624,8 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
 /* Finals panel: reserve only a 15px gap after timing lanes; align reset with bracket top. */
 .lane-grid.finals-mode { margin-bottom: 0; padding-bottom: 0; }
+.lane-grid.finals-mode { position: static; top: auto; }
+#finalsGroupPanel:not(.hidden) { position: static; top: auto; }
 .workspace > #finalsPanel { margin-top: 15px; }
 .workspace > #finalsPanel .finals-actions {
   margin: 0 0 -35px;

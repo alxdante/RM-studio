@@ -1258,7 +1258,7 @@ function renderBracket() { const categoryId = state.selectedFinalCategory; syncB
 
 function wirePullToRefresh() {
   const shell = $('.app-shell');
-  if (!shell || !window.matchMedia('(pointer: coarse)').matches) return;
+  if (!shell || !window.PointerEvent) return;
   let startX = 0; let startY = 0; let tracking = false; let pulling = false; let offset = 0;
   const blocked = (target) => target.closest('.lane-waiting, .bracket-board, input, select, button, textarea, [role="dialog"]');
   const reset = (reload = false) => {
@@ -1266,27 +1266,27 @@ function wirePullToRefresh() {
     shell.style.setProperty('--pull-offset', '0px');
     if (reload) window.setTimeout(() => window.location.reload(), 120);
   };
-  document.addEventListener('touchstart', (event) => {
-    if (event.touches.length !== 1 || blocked(event.target)) return;
-    const touch = event.touches[0];
-    if (touch.clientY > 112 && !event.target.closest('.topbar, #finalsGroupPanel, .lane-card')) return;
-    startX = touch.clientX; startY = touch.clientY; tracking = true; pulling = false; offset = 0;
+  document.addEventListener('pointerdown', (event) => {
+    if (event.pointerType !== 'touch' || blocked(event.target)) return;
+    if (event.clientY > 112 && !event.target.closest('.topbar, #finalsGroupPanel, .lane-card')) return;
+    startX = event.clientX; startY = event.clientY; tracking = true; pulling = false; offset = 0;
   }, { passive: true });
-  document.addEventListener('touchmove', (event) => {
-    if (!tracking || event.touches.length !== 1) return;
-    const touch = event.touches[0]; const dx = touch.clientX - startX; const dy = touch.clientY - startY;
+  document.addEventListener('pointermove', (event) => {
+    if (!tracking || event.pointerType !== 'touch') return;
+    const dx = event.clientX - startX; const dy = event.clientY - startY;
     if (!pulling && (dy <= 0 || Math.abs(dx) > Math.abs(dy) * .8)) { tracking = false; return; }
     pulling = true; offset = Math.min(86, Math.max(0, dy) * .52);
     event.preventDefault();
     shell.classList.add('pulling'); shell.classList.toggle('pull-ready', offset >= 62);
     shell.style.setProperty('--pull-offset', `${offset}px`);
   }, { passive: false });
-  document.addEventListener('touchend', () => {
+  document.addEventListener('pointerup', (event) => {
+    if (event.pointerType !== 'touch') return;
     if (!tracking && !pulling) return;
     const shouldReload = pulling && offset >= 62;
     tracking = false; pulling = false; reset(shouldReload);
   }, { passive: true });
-  document.addEventListener('touchcancel', () => { tracking = false; pulling = false; reset(); }, { passive: true });
+  document.addEventListener('pointercancel', (event) => { if (event.pointerType !== 'touch') return; tracking = false; pulling = false; reset(); }, { passive: true });
 }
 
 

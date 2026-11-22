@@ -547,6 +547,9 @@ body:not(.display-mode) .app-shell.pulling { transform: translateY(var(--pull-of
 body:not(.display-mode) .app-shell::before { content: "Потяните для обновления"; position: fixed; z-index: 200; top: 5px; left: 50%; padding: 5px 9px; border: 1px solid rgba(183,245,141,.25); border-radius: 999px; background: rgba(13,34,36,.9); color: var(--mint); font: 8px "DM Mono", monospace; letter-spacing: .06em; opacity: 0; transform: translate(-50%, -12px); pointer-events: none; transition: opacity .18s, transform .18s; }
 body:not(.display-mode) .app-shell.pulling::before { opacity: .86; transform: translate(-50%, 0); }
 body:not(.display-mode) .app-shell.pull-ready::before { content: "Отпустите для обновления"; background: var(--mint); color: var(--deep); }
+body:not(.display-mode) .workspace > #finalsPanel { display: flex; flex: 1 1 auto; width: 100% !important; max-width: none; min-width: 0; margin-left: 0; margin-right: 0; align-self: stretch; }
+body:not(.display-mode) .workspace > #finalsPanel > .bracket-board { display: block; flex: 1 1 auto; width: 100% !important; max-width: none; min-width: 0; }
+body:not(.display-mode) .workspace > #finalsPanel > .bracket-board > .bracket-grid { width: max-content; min-width: 100%; }
 
 /* Neutral charcoal dark theme and restrained winner emphasis. */
 .match-race-value.race-winner { background: transparent; color: #356847; font-weight: 700; text-decoration: underline; text-decoration-color: var(--mint-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }

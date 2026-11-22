@@ -579,6 +579,18 @@ body { background: #eef0ea; }
 /* Read-only history view for completed final runs. */
 .lane-card.review-only { border-color: rgba(142, 215, 239, .28); }
 .lane-card.review-only .penalty-panel input { opacity: .82; }
+.lane-history-details {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  color: #7f8b86;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.lane-history-details .history-dq { color: #8b9290; }
+.lane-history-details .history-valid { color: #77b69a; }
 
 /* A historical raw time retained behind DQ is shown as a muted reference value. */
 .lane-card.review-only.dq .lane-time { color: #6f7975; text-shadow: none; }

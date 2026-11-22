@@ -200,9 +200,9 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-arrow:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); }
 .queue-arrow:disabled { opacity: .28; cursor: not-allowed; }
 .lane-next-row .manual-result { grid-column: 4; justify-content: stretch; justify-self: stretch; align-self: start; margin-right: 4px; }
-.lane-next-row .manual-result input { width: 100%; min-width: 0; height: 53px; padding: 4px 3px; appearance: textfield; font: italic 700 28px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .01em; text-align: center; }
+.lane-next-row .manual-result input { width: 100%; min-width: 0; height: 53px; padding: 4px 3px; appearance: textfield; font: 500 28px/1 "DM Mono", "Courier New", monospace; font-synthesis: none; letter-spacing: .01em; text-align: center; text-decoration: none; text-shadow: none; caret-color: transparent; }
 .lane-next-row .manual-result input::-webkit-inner-spin-button, .lane-next-row .manual-result input::-webkit-outer-spin-button { margin: 0; appearance: none; }
-.lane-next-row .manual-result input::placeholder { color: #829b92; opacity: .9; font: italic 700 28px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .04em; }
+.lane-next-row .manual-result input::placeholder { color: #829b92; opacity: .9; font: 500 28px/1 "DM Mono", "Courier New", monospace; letter-spacing: .04em; }
 .next-athlete-trigger:hover:not(:disabled) { background: rgba(183,245,141,.18); border-color: var(--mint); transform: translateY(-1px); }
 .next-athlete-trigger span { color: var(--mint); font: 8px "DM Mono", monospace; letter-spacing: .1em; }
 .next-athlete-trigger strong { overflow: hidden; color: #e4eee5; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }

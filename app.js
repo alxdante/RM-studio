@@ -509,7 +509,7 @@ let pendingManualOverwrite = null;
 function setManualTimeDigits(input, digits) {
   const clean = String(digits || '').replace(/\D/g, '').slice(0, 5);
   input.dataset.rawDigits = clean;
-  input.value = clean ? `${clean[0]}.${clean.slice(1)}` : '';
+  input.value = clean.length > 4 ? `${clean.slice(0, -3)}.${clean.slice(-3)}` : clean ? `${clean[0]}.${clean.slice(1)}` : '';
 }
 
 function closeNumericPad() {

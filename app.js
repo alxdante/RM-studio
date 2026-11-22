@@ -82,7 +82,7 @@ function activeCategoryIds() { const enabled = Array.isArray(state.enabledCatego
 function emptyCategoryState() { return { attempt: 1, attempts: { 1: {}, 2: {} }, rawAttempts: { 1: {}, 2: {} }, penalties: { 1: {}, 2: {} }, dq: { 1: {}, 2: {} }, falseStarts: { 1: {}, 2: {} }, finalSize: 4, bracket: null, selectedMatchId: null, selectedRaceIndex: 0, standings: [] }; }
 function emptyFrsState() { return { serverUrl: '', eventId: null, writeToken: '', viewToken: '', revision: 0, pendingChanges: [], online: false }; }
 function createCategoryStates() { return Object.fromEntries(CATEGORIES.map((category) => [category.id, emptyCategoryState()])); }
-function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, falseStarts: 0, running: false, startedAt: null, error: null, queueHistory: [], pendingResult: null, reviewOnly: false, reviewDqOnly: false, historyDqTime: null, historyResult: null, historyPenalties: 0, historyDq: false, dqResultTime: null }; }
+function createLane(categoryId = null) { return { categoryId, athleteId: null, time: null, penalties: 0, dq: false, falseStarts: 0, running: false, startedAt: null, error: null, queueHistory: [], pendingResult: null, reviewOnly: false, reviewDqOnly: false, finalStageLastRunEditable: false, historyDqTime: null, historyResult: null, historyPenalties: 0, historyDq: false, dqResultTime: null }; }
 function firstActiveCategory(exclude = [], roster = DEMO_ROSTER) { const ids = CATEGORIES.filter((category) => roster.some((athlete) => categoryForAthlete(athlete).id === category.id)).map((category) => category.id); return ids.find((id) => !exclude.includes(id)) || ids[0] || CATEGORIES[0].id; }
 function lanesForRoster(roster = DEMO_ROSTER) { const first = firstActiveCategory([], roster); const second = firstActiveCategory([first], roster); return [createLane(first), createLane(second === first ? CATEGORIES[1]?.id || CATEGORIES[0].id : second)]; }
 
@@ -917,7 +917,7 @@ function applyLaneResult(index, time, source = 'ble', allowOverwrite = false) {
     lane.queueHistory = [];
     const cat = categoryState(state.selectedFinalCategory);
     const match = cat.bracket?.matches?.find((item) => item.id === cat.selectedMatchId);
-    if (match?.winnerId) return false;
+    if (match?.winnerId && !lane.finalStageLastRunEditable) return false;
     if (match) {
       lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: categoryState(state.selectedFinalCategory).selectedRaceIndex, athleteId: lane.athleteId, rawTime: result, adjustedTime: lane.dq ? null : adjustedTime, penalties: lane.penalties, falseStarts: lane.falseStarts || 0, dq: lane.dq, source };
       commitFinalLaneResult(index);
@@ -1327,8 +1327,10 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   if (state.phase !== 'finals') { state.phaseLanes[state.phase] = state.lanes; state.phase = 'finals'; }
   state.lanes = [createLane(categoryId), createLane(categoryId)];
   state.phaseLanes.finals = state.lanes;
-  const reviewOnly = finalRaceComplete(races[index]);
+  const runComplete = finalRaceComplete(races[index]);
   const laterRaceStarted = races.slice(index + 1).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0);
+  const finalStageLastRunEditable = runComplete && (match.isSmall || match.label === 'Final') && !laterRaceStarted;
+  const reviewOnly = runComplete && !finalStageLastRunEditable;
   const reviewDqOnly = reviewOnly && !match.winnerId && !laterRaceStarted;
   finalLaneAthletes(match, index).forEach((athleteId, laneIndex) => {
     const lane = state.lanes[laneIndex];
@@ -1344,9 +1346,10 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
     lane.finalRaceKey = `${match.id}|${index}|${athleteId}`;
     lane.reviewOnly = reviewOnly;
     lane.reviewDqOnly = reviewDqOnly;
-    lane.historyDq = reviewOnly ? (stored.value === 'DQ' || Boolean(historyEntry?.dq)) : false;
-    lane.historyResult = reviewOnly ? (lane.historyDq ? (Number.isFinite(historyEntry?.rawTime) ? historyEntry.rawTime : historyTimeEntry?.rawTime ?? null) : (Number.isFinite(historyEntry?.adjustedTime) ? historyEntry.adjustedTime : (Number.isFinite(stored.value) ? stored.value : null))) : null;
-    lane.historyPenalties = reviewOnly ? Number(historyEntry?.penalties ?? stored.penalties ?? 0) : 0;
+    lane.finalStageLastRunEditable = finalStageLastRunEditable;
+    lane.historyDq = runComplete ? (stored.value === 'DQ' || Boolean(historyEntry?.dq)) : false;
+    lane.historyResult = runComplete ? (lane.historyDq ? (Number.isFinite(historyEntry?.rawTime) ? historyEntry.rawTime : historyTimeEntry?.rawTime ?? null) : (Number.isFinite(historyEntry?.adjustedTime) ? historyEntry.adjustedTime : (Number.isFinite(stored.value) ? stored.value : null))) : null;
+    lane.historyPenalties = runComplete ? Number(historyEntry?.penalties ?? stored.penalties ?? 0) : 0;
     lane.historyDqTime = lane.historyDq ? lane.historyResult : null;
   });
   addActivity(`Selected Run ${index + 1} · ${match.label}`);

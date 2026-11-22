@@ -363,7 +363,7 @@ function commitLaneResult(index) {
   category.penalties[attempt][lane.athleteId] = pending.penalties || 0;
   category.dq[attempt][lane.athleteId] = Boolean(pending.dq);
   category.falseStarts[attempt][lane.athleteId] = lane.falseStarts || 0;
-  appendRaceLog({ phase: 'qualification', raceKey: `qualification|${pending.categoryId || lane.categoryId}|${lane.athleteId}|${attempt}`, categoryId: pending.categoryId || lane.categoryId, athleteId: lane.athleteId, attempt, rawTime: pending.rawTime, adjustedTime: pending.dq ? null : pending.adjustedTime, penalties: pending.penalties || 0, dq: pending.dq, source: pending.source, correction: Boolean(pending.correction) });
+  appendRaceLog({ phase: 'qualification', raceKey: `qualification|${pending.categoryId || lane.categoryId}|${lane.athleteId}|${attempt}`, categoryId: pending.categoryId || lane.categoryId, athleteId: lane.athleteId, attempt, rawTime: pending.rawTime, adjustedTime: pending.dq ? null : pending.adjustedTime, penalties: pending.penalties || 0, falseStarts: lane.falseStarts || 0, dq: pending.dq, source: pending.source, correction: Boolean(pending.correction) });
   lane.dqResultTime = pending.dq && Number.isFinite(pending.rawTime) ? pending.rawTime : null;
   lane.pendingResult = null;
   addActivity(`${pending.source === 'ble' ? 'BLE' : 'Ручной ввод'} · ${categoryById(pending.categoryId || lane.categoryId).label} · ${athleteById(lane.athleteId)?.name || ''} · ${pending.dq ? 'DQ' : formatTime(pending.adjustedTime)}`);
@@ -465,6 +465,19 @@ function clearFinalDQ(index) {
   appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${raceIndex}|${lane.athleteId}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex, rawTime: previous?.rawTime ?? null, adjustedTime: previous?.adjustedTime ?? null, penalties: previous?.penalties || 0, falseStarts: previous?.falseStarts || 0, dq: false, source: 'manual-dq-clear' });
   resolveMatch(state.selectedFinalCategory, match.id); persist(); renderAll();
 }
+function recordFalseStartEvent(index) {
+  const lane = state.lanes[index];
+  if (!lane?.athleteId) return;
+  if (state.phase === 'qualification') {
+    const category = categoryState(lane.categoryId);
+    appendRaceLog({ phase: 'qualification', raceKey: `qualification|${lane.categoryId}|${lane.athleteId}|${category.attempt}|false-start-${lane.falseStarts}-${Date.now()}`, categoryId: lane.categoryId, athleteId: lane.athleteId, attempt: category.attempt, rawTime: null, adjustedTime: null, penalties: lane.penalties || 0, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: 'false-start' });
+    return;
+  }
+  const category = categoryState(state.selectedFinalCategory);
+  const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId);
+  if (!match) return;
+  appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${category.selectedRaceIndex}|${lane.athleteId}|false-start-${lane.falseStarts}-${Date.now()}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex: category.selectedRaceIndex, rawTime: null, adjustedTime: null, penalties: lane.penalties || 0, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: 'false-start' });
+}
 function handleFalseStart(index, number) {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
@@ -473,10 +486,11 @@ function handleFalseStart(index, number) {
   if (number === 2 && lane.falseStarts === 2) { lane.falseStarts = 0; lane.pendingResult = null; lane.penalties = 0; lane.dq = false; lane.time = null; persist(); renderLanes(); return; }
   if (lane.pendingResult) return;
   if (lane.falseStarts === 0) {
-    lane.falseStarts = 1; persist(); renderLanes(); return;
+    lane.falseStarts = 1; recordFalseStartEvent(index); persist(); renderLanes(); return;
   }
   lane.falseStarts = 2; lane.running = false; lane.startedAt = null; lane.time = null; lane.penalties = state.phase === 'finals' ? 5 : 0; lane.dq = true;
-  if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: category.selectedMatchId, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: 0, falseStarts: 2, dq: true, source: 'false-start' }; persist(); renderLanes(); return; }
+  recordFalseStartEvent(index);
+  if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: category.selectedMatchId, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: 5, falseStarts: 2, dq: true, source: 'false-start' }; commitFinalLaneResult(index); persist(); renderAll(); return; }
   const category = categoryState(lane.categoryId);
   lane.pendingResult = { categoryId: lane.categoryId, attempt: category.attempt, rawTime: 0, adjustedTime: 0, penalties: 0, dq: true, source: 'false-start' };
   persist(); renderLanes();
@@ -1135,7 +1149,7 @@ function removeAthleteFromCompetition(athleteId) {
 }
 
 function raceSourceLabel(source) { return source === 'ble' ? 'BLE' : source === 'manual' ? 'Ручной ввод' : ''; }
-function exportRaceLogWorkbook() { const entries = state.raceLog || []; if (!entries.length) return showToast('Журнал заездов пока пуст'); ensureXlsx().then(() => { const rows = entries.map((entry) => ({ 'Дата и время': new Date(entry.at).toLocaleString('ru-RU'), 'Этап': entry.phase === 'qualification' ? 'Квалификация' : 'Финалы', 'Категория': categoryById(entry.categoryId).label, 'Спортсмен': athleteById(entry.athleteId)?.name || entry.athleteId || '', 'Попытка': entry.attempt || '', 'Матч': entry.matchId || '', 'Заезд': entry.raceIndex == null ? '' : Number(entry.raceIndex) + 1, 'Исходное время': entry.rawTime ?? '', 'Итоговое время': entry.adjustedTime ?? '', 'DQ': entry.dq ? 'Да' : 'Нет', 'Штрафы': entry.penalties || 0, 'Источник': raceSourceLabel(entry.source), 'Исправление BLE': entry.correction ? 'Да' : '', 'Исправлена запись': entry.correctionOf || '' })); const sheet = XLSX.utils.json_to_sheet(rows); sheet['!cols'] = Object.keys(rows[0] || {}).map((key) => ({ wch: Math.min(28, Math.max(12, key.length + 2)) })); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, sheet, 'Журнал заездов'); const eventPart = (state.eventName || 'соревнование').replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 40); XLSX.writeFile(workbook, `${eventPart || 'соревнование'}_журнал_заездов.xlsx`); showToast('Журнал заездов выгружен'); }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
+function exportRaceLogWorkbook() { const entries = state.raceLog || []; if (!entries.length) return showToast('Журнал заездов пока пуст'); ensureXlsx().then(() => { const rows = entries.map((entry) => ({ 'Дата и время': new Date(entry.at).toLocaleString('ru-RU'), 'Этап': entry.phase === 'qualification' ? 'Квалификация' : 'Финалы', 'Категория': categoryById(entry.categoryId).label, 'Спортсмен': athleteById(entry.athleteId)?.name || entry.athleteId || '', 'Попытка': entry.attempt || '', 'Матч': entry.matchId || '', 'Заезд': entry.raceIndex == null ? '' : Number(entry.raceIndex) + 1, 'Исходное время': entry.rawTime ?? '', 'Итоговое время': entry.adjustedTime ?? '', 'DQ': entry.dq ? 'Да' : 'Нет', 'Штрафы': entry.penalties || 0, 'Фальстарты': entry.falseStarts || 0, 'Источник': raceSourceLabel(entry.source), 'Исправление BLE': entry.correction ? 'Да' : '', 'Исправлена запись': entry.correctionOf || '' })); const sheet = XLSX.utils.json_to_sheet(rows); sheet['!cols'] = Object.keys(rows[0] || {}).map((key) => ({ wch: Math.min(28, Math.max(12, key.length + 2)) })); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, sheet, 'Журнал заездов'); const eventPart = (state.eventName || 'соревнование').replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 40); XLSX.writeFile(workbook, `${eventPart || 'соревнование'}_журнал_заездов.xlsx`); showToast('Журнал заездов выгружен'); }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
 function finalProtocolRoundLabel(bracket, match) { if (match.id === 'small-final') return 'CF'; const finalRound = Math.log2(bracket.size) - 1; if (match.round === finalRound) return 'F'; if (match.round === finalRound - 1) return 'SF'; const stageSize = 2 ** (finalRound - match.round + 1); return stageSize === 8 ? 'QF' : `R${stageSize}`; }
 function finalProtocolMatches() { const columns = []; CATEGORIES.forEach((category) => { const bracket = categoryState(category.id).bracket; if (!bracket) return; bracket.matches.forEach((match) => { const label = finalProtocolRoundLabel(bracket, match); const pair = match.id === 'small-final' || label === 'F' ? '' : `${match.index + 1}`; ensureMatchRaces(match).forEach((_, raceIndex) => { const shortLabel = `${label}${pair}-R${raceIndex + 1}`; columns.push({ categoryId: category.id, matchId: match.id, raceIndex, key: shortLabel, sourceKey: `${shortLabel} Source`, penaltyKey: `${shortLabel} Pen`, falseStartKey: `${shortLabel} FS` }); }); }); }); return columns; }
 function finalProtocolValue(value) { return value === 'DQ' ? 'DQ' : Number.isFinite(value) ? value : ''; }
@@ -1203,13 +1217,18 @@ function ensureMatchRaces(match) {
 function finalRaceWinner(race, athlete1, athlete2) {
   const dq1 = race.time1 === 'DQ';
   const dq2 = race.time2 === 'DQ';
+  const falseStartDQ1 = Number(race.falseStarts1 || 0) >= 2;
+  const falseStartDQ2 = Number(race.falseStarts2 || 0) >= 2;
+  if (falseStartDQ1 && falseStartDQ2) return null;
+  if (falseStartDQ1) return athlete2;
+  if (falseStartDQ2) return athlete1;
   if (dq1 && dq2) return null;
   if (dq1 && race.time2 !== null) return athlete2;
   if (dq2 && race.time1 !== null) return athlete1;
   if (Number.isFinite(race.time1) && Number.isFinite(race.time2) && race.time1 !== race.time2) return race.time1 < race.time2 ? athlete1 : athlete2;
   return null;
 }
-function finalRaceComplete(race) { return Boolean(race && race.time1 !== null && race.time1 !== undefined && race.time2 !== null && race.time2 !== undefined); }
+function finalRaceComplete(race) { return Boolean(race && ((race.time1 !== null && race.time1 !== undefined && race.time2 !== null && race.time2 !== undefined) || Number(race.falseStarts1 || 0) >= 2 || Number(race.falseStarts2 || 0) >= 2)); }
 function trimUnusedFinalRaces(match) {
   const races = ensureMatchRaces(match);
   while (races.length > 2) {

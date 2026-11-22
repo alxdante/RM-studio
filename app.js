@@ -488,9 +488,9 @@ function handleFalseStart(index, number) {
   if (lane.falseStarts === 0) {
     lane.falseStarts = 1; recordFalseStartEvent(index); persist(); renderLanes(); return;
   }
-  lane.falseStarts = 2; lane.running = false; lane.startedAt = null; lane.time = null; lane.penalties = state.phase === 'finals' ? 5 : 0; lane.dq = true;
+  lane.falseStarts = 2; lane.running = false; lane.startedAt = null; lane.time = null; lane.penalties = 0; lane.dq = true;
   recordFalseStartEvent(index);
-  if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: category.selectedMatchId, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: 5, falseStarts: 2, dq: true, source: 'false-start' }; commitFinalLaneResult(index); persist(); renderAll(); return; }
+  if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: category.selectedMatchId, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: 0, falseStarts: 2, dq: true, source: 'false-start' }; commitFinalLaneResult(index); persist(); renderAll(); return; }
   const category = categoryState(lane.categoryId);
   lane.pendingResult = { categoryId: lane.categoryId, attempt: category.attempt, rawTime: 0, adjustedTime: 0, penalties: 0, dq: true, source: 'false-start' };
   persist(); renderLanes();

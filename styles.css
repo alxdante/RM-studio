@@ -87,6 +87,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-tab.completed { position: relative; opacity: 1; background: rgba(183,245,141,.14); border-color: var(--mint); color: var(--mint); cursor: pointer; }
 .lane-tab.completed.viewable { cursor: pointer; }
 .lane-tab.completed::after { content: "✓"; position: absolute; top: 3px; right: 4px; color: var(--mint); font: 700 11px/1 "Space Grotesk", sans-serif; }
+.lane-tab.completed.finals-completed::before { content: "✓"; position: absolute; top: 3px; right: 16px; color: var(--mint); font: 700 11px/1 "Space Grotesk", sans-serif; }
 .lane-tab.completed small { color: var(--mint); }
 .topbar { position: sticky; top: 0; z-index: 50; }
 .lane-card { position: sticky; top: 58px; z-index: 20; }

@@ -804,7 +804,7 @@ function resetAllLanes() {
 }
 
 function handleDesktopShortcut(event) {
-  if (event.repeat || !(window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? true)) return;
+  if (event.repeat || event.metaKey || event.ctrlKey || event.altKey || !(window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? true)) return;
   const target = event.target;
   if (target?.closest?.('input, textarea, select, button, [contenteditable="true"]') || target?.isContentEditable) return;
   if (document.querySelector('.modal:not(.hidden), .numeric-keypad:not(.hidden)')) return;

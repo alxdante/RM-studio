@@ -383,10 +383,11 @@ function recalculateLanePenalty(index) {
       const raceIndex = selectedRaceIndex >= 0 ? selectedRaceIndex : races.reduce((last, race, current) => race[side] !== null && race[side] !== undefined ? current : last, -1);
       if (side && raceIndex >= 0) {
         const rawTime = Number(lane.finalRawTime);
-        races[raceIndex][side] = lane.dq ? 'DQ' : (Number.isFinite(rawTime) ? Number((rawTime + lane.penalties * 0.2).toFixed(3)) : races[raceIndex][side]);
-        races[raceIndex][`penalty${side === 'time1' ? 1 : 2}`] = lane.dq ? 5 : lane.penalties;
-        lane.time = lane.dq ? null : races[raceIndex][side];
-        resolveMatch(state.selectedFinalCategory, match.id);
+      races[raceIndex][side] = lane.dq ? 'DQ' : (Number.isFinite(rawTime) ? Number((rawTime + lane.penalties * 0.2).toFixed(3)) : races[raceIndex][side]);
+      races[raceIndex][`penalty${side === 'time1' ? 1 : 2}`] = lane.dq ? 5 : lane.penalties;
+      lane.time = lane.dq ? null : races[raceIndex][side];
+      appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${raceIndex}|${lane.athleteId}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex, rawTime: Number.isFinite(rawTime) ? rawTime : null, adjustedTime: lane.dq ? null : races[raceIndex][side], penalties: lane.dq ? 5 : lane.penalties, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: lane.dq ? 'manual-dq' : 'manual' });
+      resolveMatch(state.selectedFinalCategory, match.id);
       }
     }
   }
@@ -815,7 +816,8 @@ function recordFinalDQ(index) {
   const raceIndex = Number.isInteger(category.selectedRaceIndex) ? category.selectedRaceIndex : finalRaceForAthlete(match, lane.athleteId);
   if (raceIndex < 0) return false;
   if (match.winnerId) return false;
-  lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: lane.penalties || 0, falseStarts: lane.falseStarts || 0, dq: true, source: 'manual-dq' };
+  const previous = latestRaceLog((entry) => entry.phase === 'finals' && entry.categoryId === state.selectedFinalCategory && entry.matchId === match.id && entry.raceIndex === raceIndex && entry.athleteId === lane.athleteId && Number.isFinite(entry.rawTime));
+  lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: previous?.rawTime ?? null, adjustedTime: null, penalties: lane.penalties || 0, falseStarts: lane.falseStarts || 0, dq: true, source: 'manual-dq' };
   lane.running = false; lane.startedAt = null; lane.time = null; lane.finalRawTime = null;
   commitFinalLaneResult(index); persist(); renderAll();
   return true;
@@ -1275,6 +1277,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
     const lane = state.lanes[laneIndex];
     const stored = finalRaceStoredValue(categoryId, match, index, athleteId);
     const historyEntry = latestRaceLog((entry) => entry.phase === 'finals' && entry.categoryId === categoryId && entry.matchId === match.id && entry.raceIndex === index && entry.athleteId === athleteId);
+    const historyTimeEntry = latestRaceLog((entry) => entry.phase === 'finals' && entry.categoryId === categoryId && entry.matchId === match.id && entry.raceIndex === index && entry.athleteId === athleteId && Number.isFinite(entry.rawTime));
     lane.athleteId = athleteId;
     lane.penalties = stored.penalties;
     lane.dq = stored.value === 'DQ';
@@ -1282,8 +1285,8 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
     lane.finalRawTime = Number.isFinite(stored.value) ? Number((stored.value - stored.penalties * 0.2).toFixed(3)) : null;
     lane.finalRaceKey = `${match.id}|${index}|${athleteId}`;
     lane.reviewOnly = reviewOnly;
-    lane.historyDq = reviewOnly ? Boolean(historyEntry?.dq ?? stored.value === 'DQ') : false;
-    lane.historyResult = reviewOnly ? (lane.historyDq ? (Number.isFinite(historyEntry?.rawTime) ? historyEntry.rawTime : null) : (Number.isFinite(historyEntry?.adjustedTime) ? historyEntry.adjustedTime : (Number.isFinite(stored.value) ? stored.value : null))) : null;
+    lane.historyDq = reviewOnly ? (stored.value === 'DQ' || Boolean(historyEntry?.dq)) : false;
+    lane.historyResult = reviewOnly ? (lane.historyDq ? (Number.isFinite(historyEntry?.rawTime) ? historyEntry.rawTime : historyTimeEntry?.rawTime ?? null) : (Number.isFinite(historyEntry?.adjustedTime) ? historyEntry.adjustedTime : (Number.isFinite(stored.value) ? stored.value : null))) : null;
     lane.historyPenalties = reviewOnly ? Number(historyEntry?.penalties ?? stored.penalties ?? 0) : 0;
     lane.historyDqTime = lane.historyDq ? lane.historyResult : null;
   });

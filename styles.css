@@ -550,6 +550,8 @@ body:not(.display-mode) .app-shell.pull-ready::before { content: "Отпусти
 body:not(.display-mode) .workspace > #finalsPanel { display: flex; flex: 1 1 auto; width: 100% !important; max-width: none; min-width: 0; margin-left: 0; margin-right: 0; align-self: stretch; }
 body:not(.display-mode) .workspace > #finalsPanel > .bracket-board { display: block; flex: 1 1 auto; width: 100% !important; max-width: none; min-width: 0; }
 body:not(.display-mode) .workspace > #finalsPanel > .bracket-board > .bracket-grid { width: max-content; min-width: 100%; }
+body.finals-layout:not(.display-mode) .app-shell { width: 100%; max-width: none; margin-left: 0; margin-right: 0; }
+body.finals-layout:not(.display-mode) .main-content { width: 100%; max-width: none; }
 
 /* Neutral charcoal dark theme and restrained winner emphasis. */
 .match-race-value.race-winner { background: transparent; color: #356847; font-weight: 700; text-decoration: underline; text-decoration-color: var(--mint-2); text-decoration-thickness: 2px; text-underline-offset: 3px; }

@@ -7,6 +7,10 @@ const THEME_KEY = 'slalom-timing-theme';
 const isDisplayMode = typeof location !== 'undefined' && new URLSearchParams(location.search).has('display');
 const TIMER_LIMIT_SECONDS = 9 * 60 + 59.99;
 
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.isSecureContext) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {}), { once: true });
+}
+
 function applyTheme(theme) {
   const dark = theme === 'dark';
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';

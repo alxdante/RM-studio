@@ -28,7 +28,7 @@ html = html
   .replace(/app\.js\?[^"']*/i, jsName);
 await writeFile(path.join(dist, 'index.html'), html);
 
-for (const file of ['xlsx.full.min.js', 'DSEG7Classic-BoldItalic.ttf', '.nojekyll']) {
+for (const file of ['xlsx.full.min.js', 'DSEG7Classic-BoldItalic.ttf', 'sw.js', '.nojekyll']) {
   await cp(path.join(root, file), path.join(dist, file));
 }
 for (const file of ['display.html', 'display.css', 'display.js']) {

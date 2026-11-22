@@ -134,7 +134,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-timer-block.timer-disabled .timer-state-label { color: #c8ccd0; }
 .lane-timer-block.timer-error .timer-state-label { color: #ff4d4d; }
 .lane-time { display: block; color: var(--mint); font: italic 700 58px/.9 "DSEG7", "DM Mono", monospace; letter-spacing: .02em; margin: 0; text-align: center; text-shadow: 0 0 12px rgba(183,245,141,.08); }
-.lane-card.dq .lane-time { color: #59615d; font-family: "DSEG7", "DM Mono", monospace; font-style: italic; font-weight: 700; letter-spacing: .02em; text-shadow: none; }
+.lane-card.dq .lane-time { color: #505854; font-family: "DSEG7", "DM Mono", monospace; font-style: italic; font-weight: 700; letter-spacing: .02em; text-shadow: none; }
 .lane-control-row { display: grid; grid-template-columns: 125px 1fr; gap: 10px; align-items: end; }
 .penalty-field { display: grid; grid-template-columns: 1fr 1fr; column-gap: 7px; align-items: center; }
 .penalty-field span { grid-column: 1 / -1; color: #809a91; font: 8px "DM Mono", monospace; letter-spacing: .1em; margin-bottom: 4px; }
@@ -581,7 +581,7 @@ body { background: #eef0ea; }
 .lane-card.review-only .penalty-panel input { opacity: .82; }
 
 /* A historical raw time retained behind DQ is shown as a muted reference value. */
-.lane-card.review-only.dq .lane-time { color: #59615d; text-shadow: none; }
+.lane-card.review-only.dq .lane-time { color: #505854; text-shadow: none; }
 
 :root[data-theme="dark"] .lane-athlete-name {
   color: #d5dcda;

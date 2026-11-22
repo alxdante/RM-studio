@@ -1329,7 +1329,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   state.phaseLanes.finals = state.lanes;
   const reviewOnly = finalRaceComplete(races[index]);
   const laterRaceStarted = races.slice(index + 1).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0);
-  const reviewDqOnly = reviewOnly && races.length < 5 && !match.winnerId && !laterRaceStarted;
+  const reviewDqOnly = reviewOnly && !match.winnerId && !laterRaceStarted;
   finalLaneAthletes(match, index).forEach((athleteId, laneIndex) => {
     const lane = state.lanes[laneIndex];
     const stored = finalRaceStoredValue(categoryId, match, index, athleteId);

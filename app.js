@@ -189,6 +189,7 @@ function hasRecordedResult(categoryId, athleteId, attempt) { return Number.isFin
 function qualificationTimes(categoryId, athleteId) { return [1, 2].map((attempt) => isQualificationDQ(categoryId, athleteId, attempt) ? null : getTime(categoryId, athleteId, attempt)).filter((value) => Number.isFinite(value)).sort((a, b) => a - b); }
 function bestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[0] ?? null; }
 function secondBestTime(categoryId, athleteId) { return qualificationTimes(categoryId, athleteId)[1] ?? null; }
+function qualificationAttemptSortValue(categoryId, athleteId, attempt) { return isQualificationDQ(categoryId, athleteId, attempt) ? Infinity : (getTime(categoryId, athleteId, attempt) ?? Infinity); }
 function formatTime(value) { return Number.isFinite(value) ? `${Number(value).toFixed(3)} s` : '—'; }
 function formatBestTime(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '—'; }
 function formatClock(value) { return Number.isFinite(value) ? Number(value).toFixed(3) : '0.000'; }
@@ -226,15 +227,14 @@ function addActivity(text) { state.activity = [{ at: Date.now(), text }, ...(sta
 function qualificationOrder(categoryId, attempt = categoryState(categoryId).attempt) {
   const baseOrder = athletesForCategory(categoryId).slice().sort((a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
   const ratingOrder = (a, b) => normalizeRating(a.rating) - normalizeRating(b.rating) || a.name.localeCompare(b.name, 'ru');
-  const qualificationAttemptValue = (athlete, attemptNumber) => isQualificationDQ(categoryId, athlete.id, attemptNumber) ? Infinity : (getTime(categoryId, athlete.id, attemptNumber) ?? Infinity);
   if (attempt === 1) {
     const waiting = baseOrder.filter((athlete) => !hasRecordedResult(categoryId, athlete.id, 1));
-    const finished = baseOrder.filter((athlete) => hasRecordedResult(categoryId, athlete.id, 1)).sort((a, b) => qualificationAttemptValue(b, 1) - qualificationAttemptValue(a, 1) || ratingOrder(a, b));
+    const finished = baseOrder.filter((athlete) => hasRecordedResult(categoryId, athlete.id, 1)).sort((a, b) => qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || ratingOrder(a, b));
     return [...waiting, ...finished];
   }
   if (attempt === 2) {
-    const waiting = baseOrder.filter((athlete) => !hasRecordedResult(categoryId, athlete.id, 2)).sort((a, b) => getTime(categoryId, b.id, 1) - getTime(categoryId, a.id, 1) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'));
-    const finished = baseOrder.filter((athlete) => hasRecordedResult(categoryId, athlete.id, 2)).sort((a, b) => { const aDQ = isQualificationDQ(categoryId, a.id, 2); const bDQ = isQualificationDQ(categoryId, b.id, 2); if (aDQ !== bDQ) return aDQ ? -1 : 1; return qualificationAttemptValue(b, 2) - qualificationAttemptValue(a, 2) || qualificationAttemptValue(b, 1) - qualificationAttemptValue(a, 1) || ratingOrder(a, b); });
+    const waiting = baseOrder.filter((athlete) => !hasRecordedResult(categoryId, athlete.id, 2)).sort((a, b) => qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || ratingOrder(a, b));
+    const finished = baseOrder.filter((athlete) => hasRecordedResult(categoryId, athlete.id, 2)).sort((a, b) => { const aDQ = isQualificationDQ(categoryId, a.id, 2); const bDQ = isQualificationDQ(categoryId, b.id, 2); if (aDQ !== bDQ) return aDQ ? -1 : 1; return qualificationAttemptSortValue(categoryId, b.id, 2) - qualificationAttemptSortValue(categoryId, a.id, 2) || qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || ratingOrder(a, b); });
     return [...waiting, ...finished];
   }
   return baseOrder.sort((a, b) => { const aBest = bestTime(categoryId, a.id); const bBest = bestTime(categoryId, b.id); if (!Number.isFinite(aBest) && Number.isFinite(bBest)) return -1; if (Number.isFinite(aBest) && !Number.isFinite(bBest)) return 1; return (bBest ?? -Infinity) - (aBest ?? -Infinity) || Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru'); });
@@ -248,7 +248,7 @@ function qualificationSequence(categoryId, attempt) {
   const athletes = athletesForCategory(categoryId).slice();
   const base = (a, b) => Number(a.rating) - Number(b.rating) || a.name.localeCompare(b.name, 'ru');
   if (attempt === 1) return athletes.sort(base);
-  if (attempt === 2) return athletes.sort((a, b) => (getTime(categoryId, b.id, 1) ?? -Infinity) - (getTime(categoryId, a.id, 1) ?? -Infinity) || base(a, b));
+  if (attempt === 2) return athletes.sort((a, b) => qualificationAttemptSortValue(categoryId, b.id, 1) - qualificationAttemptSortValue(categoryId, a.id, 1) || base(a, b));
   return athletes.sort((a, b) => (bestTime(categoryId, b.id) ?? -Infinity) - (bestTime(categoryId, a.id) ?? -Infinity) || base(a, b));
 }
 function nextAthleteForLane(index, advancing = false) {

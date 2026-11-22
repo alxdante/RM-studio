@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rm-studio-shell-v1';
+const CACHE_NAME = 'rm-studio-shell-v2';
 const CORE_FILES = [
   './',
   './index.html',
@@ -17,7 +17,12 @@ async function cacheShell() {
   const assets = [...indexHtml.matchAll(/(?:src|href)="([^"]+)"/g)]
     .map((match) => match[1])
     .filter((url) => !/^(?:https?:|data:|#)/i.test(url));
-  await cache.addAll([...new Set([...CORE_FILES, ...assets])]);
+  const optionalFiles = [...new Set([...CORE_FILES.filter((file) => file !== './index.html'), ...assets])];
+  await Promise.allSettled(optionalFiles.map(async (file) => {
+    const requestUrl = new URL(file, self.registration.scope).href;
+    const response = await fetch(requestUrl, { cache: 'no-cache' });
+    if (response.ok) await cache.put(requestUrl, response);
+  }));
 }
 
 self.addEventListener('install', (event) => {

@@ -8,7 +8,7 @@ const isDisplayMode = typeof location !== 'undefined' && new URLSearchParams(loc
 const TIMER_LIMIT_SECONDS = 9 * 60 + 59.99;
 
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.isSecureContext) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {}), { once: true });
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
 }
 
 function applyTheme(theme) {

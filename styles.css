@@ -1121,6 +1121,7 @@ body { background: #eef0ea; }
 .numeric-keypad-head button { border: 1px solid rgba(183,245,141,.35); border-radius: 7px; padding: 6px 9px; background: rgba(183,245,141,.12); color: var(--mint); font: 14px "DM Mono", monospace; }
 .numeric-keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .numeric-keypad-grid button { min-height: 42px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.08); color: #edf7ee; font: 700 19px "DM Mono", monospace; }
+.numeric-keypad-grid button[data-numeric-key="backspace"] { font-size: 20px; }
 .numeric-keypad-grid button:active { background: var(--mint); color: #102529; transform: scale(.97); }
 .numeric-keypad.penalty-mode { border-color: rgba(255,179,158,.55); background: rgba(50,21,18,.98); }
 .numeric-keypad.penalty-mode .numeric-keypad-head { color: #ffb39e; }

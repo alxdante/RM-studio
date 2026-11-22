@@ -405,11 +405,31 @@ function recalculateLanePenalty(index) {
   }
   persist(); renderAll();
 }
+function commitPendingManualInput(index) {
+  const selector = `[data-manual-time="${index}"]`;
+  const input = activeNumericInput?.matches(selector) ? activeNumericInput : document.querySelector(selector);
+  if (!input) return true;
+  const digits = String(input.dataset.rawDigits || '').replace(/\D/g, '');
+  if (digits.length < 4) return true;
+  const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`);
+  if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return true;
+  if (manualOverwriteExists(index)) {
+    requestManualOverwrite(index, time, input);
+    return false;
+  }
+  applyLaneResult(index, time, 'manual');
+  input.dataset.rawDigits = '';
+  input.value = '';
+  if (activeNumericInput === input) closeNumericPad();
+  return true;
+}
 function setLanePenalties(index, value) {
+  if (!commitPendingManualInput(index)) return;
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); const parsed = Number(value); const numeric = Number.isFinite(parsed) ? Math.min(25, Math.max(0, Math.floor(parsed))) : 0; lane.penalties = numeric; lane.dq = numeric >= 5; recalculateLanePenalty(index);
 }
 function setLaneDQ(index) {
+  if (!commitPendingManualInput(index)) return;
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only'); lane.dq = true;
   if (state.phase === 'finals' && recordFinalDQ(index)) return;

@@ -300,7 +300,7 @@ function resetQualificationLanesForAttempt(categoryId) {
   });
   autoAssignLanes();
 }
-function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const race = match && ensureMatchRaces(match)[category.selectedRaceIndex]; if (match?.winnerId) { showToast('Пара завершена — выберите другую пару'); return false; } if (race && (race.time1 !== null || race.time2 !== null)) { showToast('Заезд уже начат — выберите следующий заезд после второго результата'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
+function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const race = match && ensureMatchRaces(match)[category.selectedRaceIndex]; if (match?.winnerId) return false; if (race && (race.time1 !== null || race.time2 !== null)) { showToast('Заезд уже начат — выберите следующий заезд после второго результата'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
 function advanceCategoryIfComplete(categoryId) { const category = categoryState(categoryId); if (category.attempt === 1 && categoryComplete(categoryId, 1)) { category.attempt = 2; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · попытка 01 завершена, очередь 02 готова`); } if (category.attempt === 2 && categoryComplete(categoryId, 2)) { category.attempt = 3; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · квалификация завершена, финальный посев готов`); } }
 
 function renderSummary() {
@@ -812,7 +812,7 @@ function recordFinalDQ(index) {
   if (!match) return false;
   const raceIndex = Number.isInteger(category.selectedRaceIndex) ? category.selectedRaceIndex : finalRaceForAthlete(match, lane.athleteId);
   if (raceIndex < 0) return false;
-  if (match.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
+  if (match.winnerId) return false;
   lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: category.selectedRaceIndex, athleteId: lane.athleteId, rawTime: null, adjustedTime: null, penalties: lane.penalties || 0, falseStarts: lane.falseStarts || 0, dq: true, source: 'manual-dq' };
   lane.running = false; lane.startedAt = null; lane.time = null; lane.finalRawTime = null;
   commitFinalLaneResult(index); persist(); renderAll();
@@ -863,7 +863,7 @@ function applyLaneResult(index, time, source = 'ble', allowOverwrite = false) {
     lane.queueHistory = [];
     const cat = categoryState(state.selectedFinalCategory);
     const match = cat.bracket?.matches?.find((item) => item.id === cat.selectedMatchId);
-    if (match?.winnerId) return showToast('Пара уже завершена — выберите другую плитку');
+    if (match?.winnerId) return false;
     if (match) {
       lane.pendingFinalResult = { categoryId: state.selectedFinalCategory, matchId: match.id, raceIndex: categoryState(state.selectedFinalCategory).selectedRaceIndex, athleteId: lane.athleteId, rawTime: result, adjustedTime: lane.dq ? null : adjustedTime, penalties: lane.penalties, falseStarts: lane.falseStarts || 0, dq: lane.dq, source };
       commitFinalLaneResult(index);
@@ -1261,7 +1261,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   const index = Number(raceIndex);
   const races = match ? ensureMatchRaces(match) : [];
   if (!match?.athlete1 || !match?.athlete2) return showToast('В этой паре bye — заезд не нужен');
-  if (!Number.isInteger(index) || !races[index]) return showToast('Этот заезд ещё не создан'); if (!finalRaceSelectionAllowed(match, index)) return showToast('Сначала завершите предыдущий RUN и определите победителя');
+  if (!Number.isInteger(index) || !races[index]) return showToast('Этот заезд ещё не создан'); if (!finalRaceSelectionAllowed(match, index)) return false;
   category.selectedMatchId = matchId;
   category.selectedRaceIndex = index;
   state.selectedFinalCategory = categoryId;

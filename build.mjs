@@ -27,6 +27,8 @@ html = html
   .replace(/styles\.css\?[^"']*/i, cssName)
   .replace(/app\.js\?[^"']*/i, jsName);
 await writeFile(path.join(dist, 'index.html'), html);
+const appCacheManifest = `CACHE MANIFEST\n# RM Studio ${jsName} ${cssName}\n./\n./index.html\n./${jsName}\n./${cssName}\n./display.html\n./display.css\n./display.js\n./xlsx.full.min.js\n./DSEG7Classic-BoldItalic.ttf\n./sw.js\n\nNETWORK:\n*\n`;
+await writeFile(path.join(dist, 'offline.appcache'), appCacheManifest);
 
 for (const file of ['xlsx.full.min.js', 'DSEG7Classic-BoldItalic.ttf', 'sw.js', '.nojekyll']) {
   await cp(path.join(root, file), path.join(dist, file));

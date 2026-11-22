@@ -1180,7 +1180,7 @@ function trimUnusedFinalRaces(match) {
   }
   return races;
 }
-function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return finalRaceComplete(previous) && !match.winnerId; }
+function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return finalRaceComplete(previous); }
 function resolveMatchWinner(match, categoryId) {
   const races = ensureMatchRaces(match);
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };

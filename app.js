@@ -48,7 +48,12 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 function updateViewportHeight() {
   const height = Number(window.visualViewport?.height) || Number(window.innerHeight);
-  if (Number.isFinite(height) && height > 0) document.documentElement.style.setProperty('--app-vh', `${Math.round(height)}px`);
+  if (!Number.isFinite(height) || height <= 0) return;
+  const topbarHeight = document.querySelector('.topbar')?.getBoundingClientRect().height;
+  const laneCardHeight = document.querySelector('.lane-grid:not(.finals-mode) .lane-card')?.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--app-vh', `${Math.round(height)}px`);
+  document.documentElement.style.setProperty('--topbar-height', `${Math.round(topbarHeight || 76)}px`);
+  document.documentElement.style.setProperty('--lane-card-height', `${Math.round(laneCardHeight || 312)}px`);
 }
 updateViewportHeight();
 window.addEventListener('resize', updateViewportHeight, { passive: true });
@@ -735,7 +740,7 @@ function openDisplayWindow() {
 }
 function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = !online || reviewOnly || modeDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = false; }
 function renderFinals() { if (!state.selectedFinalCategory) { $('#bracketBoard').innerHTML = '<div class="bracket-empty">Выберите группу, чтобы открыть финальную сетку.</div>'; return; } const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
-function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); }
+function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); updateViewportHeight(); }
 
 function stopExpiredTimers() {
   let changed = false;

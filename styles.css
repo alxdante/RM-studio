@@ -522,6 +522,7 @@ body { background: #eef0ea; }
 
 /* Experimental viewport layout: keep the page fixed and scroll only the lower race areas. */
 html, body { height: 100%; }
+:root { --app-vh: 100vh; }
 body:not(.display-mode) { overflow: hidden; }
 body:not(.display-mode) .app-shell { height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 body:not(.display-mode) .topbar { flex: 0 0 auto; }
@@ -555,7 +556,7 @@ body.finals-layout:not(.display-mode) .main-content { width: 100%; max-width: no
 
 /* Native page scrolling: upper content scrolls with the document, lower race areas keep their own touch scroll. */
 body:not(.display-mode) { overflow-x: hidden; overflow-y: auto; }
-body:not(.display-mode) .app-shell { height: auto; min-height: 100dvh; display: block; overflow: visible; transform: none !important; transition: none !important; }
+body:not(.display-mode) .app-shell { height: auto; min-height: var(--app-vh); display: block; overflow: visible; transform: none !important; transition: none !important; }
 body:not(.display-mode) .main-content { height: auto; min-height: 0; overflow: visible; }
 body:not(.display-mode) .page-layout,
 body:not(.display-mode) .workspace { height: auto; min-height: 0; }
@@ -563,7 +564,7 @@ body:not(.display-mode) .workspace { display: block; }
 body:not(.display-mode) .app-shell::before { display: none; }
 body:not(.display-mode) .lane-grid:not(.finals-mode) { position: relative; display: grid; flex: none; min-height: 0; grid-auto-rows: auto; }
 body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-card-wrap { display: block; min-height: 0; }
-body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-waiting { height: min(42vh, 460px); max-height: calc(100dvh - 390px); min-height: 150px; overflow: auto; touch-action: pan-y; overscroll-behavior: contain; }
+body:not(.display-mode) .lane-grid:not(.finals-mode) .lane-waiting { height: clamp(150px, calc(var(--app-vh) - 390px), 460px); max-height: calc(var(--app-vh) - 390px); min-height: 150px; overflow: auto; touch-action: pan-y; overscroll-behavior: contain; }
 body:not(.display-mode) .lane-grid.finals-mode { position: relative; display: grid; flex: none; min-height: 0; }
 body:not(.display-mode) .lane-grid.finals-mode { align-content: start; align-items: start; margin-top: 0; }
 body:not(.display-mode) .lane-grid.finals-mode .lane-card-wrap { align-self: start; }
@@ -571,7 +572,7 @@ body:not(.display-mode) .lane-grid.finals-mode .lane-card { margin-top: 0; }
 body:not(.display-mode) #laneCards.finals-mode { height: auto; max-height: none; overflow: visible; grid-auto-rows: auto; }
 body:not(.display-mode) #finalsPanel { display: block; flex: none; min-height: 0; }
 body:not(.display-mode) .workspace > #finalsPanel { clear: both; margin-top: 15px; }
-body:not(.display-mode) #finalsPanel .bracket-board { height: auto; max-height: max(240px, min(760px, calc(100dvh - 430px))); min-height: 240px; overflow: auto; touch-action: pan-y; overscroll-behavior: contain; }
+body:not(.display-mode) #finalsPanel .bracket-board { height: auto; max-height: max(240px, min(760px, calc(var(--app-vh) - 430px))); min-height: 240px; overflow: auto; touch-action: pan-y; overscroll-behavior: contain; }
 body:not(.display-mode) #finalsPanel .bracket-grid { min-height: max-content; }
 
 body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: none; overscroll-behavior: none; }

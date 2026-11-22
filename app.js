@@ -46,6 +46,14 @@ DEMO_ROSTER.forEach((athlete, index) => { athlete.birthDate = athlete.birthDate 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
+function updateViewportHeight() {
+  const height = Number(window.visualViewport?.height) || Number(window.innerHeight);
+  if (Number.isFinite(height) && height > 0) document.documentElement.style.setProperty('--app-vh', `${Math.round(height)}px`);
+}
+updateViewportHeight();
+window.addEventListener('resize', updateViewportHeight, { passive: true });
+window.visualViewport?.addEventListener('resize', updateViewportHeight, { passive: true });
+
 function matchingAgeGroupForAge(age) { return sortedAgeGroups().sort((a, b) => Number(b.min) - Number(a.min)).find((group) => Number(age) >= group.min && Number(age) <= group.max) || null; }
 function ageGroupForAge(age) { return matchingAgeGroupForAge(age) || sortedAgeGroups()[sortedAgeGroups().length - 1]; }
 function normalizeGenderKey(value, age) {

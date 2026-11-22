@@ -460,6 +460,7 @@ body { background: #eef0ea; }
 .match-athlete { display: grid; align-items: center; }
 .match-race-value { text-align: center; color: var(--muted); font: 12px "DM Mono", monospace; }
 .match-place { color: var(--orange); font: 11px "DM Mono", monospace; text-align: center; min-width: 0; font-weight: 700; }
+.match-place-header { color: var(--orange); }
 .match-race-value.race-winner { background: #e5f6d8; color: var(--ink); font-weight: 700; }
 .match-athlete.winner .match-race-value { color: var(--ink); }
 .lane-grid.finals-mode .lane-next-row { grid-template-columns: 132px 132px; justify-content: end; }

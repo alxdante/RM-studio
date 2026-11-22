@@ -342,7 +342,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-header span:nth-child(6), .queue-result-row span:nth-of-type(6) { grid-column: 6; }
 .queue-result-header span:nth-child(7), .queue-result-row strong { grid-column: 7; }
 .queue-result-row { min-height: 39px; padding: 5px 9px; border-top: 1px solid var(--line); font-size: 14px; }
-.queue-result-row.attempt-complete { background: rgba(143, 163, 154, .12); color: #a8b9b1; border-radius: 12px; overflow: hidden; }
+.queue-result-row.attempt-complete { position: relative; background: rgba(143, 163, 154, .12); color: #a8b9b1; border-radius: 12px; border-top-color: transparent; overflow: hidden; }
+.queue-result-row.attempt-complete::before { content: ""; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: var(--line); }
 .queue-result-row.attempt-complete strong { color: #b7c8bf; }
 .queue-result-number { color: var(--orange); font: 13px "DM Mono", monospace; }
 .queue-result-row span:nth-of-type(2), .queue-result-row span:nth-of-type(3), .queue-result-row span:nth-of-type(4), .queue-result-header span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

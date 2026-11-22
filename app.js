@@ -1154,7 +1154,60 @@ function exportRaceLogWorkbook() { const entries = state.raceLog || []; if (!ent
 function finalProtocolRoundLabel(bracket, match) { if (match.id === 'small-final') return 'CF'; const finalRound = Math.log2(bracket.size) - 1; if (match.round === finalRound) return 'F'; const stageSize = 2 ** (finalRound - match.round + 1); return `1/${stageSize}`; }
 function finalProtocolMatches() { const columns = []; CATEGORIES.forEach((category) => { const bracket = categoryState(category.id).bracket; if (!bracket) return; const orderedMatches = bracket.matches.slice(); const smallIndex = orderedMatches.findIndex((item) => item.id === 'small-final'); if (smallIndex >= 0) { const [smallMatch] = orderedMatches.splice(smallIndex, 1); const finalIndex = orderedMatches.findIndex((item) => finalProtocolRoundLabel(bracket, item) === 'F'); orderedMatches.splice(finalIndex >= 0 ? finalIndex : orderedMatches.length, 0, smallMatch); } orderedMatches.forEach((match) => { const label = finalProtocolRoundLabel(bracket, match); const pair = match.id === 'small-final' || label === 'F' || label === 'CF' ? '' : `${match.index + 1}`; const currentCount = ensureMatchRaces(match).length; const loggedCount = (state.raceLog || []).filter((entry) => entry.phase === 'finals' && entry.categoryId === category.id && entry.matchId === match.id && Number.isInteger(entry.raceIndex)).reduce((count, entry) => Math.max(count, entry.raceIndex + 1), 0); const raceCount = Math.max(currentCount, loggedCount); for (let raceIndex = 0; raceIndex < raceCount; raceIndex += 1) { const shortLabel = `${label}${pair}-R${raceIndex + 1}`; columns.push({ categoryId: category.id, matchId: match.id, raceIndex, key: shortLabel, sourceKey: `${shortLabel} Source`, penaltyKey: `${shortLabel} Pen`, falseStartKey: `${shortLabel} FS` }); } }); }); return columns; }
 function finalProtocolValue(value) { return value === 'DQ' ? 'DQ' : Number.isFinite(value) ? value : ''; }
-function exportFinalProtocolWorkbook() { if (!state.roster.length) return showToast('В текущем списке нет спортсменов'); ensureXlsx().then(() => { const finalColumns = finalProtocolMatches(); const rows = state.roster.map((athlete) => { const category = categoryForAthlete(athlete); const bracket = categoryState(category.id).bracket; const attempt1Log = latestQualificationLog(category.id, athlete.id, 1); const attempt2Log = latestQualificationLog(category.id, athlete.id, 2); const row = { Athlete: athlete.name, DOB: formatBirthDate(athlete.birthDate), Gender: category.label.split(' · ')[1], Region: athlete.region || athlete.city || '', Age: athlete.age, Category: category.label, 'TT1': isQualificationDQ(category.id, athlete.id, 1) ? 'DQ' : (getTime(category.id, athlete.id, 1) ?? ''), 'TT1 Source': raceSourceLabel(attempt1Log?.source), 'TT1 Pen': getPenalty(category.id, athlete.id, 1) || '', 'TT2': isQualificationDQ(category.id, athlete.id, 2) ? 'DQ' : (getTime(category.id, athlete.id, 2) ?? ''), 'TT2 Source': raceSourceLabel(attempt2Log?.source), 'TT2 Pen': getPenalty(category.id, athlete.id, 2) || '', 'Best TT': bestTime(category.id, athlete.id) ?? '' }; const finalValues = []; finalColumns.forEach((column) => { const match = bracket && column.categoryId === category.id ? getMatch(bracket, column.matchId) : null; const stored = match ? finalProtocolStoredValue(category.id, match, column.raceIndex, athlete.id) : null; const value = stored?.value ?? null; row[column.key] = finalProtocolValue(value); row[column.sourceKey] = raceSourceLabel(stored?.source); row[column.penaltyKey] = stored?.penalties || ''; row[column.falseStartKey] = stored?.falseStarts || ''; if (stored && value !== null && value !== undefined) finalValues.push(value); }); const numericFinalValues = finalValues.filter((value) => Number.isFinite(value)); row['Best KO Time'] = numericFinalValues.length ? Math.min(...numericFinalValues) : finalValues.includes('DQ') ? 'DQ' : ''; return row; }); const sheet = XLSX.utils.json_to_sheet(rows); sheet['!cols'] = Object.keys(rows[0] || {}).map((key) => ({ wch: Math.min(30, Math.max(12, key.length + 2)) })); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, sheet, 'Final Protocol'); const eventPart = (state.eventName || 'competition').replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 40); XLSX.writeFile(workbook, `${eventPart || 'competition'}_final_protocol.xlsx`); showToast('Final protocol exported'); }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
+function finalProtocolPlace(categoryId, athleteId) {
+  const bracket = categoryState(categoryId).bracket;
+  if (!bracket) return null;
+  const finalRound = Math.log2(bracket.size) - 1;
+  const finalMatch = bracket.matches.find((match) => match.round === finalRound);
+  const smallMatch = getMatch(bracket, 'small-final');
+  if (finalMatch?.winnerId === athleteId) return 1;
+  if (finalMatch?.loserId === athleteId) return 2;
+  if (smallMatch?.winnerId === athleteId) return 3;
+  if (smallMatch?.loserId === athleteId) return 4;
+  return null;
+}
+function finalProtocolEliminationRank(categoryId, athleteId) {
+  const bracket = categoryState(categoryId).bracket;
+  if (!bracket) return Infinity;
+  const finalRound = Math.log2(bracket.size) - 1;
+  const match = bracket.matches.find((item) => item.loserId === athleteId && item.id !== 'small-final' && item.round < finalRound);
+  if (!match) return Infinity;
+  let start = 5;
+  for (let round = finalRound - 2; round > match.round; round -= 1) start += bracket.size / (2 ** (round + 1));
+  return start;
+}
+function finalProtocolBestKoTime(categoryId, athleteId) {
+  const logged = (state.raceLog || []).filter((entry) => entry.phase === 'finals' && entry.categoryId === categoryId && entry.athleteId === athleteId && !entry.dq && Number.isFinite(entry.adjustedTime)).map((entry) => entry.adjustedTime);
+  const bracket = categoryState(categoryId).bracket;
+  bracket?.matches?.forEach((match) => { if (![match.athlete1, match.athlete2].includes(athleteId)) return; ensureMatchRaces(match).forEach((race, index) => { const stored = finalRaceStoredValue(categoryId, match, index, athleteId); if (Number.isFinite(stored.value)) logged.push(stored.value); }); });
+  return logged.length ? Math.min(...logged) : Infinity;
+}
+function finalProtocolAthleteCompare(a, b) {
+  const categoryA = categoryForAthlete(a);
+  const categoryB = categoryForAthlete(b);
+  const ageA = sortedAgeGroups().findIndex((group) => group.id === categoryA.ageId);
+  const ageB = sortedAgeGroups().findIndex((group) => group.id === categoryB.ageId);
+  if (ageA !== ageB) return ageA - ageB;
+  const girlsA = categoryA.gender === 'girls' || categoryA.gender === 'women';
+  const girlsB = categoryB.gender === 'girls' || categoryB.gender === 'women';
+  if (girlsA !== girlsB) return girlsA ? -1 : 1;
+  if (categoryA.id !== categoryB.id) return categoryA.label.localeCompare(categoryB.label, 'ru');
+  const placeA = finalProtocolPlace(categoryA.id, a.id) ?? Infinity;
+  const placeB = finalProtocolPlace(categoryB.id, b.id) ?? Infinity;
+  if (placeA !== placeB) return placeA - placeB;
+  const eliminationA = finalProtocolEliminationRank(categoryA.id, a.id);
+  const eliminationB = finalProtocolEliminationRank(categoryB.id, b.id);
+  if (eliminationA !== eliminationB) return eliminationA - eliminationB;
+  const koA = finalProtocolBestKoTime(categoryA.id, a.id);
+  const koB = finalProtocolBestKoTime(categoryB.id, b.id);
+  if (koA !== koB) return koA - koB;
+  const qualificationA = bestTime(categoryA.id, a.id) ?? Infinity;
+  const qualificationB = bestTime(categoryB.id, b.id) ?? Infinity;
+  if (qualificationA !== qualificationB) return qualificationA - qualificationB;
+  return String(a.name || '').localeCompare(String(b.name || ''), 'ru');
+}
+
+function exportFinalProtocolWorkbook() { if (!state.roster.length) return showToast('В текущем списке нет спортсменов'); ensureXlsx().then(() => { const finalColumns = finalProtocolMatches(); const rows = state.roster.slice().sort(finalProtocolAthleteCompare).map((athlete) => { const category = categoryForAthlete(athlete); const bracket = categoryState(category.id).bracket; const attempt1Log = latestQualificationLog(category.id, athlete.id, 1); const attempt2Log = latestQualificationLog(category.id, athlete.id, 2); const row = { Athlete: athlete.name, DOB: formatBirthDate(athlete.birthDate), Gender: category.label.split(' · ')[1], Region: athlete.region || athlete.city || '', Age: athlete.age, Category: category.label, 'TT1': isQualificationDQ(category.id, athlete.id, 1) ? 'DQ' : (getTime(category.id, athlete.id, 1) ?? ''), 'TT1 Source': raceSourceLabel(attempt1Log?.source), 'TT1 Pen': getPenalty(category.id, athlete.id, 1) || '', 'TT2': isQualificationDQ(category.id, athlete.id, 2) ? 'DQ' : (getTime(category.id, athlete.id, 2) ?? ''), 'TT2 Source': raceSourceLabel(attempt2Log?.source), 'TT2 Pen': getPenalty(category.id, athlete.id, 2) || '', 'Best TT': bestTime(category.id, athlete.id) ?? '' }; const finalValues = []; finalColumns.forEach((column) => { const match = bracket && column.categoryId === category.id ? getMatch(bracket, column.matchId) : null; const stored = match ? finalProtocolStoredValue(category.id, match, column.raceIndex, athlete.id) : null; const value = stored?.value ?? null; row[column.key] = finalProtocolValue(value); row[column.sourceKey] = raceSourceLabel(stored?.source); row[column.penaltyKey] = stored?.penalties || ''; row[column.falseStartKey] = stored?.falseStarts || ''; if (stored && value !== null && value !== undefined) finalValues.push(value); }); const numericFinalValues = finalValues.filter((value) => Number.isFinite(value)); row['Best KO Time'] = numericFinalValues.length ? Math.min(...numericFinalValues) : finalValues.includes('DQ') ? 'DQ' : ''; return row; }); const sheet = XLSX.utils.json_to_sheet(rows); sheet['!cols'] = Object.keys(rows[0] || {}).map((key) => ({ wch: Math.min(30, Math.max(12, key.length + 2)) })); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, sheet, 'Final Protocol'); const eventPart = (state.eventName || 'competition').replace(/[^\p{L}\p{N}_-]+/gu, '_').slice(0, 40); XLSX.writeFile(workbook, `${eventPart || 'competition'}_final_protocol.xlsx`); showToast('Final protocol exported'); }).catch(() => showToast('Не удалось загрузить библиотеку Excel')); }
 function closeQualificationExportModal() { $('#qualificationExportModal').classList.add('hidden'); }
 function backToListsFromQualificationExport() { closeQualificationExportModal(); openListsModal(); }
 function openQualificationExportModal() { if (!state.roster.length) return showToast('В текущем списке нет спортсменов'); closeListsModal(); const host = $('#qualificationExportGroups'); const ageOrder = new Map(sortedAgeGroups().map((group, index) => [group.id, index])); const categories = CATEGORIES.filter((category) => activeCategoryIds().includes(category.id)).sort((a, b) => ageOrder.get(a.ageId) - ageOrder.get(b.ageId) || a.label.localeCompare(b.label, 'ru')); host.innerHTML = categories.map((category) => { const count = athletesForCategory(category.id).length; return `<label class="qualification-export-option"><input type="checkbox" value="${category.id}" /><span><strong>${escapeHtml(category.label)}</strong><small>${count} уч.</small></span></label>`; }).join(''); $('#qualificationExportModal').classList.remove('hidden'); }

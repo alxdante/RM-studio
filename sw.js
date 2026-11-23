@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rm-studio-shell-v3';
+const CACHE_NAME = 'rm-studio-shell-v4';
 const CORE_FILES = [
   './',
   './index.html',
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
           return response;
         })
-        .catch(() => caches.match('./index.html')),
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html'))),
     );
     return;
   }

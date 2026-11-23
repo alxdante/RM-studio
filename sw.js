@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rm-studio-shell-v2';
+const CACHE_NAME = 'rm-studio-shell-v3';
 const CORE_FILES = [
   './',
   './index.html',

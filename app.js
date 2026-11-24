@@ -865,11 +865,32 @@ function resetLaneState(index, { recordActivity = true } = {}) {
   return true;
 }
 
+function deleteCurrentRunResult(index) {
+  const lane = state.lanes[index];
+  if (!lane?.athleteId) return;
+  if (state.phase === 'qualification' && lane.categoryId) {
+    const category = categoryState(lane.categoryId); const attempt = category.attempt;
+    if (attempt <= 2) {
+      ['attempts', 'rawAttempts', 'penalties', 'dq', 'falseStarts'].forEach((key) => { if (category[key]?.[attempt]) delete category[key][attempt][lane.athleteId]; });
+      state.raceLog = (state.raceLog || []).filter((entry) => !(entry.phase === 'qualification' && entry.categoryId === lane.categoryId && entry.athleteId === lane.athleteId && entry.attempt === attempt));
+    }
+    return;
+  }
+  if (state.phase !== 'finals') return;
+  const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const raceIndex = Number(category.selectedRaceIndex); if (!match || !Number.isInteger(raceIndex)) return;
+  const race = ensureMatchRaces(match)[raceIndex]; const side = match.athlete1 === lane.athleteId ? '1' : match.athlete2 === lane.athleteId ? '2' : null; if (!race || !side) return;
+  race[`time${side}`] = null; race[`penalty${side}`] = 0; race[`falseStarts${side}`] = 0; race[`source${side}`] = null;
+  state.raceLog = (state.raceLog || []).filter((entry) => !(entry.phase === 'finals' && entry.categoryId === state.selectedFinalCategory && entry.matchId === match.id && entry.raceIndex === raceIndex && entry.athleteId === lane.athleteId));
+  match.time1 = ensureMatchRaces(match)[0]?.time1 ?? null; match.time2 = ensureMatchRaces(match)[0]?.time2 ?? null;
+  resolveMatch(state.selectedFinalCategory, match.id);
+}
+
 function resetLaneFromManualInput(index, input) {
   const lane = state.lanes[index];
   if (!lane || lane.reviewOnly) return false;
   if (input) { input.dataset.rawDigits = ''; input.value = ''; }
   if (activeNumericInput === input) closeNumericPad();
+  deleteCurrentRunResult(index);
   if (!resetLaneState(index)) return false;
   if (!state.lanes.some((item) => item.running)) clearInterval(timerHandle);
   persist();

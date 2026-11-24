@@ -2,6 +2,7 @@ import { build, transform } from 'esbuild';
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { minify } from 'terser';
 
 const root = new URL('.', import.meta.url).pathname;
 const dist = path.join(root, 'dist');
@@ -13,13 +14,19 @@ await mkdir(dist, { recursive: true });
 const jsSource = await readFile(path.join(root, 'app.js'), 'utf8');
 const cssSource = await readFile(path.join(root, 'styles.css'), 'utf8');
 const [jsResult, cssResult] = await Promise.all([
-  transform(jsSource, { loader: 'js', minify: true, sourcemap: false, legalComments: 'none' }),
+  transform(jsSource, { loader: 'js', minify: false, sourcemap: false, legalComments: 'none' }),
   transform(cssSource, { loader: 'css', minify: true, sourcemap: false })
 ]);
 
-const jsName = `app.${hash(jsResult.code)}.js`;
+const jsMinified = await minify(jsResult.code, {
+  compress: { passes: 2, drop_console: true, drop_debugger: true },
+  mangle: { toplevel: true },
+  format: { ascii_only: true, comments: false }
+});
+if (!jsMinified.code) throw new Error('JavaScript minification failed');
+const jsName = `app.${hash(jsMinified.code)}.js`;
 const cssName = `styles.${hash(cssResult.code)}.css`;
-await writeFile(path.join(dist, jsName), jsResult.code);
+await writeFile(path.join(dist, jsName), jsMinified.code);
 await writeFile(path.join(dist, cssName), cssResult.code);
 
 let html = await readFile(path.join(root, 'index.html'), 'utf8');

@@ -14,6 +14,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .brand-mark { width: 38px; height: 38px; border: 1px solid var(--ink); display: grid; place-items: center; color: var(--ink); font: 12px "DM Mono", monospace; letter-spacing: -1px; position: relative; }
 .brand-mark i { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); bottom: -3px; right: -3px; }
 .brand-lockup h1 { font-size: 19px; line-height: .9; letter-spacing: -.06em; margin: 0; font-weight: 500; } .brand-lockup h1 strong { color: var(--orange); font-weight: 600; }
+.license-id { display: block; margin-top: 5px; color: var(--muted); font: 8px/1 "DM Mono", monospace; letter-spacing: .08em; text-transform: lowercase; opacity: .8; }
 .eyebrow, .mini-label { font: 9px/1.4 "DM Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 6px; }
 .accent { color: var(--orange); } .mono { font-family: "DM Mono", monospace; } .muted { color: var(--muted); }
 .event-fields { display: flex; gap: 20px; flex: 1; } .event-fields label { display: grid; gap: 5px; min-width: 140px; } .event-fields label span { color: var(--muted); font: 9px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .09em; }

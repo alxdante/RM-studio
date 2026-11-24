@@ -432,7 +432,7 @@ function commitPendingManualInput(index) {
   const input = activeNumericInput?.matches(selector) ? activeNumericInput : document.querySelector(selector);
   if (!input) return true;
   const digits = String(input.dataset.rawDigits || '').replace(/\D/g, '');
-  if (digits && /^0+$/.test(digits)) { resetLaneFromManualInput(index, input); return true; }
+  if (digits && /^0+$/.test(digits)) { if (manualOverwriteExists(index)) { requestManualDelete(index, input); return false; } resetLaneFromManualInput(index, input); return true; }
   if (digits.length < 4) return true;
   const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`);
   if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return true;
@@ -643,14 +643,28 @@ function clearManualOverwriteInput() {
 function closeManualOverwrite() {
   clearManualOverwriteInput();
   pendingManualOverwrite = null;
+  $('#manualOverwriteConfirmTitle').textContent = 'Перезапись результата';
+  $('#manualOverwriteYes').textContent = 'Да';
   $('#manualOverwriteConfirm')?.classList.add('hidden');
 }
 
 function requestManualOverwrite(index, time, input) {
   pendingManualOverwrite = { index, time, input };
   const athlete = athleteById(state.lanes[index]?.athleteId)?.name || 'спортсмена';
-  const text = $('#manualOverwriteConfirmText');
+  const title = $('#manualOverwriteConfirmTitle'); const text = $('#manualOverwriteConfirmText'); const confirmButton = $('#manualOverwriteYes');
+  if (title) title.textContent = 'Перезапись результата';
   if (text) text.textContent = `Результат ${athlete} уже введён. Перезаписать?`;
+  if (confirmButton) confirmButton.textContent = 'Да';
+  closeNumericPad();
+  $('#manualOverwriteConfirm')?.classList.remove('hidden');
+}
+function requestManualDelete(index, input) {
+  pendingManualOverwrite = { index, input, action: 'delete' };
+  const athlete = athleteById(state.lanes[index]?.athleteId)?.name || 'спортсмена';
+  const title = $('#manualOverwriteConfirmTitle'); const text = $('#manualOverwriteConfirmText'); const confirmButton = $('#manualOverwriteYes');
+  if (title) title.textContent = 'Удаление результата';
+  if (text) text.textContent = `Результат ${athlete} уже введён. Удалить?`;
+  if (confirmButton) confirmButton.textContent = 'Удалить';
   closeNumericPad();
   $('#manualOverwriteConfirm')?.classList.remove('hidden');
 }
@@ -661,7 +675,8 @@ function confirmManualOverwrite() {
   const input = pending.input;
   pendingManualOverwrite = null;
   $('#manualOverwriteConfirm')?.classList.add('hidden');
-  applyLaneResult(pending.index, pending.time, 'manual', true);
+  if (pending.action === 'delete') resetLaneFromManualInput(pending.index, input);
+  else applyLaneResult(pending.index, pending.time, 'manual', true);
   if (input) { input.dataset.rawDigits = ''; input.value = ''; }
 }
 
@@ -780,7 +795,7 @@ function renderLanes() {
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
   $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (!lane.athleteId) { lane.dq = !lane.dq; recalculateLanePenalty(index); return; } if (lane.dq) clearFinalDQ(index); else setLaneDQ(index); return; } if (lane.dq) { lane.dq = false; recalculateLanePenalty(index); } else setLaneDQ(index); }));
   $$('[data-false-start]').forEach((button) => { button.addEventListener('pointerdown', handleFalseStartPointerDown); button.addEventListener('click', handleFalseStartClick); });
-  $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; const setDigits = (digits) => setManualTimeDigits(input, digits); input.addEventListener('focus', () => setDigits('')); input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => setDigits(input.value)); input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const digits = input.dataset.rawDigits || ''; const index = Number(input.dataset.manualTime); if (digits && /^0+$/.test(digits)) { resetLaneFromManualInput(index, input); return; } if (digits.length < 4) return; const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`); if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return; applyLaneResult(index, time, 'manual'); setDigits(''); return; } if (/^\d$/.test(event.key)) { event.preventDefault(); setDigits(`${input.dataset.rawDigits || ''}${event.key}`); return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); setDigits((input.dataset.rawDigits || '').slice(0, -1)); return; } if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) event.preventDefault(); }); });
+  $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; const setDigits = (digits) => setManualTimeDigits(input, digits); input.addEventListener('focus', () => setDigits('')); input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => setDigits(input.value)); input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const digits = input.dataset.rawDigits || ''; const index = Number(input.dataset.manualTime); if (digits && /^0+$/.test(digits)) { if (manualOverwriteExists(index)) { requestManualDelete(index, input); return; } resetLaneFromManualInput(index, input); return; } if (digits.length < 4) return; const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`); if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return; applyLaneResult(index, time, 'manual'); setDigits(''); return; } if (/^\d$/.test(event.key)) { event.preventDefault(); setDigits(`${input.dataset.rawDigits || ''}${event.key}`); return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); setDigits((input.dataset.rawDigits || '').slice(0, -1)); return; } if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) event.preventDefault(); }); });
 }
 function renderGlobalQueue() { const lanes = state.lanes.map((lane, index) => { const category = categoryById(lane.categoryId); const next = lane.athleteId ? athleteById(lane.athleteId) : pendingForCategory(lane.categoryId, index)[0]; return `<div class="queue-lane"><span class="queue-lane-number">0${index + 1}</span><div><strong>${escapeHtml(category.label)}</strong><span>${next ? `at start · ${escapeHtml(next.name)}` : 'no skater at start'}</span></div><b>${categoryState(lane.categoryId).attempt > 2 ? 'KO' : `TT${categoryState(lane.categoryId).attempt}`}</b></div>`; }).join(''); const nextCategories = activeCategoryIds().filter((id) => !state.lanes.some((lane) => lane.categoryId === id)).slice(0, 4).map((id) => `<div class="queue-next"><span>next category</span><strong>${escapeHtml(categoryById(id).label)}</strong><button data-queue-category="${id}" class="text-button">select →</button></div>`).join(''); $('#globalQueue').innerHTML = lanes + (nextCategories || '<div class="queue-empty">All active categories are assigned to lanes.</div>'); $$('[data-queue-category]').forEach((button) => button.addEventListener('click', () => { const laneIndex = state.lanes.findIndex((lane) => categoryState(lane.categoryId).attempt > 2 || !lane.athleteId); const index = laneIndex >= 0 ? laneIndex : 0; state.lanes[index].categoryId = button.dataset.queueCategory; state.lanes[index].athleteId = null; autoAssignLanes(); persist(); renderAll(); })); }
 function renderCategoryBoard() { const active = activeCategoryIds(); $('#categoryBoard').innerHTML = active.length ? active.map((id) => { const category = categoryById(id); const cat = categoryState(id); const total = athletesForCategory(id).length; const first = finishedCount(id, 1); const second = finishedCount(id, 2); const progress = cat.attempt > 2 ? 100 : Math.round(((first + second) / (total * 2)) * 100); const status = cat.attempt === 1 ? 'TT1' : cat.attempt === 2 ? 'TT2 · slowest → fastest' : 'KO ready'; return `<div class="category-row ${cat.attempt > 2 ? 'ready' : ''}"><div class="category-row-title"><strong>${escapeHtml(category.label)}</strong><span>${status}</span></div><div class="category-progress"><i><b style="width:${progress}%"></b></i><small>${first}/${total} · ${second}/${total}</small></div><select data-final-size="${id}" aria-label="KO size ${category.label}">${FINAL_SIZES.map((size) => `<option value="${size}" ${Number(cat.finalSize) === size ? 'selected' : ''}>KO size: ${size}</option>`).join('')}</select><button data-open-finals="${id}" class="text-button">${cat.attempt > 2 ? 'Open KO →' : 'Manage →'}</button></div>`; }).join('') : '<div class="queue-empty">Загрузите список спортсменов, чтобы увидеть категории.</div>'; $$('[data-final-size]').forEach((select) => select.addEventListener('change', () => { categoryState(select.dataset.finalSize).finalSize = Number(select.value); persist(); })); $$('[data-open-finals]').forEach((button) => button.addEventListener('click', () => { state.selectedFinalCategory = button.dataset.openFinals; switchPhase('finals'); })); }

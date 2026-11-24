@@ -1270,6 +1270,8 @@ body.display-mode .display-penalty strong { width: 10vw; height: 10vw; max-width
   .run-start:hover:not(:disabled) { background: #b7f58d; }
   .run-reset:hover:not(:disabled) { background: #ff8068; }
   .btn-theme:hover:not(:disabled), .top-future-functions:hover:not(:disabled) { border-color: var(--line); background: transparent; }
+  .finals-group-strip { touch-action: pan-x pan-y; -webkit-tap-highlight-color: transparent; }
+  .finals-group-tiles .lane-tab:hover:not(:disabled):not(.active) { border-color: rgba(183,245,141,.2); color: #b9cbc2; background: rgba(255,255,255,.06); transform: none; }
   .lane-group-picker .lane-tab:hover:not(:disabled):not(.active) { border-color: rgba(183,245,141,.2); color: #b9cbc2; background: rgba(255,255,255,.06); transform: none; }
   .penalty-quick-row button:hover, .penalty-dq:hover { background: rgba(255,116,69,.16); border-color: rgba(255,179,158,.5); }
   .penalty-quick-row button.active:hover, .penalty-dq.active:hover { background: #ff8068; border-color: #ffb39e; color: #321512; }

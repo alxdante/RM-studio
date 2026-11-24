@@ -254,7 +254,7 @@ body {
   letter-spacing: -.06em;
 }
 .display-header h1 strong { color: #ffaa00; font-weight: 600; }
-.display-license { color: #71807c; font: 8px/1 "DM Mono", monospace; letter-spacing: .08em; opacity: .8; }
+.display-license { color: #71807c; font-family: "DM Mono", monospace !important; font-size: 8px !important; font-weight: 400 !important; line-height: 1 !important; letter-spacing: .08em; white-space: nowrap; opacity: .8; }
 .lane-title { display: none; }
 .lane-box { position: relative; }
 .lane-label {

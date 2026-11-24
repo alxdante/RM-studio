@@ -132,6 +132,7 @@ let bleState = {
 let timerHandle = null;
 let bleResetLock = false;
 let resetPointerHandledAt = 0;
+let falseStartPointerHandledAt = 0;
 let toastHandle = null;
 let pendingImport = null;
 let pendingFinalBracketCategoryId = null;
@@ -488,6 +489,7 @@ function handleFalseStart(index, number) {
   if (number === 1 && lane.falseStarts === 1) { lane.falseStarts = 0; persist(); renderLanes(); return; }
   if (number === 2 && lane.falseStarts === 2) { lane.falseStarts = 0; lane.pendingResult = null; lane.penalties = 0; lane.dq = false; lane.time = null; persist(); renderLanes(); return; }
   if (lane.pendingResult) return;
+  const timerWasRunning = state.phase === 'finals' ? state.lanes.some((item) => item.running) : Boolean(lane.running);
   if (state.phase === 'finals') {
     state.lanes.forEach((item) => {
       item.running = false;
@@ -502,6 +504,7 @@ function handleFalseStart(index, number) {
     lane.startedAt = null;
     lane.time = 0;
   }
+  if (timerWasRunning) sendBleCommand('reset');
   if (lane.falseStarts === 0) {
     lane.falseStarts = 1; recordFalseStartEvent(index); persist(); renderLanes(); return;
   }
@@ -511,6 +514,23 @@ function handleFalseStart(index, number) {
   const category = categoryState(lane.categoryId);
   lane.pendingResult = { categoryId: lane.categoryId, attempt: category.attempt, rawTime: 0, adjustedTime: 0, penalties: 0, dq: true, source: 'false-start' };
   persist(); renderLanes();
+}
+function triggerFalseStart(button) {
+  const index = Number(button.dataset.falseStart);
+  const lane = state.lanes[index];
+  const number = Number(button.dataset.fsNumber);
+  if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number);
+}
+function handleFalseStartClick(event) {
+  if (performance.now() - falseStartPointerHandledAt < 500) { event.preventDefault(); return; }
+  event.preventDefault();
+  triggerFalseStart(event.currentTarget);
+}
+function handleFalseStartPointerDown(event) {
+  if (event.button !== undefined && event.button !== 0) return;
+  event.preventDefault();
+  falseStartPointerHandledAt = performance.now();
+  triggerFalseStart(event.currentTarget);
 }
 function promoteNextAthlete(index) {
   const lane = state.lanes[index];
@@ -753,7 +773,7 @@ function renderLanes() {
   $$('[data-lane-penalties]').forEach((input) => { input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2) || '0'; }); input.addEventListener('change', () => { input.value = input.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 2) || '0'; const index = Number(input.dataset.lanePenalties); setLanePenalties(index, input.value); }); });
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
   $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (!lane.athleteId) { lane.dq = !lane.dq; recalculateLanePenalty(index); return; } if (lane.dq) clearFinalDQ(index); else setLaneDQ(index); return; } if (lane.dq) { lane.dq = false; recalculateLanePenalty(index); } else setLaneDQ(index); }));
-  $$('[data-false-start]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.falseStart); const lane = state.lanes[index]; const number = Number(button.dataset.fsNumber); if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number); }));
+  $$('[data-false-start]').forEach((button) => { button.addEventListener('pointerdown', handleFalseStartPointerDown); button.addEventListener('click', handleFalseStartClick); });
   $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; const setDigits = (digits) => setManualTimeDigits(input, digits); input.addEventListener('focus', () => setDigits('')); input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => setDigits(input.value)); input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const digits = input.dataset.rawDigits || ''; const index = Number(input.dataset.manualTime); if (digits && /^0+$/.test(digits)) { resetLaneFromManualInput(index, input); return; } if (digits.length < 4) return; const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`); if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return; applyLaneResult(index, time, 'manual'); setDigits(''); return; } if (/^\d$/.test(event.key)) { event.preventDefault(); setDigits(`${input.dataset.rawDigits || ''}${event.key}`); return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); setDigits((input.dataset.rawDigits || '').slice(0, -1)); return; } if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) event.preventDefault(); }); });
 }
 function renderGlobalQueue() { const lanes = state.lanes.map((lane, index) => { const category = categoryById(lane.categoryId); const next = lane.athleteId ? athleteById(lane.athleteId) : pendingForCategory(lane.categoryId, index)[0]; return `<div class="queue-lane"><span class="queue-lane-number">0${index + 1}</span><div><strong>${escapeHtml(category.label)}</strong><span>${next ? `at start · ${escapeHtml(next.name)}` : 'no skater at start'}</span></div><b>${categoryState(lane.categoryId).attempt > 2 ? 'KO' : `TT${categoryState(lane.categoryId).attempt}`}</b></div>`; }).join(''); const nextCategories = activeCategoryIds().filter((id) => !state.lanes.some((lane) => lane.categoryId === id)).slice(0, 4).map((id) => `<div class="queue-next"><span>next category</span><strong>${escapeHtml(categoryById(id).label)}</strong><button data-queue-category="${id}" class="text-button">select →</button></div>`).join(''); $('#globalQueue').innerHTML = lanes + (nextCategories || '<div class="queue-empty">All active categories are assigned to lanes.</div>'); $$('[data-queue-category]').forEach((button) => button.addEventListener('click', () => { const laneIndex = state.lanes.findIndex((lane) => categoryState(lane.categoryId).attempt > 2 || !lane.athleteId); const index = laneIndex >= 0 ? laneIndex : 0; state.lanes[index].categoryId = button.dataset.queueCategory; state.lanes[index].athleteId = null; autoAssignLanes(); persist(); renderAll(); })); }

@@ -841,9 +841,12 @@ function resetAllLanes({ sendCommand = true } = {}) {
   if (!state.lanes.some((lane) => lane.running)) return false;
   clearInterval(timerHandle);
   timerHandle = null;
-  state.lanes.forEach((_, index) => resetLaneState(index, { recordActivity: false }));
+  state.lanes.forEach((lane) => {
+    if (!lane.running) return;
+    lane.running = false;
+    lane.startedAt = null;
+  });
   if (sendCommand) sendBleCommand('reset');
-  addActivity('Сброс · таймеры остановлены');
   persist();
   renderAll();
 }

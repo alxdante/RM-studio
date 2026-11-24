@@ -319,7 +319,7 @@ function resetQualificationLanesForAttempt(categoryId) {
   });
   autoAssignLanes();
 }
-function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const race = match && ensureMatchRaces(match)[category.selectedRaceIndex]; if (match?.winnerId) return false; if (race && (race.time1 !== null || race.time2 !== null)) { showToast('Заезд уже начат — выберите следующий заезд после второго результата'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.dqResultTime = null; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
+function prepareLaneForStart(index) { const lane = state.lanes[index]; if (!lane) return; if (state.phase === 'finals') { const category = categoryState(state.selectedFinalCategory); const match = category.bracket?.matches?.find((item) => item.id === category.selectedMatchId); const race = match && ensureMatchRaces(match)[category.selectedRaceIndex]; if (match?.winnerId) return false; if (race && (race.time1 !== null || race.time2 !== null)) { showToast('Заезд уже начат — выберите следующий заезд после второго результата'); return false; } commitFinalLaneResult(index); return true; } if (state.phase !== 'qualification' || !lane.categoryId) return; if (categoryState(lane.categoryId).attempt > 2) { lane.athleteId = null; lane.time = null; lane.running = false; return; } if (lane.falseStarts === 1 && lane.athleteId) { lane.time = null; lane.running = false; lane.startedAt = null; lane.error = null; return true; } const committed = commitLaneResult(index); const attempt = categoryState(lane.categoryId).attempt; const recorded = lane.athleteId && attempt <= 2 && hasRecordedResult(lane.categoryId, lane.athleteId, attempt); if (!committed && !recorded) return; const next = pendingForCategory(lane.categoryId, index).find((athlete) => athlete.id !== lane.athleteId) || null; lane.athleteId = next?.id || null; lane.time = null; lane.penalties = 0; lane.dq = false; lane.dqResultTime = null; lane.falseStarts = 0; lane.error = null; lane.startedAt = null; }
 function advanceCategoryIfComplete(categoryId) { const category = categoryState(categoryId); if (category.attempt === 1 && categoryComplete(categoryId, 1)) { category.attempt = 2; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · попытка 01 завершена, очередь 02 готова`); } if (category.attempt === 2 && categoryComplete(categoryId, 2)) { category.attempt = 3; resetQualificationLanesForAttempt(categoryId); addActivity(`${categoryById(categoryId).label} · квалификация завершена, финальный посев готов`); } }
 
 function renderSummary() {
@@ -488,6 +488,20 @@ function handleFalseStart(index, number) {
   if (number === 1 && lane.falseStarts === 1) { lane.falseStarts = 0; persist(); renderLanes(); return; }
   if (number === 2 && lane.falseStarts === 2) { lane.falseStarts = 0; lane.pendingResult = null; lane.penalties = 0; lane.dq = false; lane.time = null; persist(); renderLanes(); return; }
   if (lane.pendingResult) return;
+  if (state.phase === 'finals') {
+    state.lanes.forEach((item) => {
+      item.running = false;
+      item.startedAt = null;
+      item.time = 0;
+      item.finalRawTime = null;
+      item.pendingFinalResult = null;
+    });
+    if (!state.lanes.some((item) => item.running)) clearInterval(timerHandle);
+  } else if (lane.running) {
+    lane.running = false;
+    lane.startedAt = null;
+    lane.time = 0;
+  }
   if (lane.falseStarts === 0) {
     lane.falseStarts = 1; recordFalseStartEvent(index); persist(); renderLanes(); return;
   }

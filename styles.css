@@ -578,7 +578,7 @@ body:not(.display-mode) .lane-grid.finals-mode .lane-card { margin-top: 0; }
 body:not(.display-mode) #laneCards.finals-mode { height: auto; max-height: none; overflow: visible; grid-auto-rows: auto; }
 body:not(.display-mode) #finalsPanel { display: block; flex: none; min-height: 0; }
 body:not(.display-mode) .workspace > #finalsPanel { clear: both; margin-top: 15px; }
-body:not(.display-mode) #finalsPanel .bracket-board { height: auto; max-height: max(240px, min(760px, calc(var(--app-vh) - var(--topbar-height) - 354px))); min-height: 240px; overflow: auto; touch-action: pan-y; overscroll-behavior: contain; }
+body:not(.display-mode) #finalsPanel .bracket-board { height: auto; max-height: max(240px, min(760px, calc(var(--app-vh) - var(--topbar-height) - 354px))); min-height: 240px; overflow: auto; overflow-x: auto; overflow-y: auto; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 body:not(.display-mode) #finalsPanel .bracket-grid { min-height: max-content; }
 
 body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: none; overscroll-behavior: none; }

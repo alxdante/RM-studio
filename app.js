@@ -430,6 +430,7 @@ function commitPendingManualInput(index) {
   const input = activeNumericInput?.matches(selector) ? activeNumericInput : document.querySelector(selector);
   if (!input) return true;
   const digits = String(input.dataset.rawDigits || '').replace(/\D/g, '');
+  if (digits && /^0+$/.test(digits)) { resetLaneFromManualInput(index, input); return true; }
   if (digits.length < 4) return true;
   const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`);
   if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return true;
@@ -738,7 +739,7 @@ function renderLanes() {
   $$('[data-quick-penalty]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.quickPenalty); const lane = state.lanes[index]; const value = Number(button.dataset.penaltyValue); setLanePenalties(index, lane.penalties === value && !lane.dq ? 0 : value); }));
   $$('[data-lane-dq]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.laneDq); const lane = state.lanes[index]; if (state.phase === 'finals') { if (!lane.athleteId) { lane.dq = !lane.dq; recalculateLanePenalty(index); return; } if (lane.dq) clearFinalDQ(index); else setLaneDQ(index); return; } if (lane.dq) { lane.dq = false; recalculateLanePenalty(index); } else setLaneDQ(index); }));
   $$('[data-false-start]').forEach((button) => button.addEventListener('click', () => { const index = Number(button.dataset.falseStart); const lane = state.lanes[index]; const number = Number(button.dataset.fsNumber); if ((number === 1 && lane.falseStarts <= 1) || (number === 2 && lane.falseStarts >= 1)) handleFalseStart(index, number); }));
-  $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; const setDigits = (digits) => setManualTimeDigits(input, digits); input.addEventListener('focus', () => setDigits('')); input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => setDigits(input.value)); input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const digits = input.dataset.rawDigits || ''; if (digits.length < 4) return; const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`); if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return; const index = Number(input.dataset.manualTime); applyLaneResult(index, time, 'manual'); setDigits(''); return; } if (/^\d$/.test(event.key)) { event.preventDefault(); setDigits(`${input.dataset.rawDigits || ''}${event.key}`); return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); setDigits((input.dataset.rawDigits || '').slice(0, -1)); return; } if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) event.preventDefault(); }); });
+  $$('[data-manual-time]').forEach((input) => { input.dataset.rawDigits = ''; const setDigits = (digits) => setManualTimeDigits(input, digits); input.addEventListener('focus', () => setDigits('')); input.addEventListener('click', (event) => { if (!shouldUseNumericPad()) return; event.preventDefault(); openNumericPad(input); }); input.addEventListener('input', () => setDigits(input.value)); input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { const digits = input.dataset.rawDigits || ''; const index = Number(input.dataset.manualTime); if (digits && /^0+$/.test(digits)) { resetLaneFromManualInput(index, input); return; } if (digits.length < 4) return; const time = Number(`${digits.slice(0, -3)}.${digits.slice(-3)}`); if (!Number.isFinite(time) || time < 0.001 || time > 59.999) return; applyLaneResult(index, time, 'manual'); setDigits(''); return; } if (/^\d$/.test(event.key)) { event.preventDefault(); setDigits(`${input.dataset.rawDigits || ''}${event.key}`); return; } if (event.key === 'Backspace' || event.key === 'Delete') { event.preventDefault(); setDigits((input.dataset.rawDigits || '').slice(0, -1)); return; } if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) event.preventDefault(); }); });
 }
 function renderGlobalQueue() { const lanes = state.lanes.map((lane, index) => { const category = categoryById(lane.categoryId); const next = lane.athleteId ? athleteById(lane.athleteId) : pendingForCategory(lane.categoryId, index)[0]; return `<div class="queue-lane"><span class="queue-lane-number">0${index + 1}</span><div><strong>${escapeHtml(category.label)}</strong><span>${next ? `at start · ${escapeHtml(next.name)}` : 'no skater at start'}</span></div><b>${categoryState(lane.categoryId).attempt > 2 ? 'KO' : `TT${categoryState(lane.categoryId).attempt}`}</b></div>`; }).join(''); const nextCategories = activeCategoryIds().filter((id) => !state.lanes.some((lane) => lane.categoryId === id)).slice(0, 4).map((id) => `<div class="queue-next"><span>next category</span><strong>${escapeHtml(categoryById(id).label)}</strong><button data-queue-category="${id}" class="text-button">select →</button></div>`).join(''); $('#globalQueue').innerHTML = lanes + (nextCategories || '<div class="queue-empty">All active categories are assigned to lanes.</div>'); $$('[data-queue-category]').forEach((button) => button.addEventListener('click', () => { const laneIndex = state.lanes.findIndex((lane) => categoryState(lane.categoryId).attempt > 2 || !lane.athleteId); const index = laneIndex >= 0 ? laneIndex : 0; state.lanes[index].categoryId = button.dataset.queueCategory; state.lanes[index].athleteId = null; autoAssignLanes(); persist(); renderAll(); })); }
 function renderCategoryBoard() { const active = activeCategoryIds(); $('#categoryBoard').innerHTML = active.length ? active.map((id) => { const category = categoryById(id); const cat = categoryState(id); const total = athletesForCategory(id).length; const first = finishedCount(id, 1); const second = finishedCount(id, 2); const progress = cat.attempt > 2 ? 100 : Math.round(((first + second) / (total * 2)) * 100); const status = cat.attempt === 1 ? 'TT1' : cat.attempt === 2 ? 'TT2 · slowest → fastest' : 'KO ready'; return `<div class="category-row ${cat.attempt > 2 ? 'ready' : ''}"><div class="category-row-title"><strong>${escapeHtml(category.label)}</strong><span>${status}</span></div><div class="category-progress"><i><b style="width:${progress}%"></b></i><small>${first}/${total} · ${second}/${total}</small></div><select data-final-size="${id}" aria-label="KO size ${category.label}">${FINAL_SIZES.map((size) => `<option value="${size}" ${Number(cat.finalSize) === size ? 'selected' : ''}>KO size: ${size}</option>`).join('')}</select><button data-open-finals="${id}" class="text-button">${cat.attempt > 2 ? 'Open KO →' : 'Manage →'}</button></div>`; }).join('') : '<div class="queue-empty">Загрузите список спортсменов, чтобы увидеть категории.</div>'; $$('[data-final-size]').forEach((select) => select.addEventListener('change', () => { categoryState(select.dataset.finalSize).finalSize = Number(select.value); persist(); })); $$('[data-open-finals]').forEach((button) => button.addEventListener('click', () => { state.selectedFinalCategory = button.dataset.openFinals; switchPhase('finals'); })); }
@@ -758,7 +759,7 @@ function openDisplayWindow() {
   const displayWindow = window.open(url.toString(), 'sst-display', 'popup=yes,width=1280,height=720');
   if (!displayWindow) showToast('Разрешите открытие всплывающих окон для табло');
 }
-function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = !online || reviewOnly || modeDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = false; }
+function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = !online || reviewOnly || modeDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = !online || reviewOnly || modeDisabled; }
 function renderFinals() { if (!state.selectedFinalCategory) { $('#bracketBoard').innerHTML = '<div class="bracket-empty">Выберите группу, чтобы открыть финальную сетку.</div>'; return; } const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
 function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); updateViewportHeight(); }
 
@@ -801,23 +802,47 @@ function startAllLanes() {
   renderAll();
   startTicker();
 }
-function resetAllLanes() {
+function clearLaneForReset(lane) {
+  lane.running = false;
+  lane.startedAt = null;
+  lane.time = null;
+  lane.demoRawTime = null;
+  lane.pendingResult = null;
+  lane.pendingFinalResult = null;
+  lane.finalRawTime = null;
+  lane.dqResultTime = null;
+  if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; }
+  lane.error = null;
+}
+
+function resetLaneState(index, { recordActivity = true } = {}) {
+  const lane = state.lanes[index];
+  if (!lane) return false;
+  clearLaneForReset(lane);
+  bleResetLock = true;
+  if (recordActivity) addActivity(`Сброс · дорожка ${index + 1}`);
+  return true;
+}
+
+function resetLaneFromManualInput(index, input) {
+  const lane = state.lanes[index];
+  if (!lane || lane.reviewOnly) return false;
+  if (input) { input.dataset.rawDigits = ''; input.value = ''; }
+  if (activeNumericInput === input) closeNumericPad();
+  if (!resetLaneState(index)) return false;
+  if (!state.lanes.some((item) => item.running)) clearInterval(timerHandle);
+  persist();
+  renderAll();
+  return true;
+}
+
+function resetAllLanes({ sendCommand = true } = {}) {
+  if (sendCommand && (!ble.connected || currentModeDisabled())) return false;
+  if (!state.lanes.some((lane) => lane.running)) return false;
   clearInterval(timerHandle);
   timerHandle = null;
-  bleResetLock = true;
-  state.lanes.forEach((lane) => {
-    lane.running = false;
-    lane.startedAt = null;
-    lane.time = null;
-    lane.demoRawTime = null;
-    lane.pendingResult = null;
-    lane.pendingFinalResult = null;
-    lane.finalRawTime = null;
-    lane.dqResultTime = null;
-    if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; }
-    lane.error = null;
-  });
-  sendBleCommand('reset');
+  state.lanes.forEach((_, index) => resetLaneState(index, { recordActivity: false }));
+  if (sendCommand) sendBleCommand('reset');
   addActivity('Сброс · таймеры остановлены');
   persist();
   renderAll();
@@ -973,9 +998,7 @@ function parseBleLine(line) {
     indices.forEach((index) => { if (!state.lanes[index] || prepareLaneForStart(index) === false || (!demoStart && !state.lanes[index].athleteId)) return; state.lanes[index].error = null; state.lanes[index].running = true; state.lanes[index].startedAt = Date.now(); });
     persist(); renderLanes(); startTicker();
   } else if (type === 'reset') {
-    clearInterval(timerHandle);
-    state.lanes.forEach((lane) => { lane.running = false; lane.startedAt = null; lane.time = null; if (lane.falseStarts < 2) { lane.penalties = 0; lane.dq = false; } else { lane.penalties = 5; lane.dq = true; } lane.error = null; });
-    persist(); renderLanes();
+    resetAllLanes({ sendCommand: false });
   } else if (['qualification', 'race', 'laser', 'finish'].includes(type)) {
     const index = Number(payload.lane) - 1;
     const time = Number(payload.time ?? payload.result ?? payload.seconds);

@@ -127,7 +127,9 @@ let bleState = {
   mode: null,
   raceDisable: false,
   qualificationDisable: false,
-  errors: { 1: null, 2: null }
+  errors: { 1: null, 2: null },
+  rssi: null,
+  signalAt: 0
 };
 let timerHandle = null;
 let bleResetLock = false;
@@ -176,7 +178,7 @@ function phaseToBleCommand(phase) { return phase === 'qualification' ? 'Q' : 'R'
 function currentModeDisabled() { return state.phase === 'qualification' ? bleState.qualificationDisable : bleState.raceDisable; }
 function modeDisabledLabel() { return state.phase === 'qualification' ? 'qualification_disable' : 'race_disable'; }
 function modeIsSynchronized() { return ble.connected && bleState.mode === phaseToBleMode(state.phase); }
-function clearBleTelemetry() { ble.buffer = ''; bleState = { mode: null, raceDisable: false, qualificationDisable: false, errors: { 1: null, 2: null } }; state.timerMode = { mode: null, qualificationDisable: false, raceDisable: false }; persist(); renderLanes(); renderBle(); }
+function clearBleTelemetry() { ble.buffer = ''; bleState = { mode: null, raceDisable: false, qualificationDisable: false, errors: { 1: null, 2: null }, rssi: null, signalAt: 0 }; state.timerMode = { mode: null, qualificationDisable: false, raceDisable: false }; persist(); renderLanes(); renderBle(); }
 function switchPhase(phase, { notifyBle = true } = {}) {
   if (!['qualification', 'finals'].includes(phase) || phase === state.phase) return false;
   if (hasActiveTimers()) {
@@ -815,7 +817,8 @@ function openDisplayWindow() {
   const displayWindow = window.open(url.toString(), 'sst-display', 'popup=yes,width=1280,height=720');
   if (!displayWindow) showToast('Разрешите открытие всплывающих окон для табло');
 }
-function renderBle() { const online = ble.connected; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); const startDisabled = !online || reviewOnly || modeDisabled; $('#bleBtn').classList.toggle('connected', online); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = startDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = !online; }
+function signalLevelForRssi(rssi) { const value = Number(rssi); if (!Number.isFinite(value)) return 0; if (value >= -55) return 4; if (value >= -67) return 3; if (value >= -80) return 2; return 1; }
+function renderBle() { const online = ble.connected; const signalFresh = online && bleState.signalAt > 0 && Date.now() - bleState.signalAt <= 3000; const signalLevel = signalFresh ? signalLevelForRssi(bleState.rssi) : 0; const reviewOnly = state.phase === 'finals' && state.lanes.length === 2 && state.lanes.every((lane) => lane.reviewOnly); const modeDisabled = currentModeDisabled(); const startDisabled = !online || reviewOnly || modeDisabled; const button = $('#bleBtn'); button.classList.toggle('connected', online); button.dataset.signalLevel = String(signalLevel); button.title = signalLevel ? `Уровень BLE: ${signalLevel}/4 (${bleState.rssi} dBm)` : (online ? 'Уровень BLE определяется…' : 'BLE отключён'); $('#bleBtnText').textContent = online ? 'BLE подключён' : 'Подключить BLE'; $('#bleDisconnectConfirm')?.classList.toggle('hidden', !online || $('#bleDisconnectConfirm')?.dataset.open !== 'true'); const future = $('#futureFunctionsBtn'); if (future) future.classList.remove('hidden'); $('#startAllBtn').disabled = startDisabled; $('#startAllBtn').title = modeDisabled ? `${modeDisabledLabel()} = true` : ''; $('#resetAllBtn').disabled = !online; }
 function renderFinals() { if (!state.selectedFinalCategory) { $('#bracketBoard').innerHTML = '<div class="bracket-empty">Выберите группу, чтобы открыть финальную сетку.</div>'; return; } const active = activeCategoryIds(); const current = active.includes(state.selectedFinalCategory) ? state.selectedFinalCategory : active.find((id) => categoryState(id).attempt > 2) || active[0] || CATEGORIES[0].id; state.selectedFinalCategory = current; renderBracket(); }
 function renderAll() { renderSummary(); renderLanes(); renderFinalGroupPanel(); renderGlobalQueue(); renderCategoryBoard(); renderPanels(); renderFinals(); renderBle(); renderListsSummary(); updateViewportHeight(); }
 
@@ -1075,6 +1078,12 @@ function parseBleLine(line) {
     }
   } else if (type === 'mode_rejected') {
     pendingModeChange = null;
+  } else if (type === 'signal') {
+    const rssi = Number(payload.rssi);
+    if (!Number.isFinite(rssi)) return;
+    bleState.rssi = rssi;
+    bleState.signalAt = Date.now();
+    renderBle();
   } else if (type === 'error') {
     const lane = Number(payload.lane);
     if (lane !== 1 && lane !== 2) return;

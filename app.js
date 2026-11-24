@@ -482,14 +482,14 @@ function recordFalseStartEvent(index) {
   if (!match) return;
   appendRaceLog({ phase: 'finals', raceKey: `finals|${state.selectedFinalCategory}|${match.id}|${category.selectedRaceIndex}|${lane.athleteId}|false-start-${lane.falseStarts}-${Date.now()}`, categoryId: state.selectedFinalCategory, athleteId: lane.athleteId, matchId: match.id, raceIndex: category.selectedRaceIndex, rawTime: null, adjustedTime: null, penalties: 0, falseStarts: lane.falseStarts || 0, dq: Boolean(lane.dq), source: 'false-start' });
 }
-function captureFalseStartRestore(lane) { return { time: lane.time, finalRawTime: lane.finalRawTime, demoRawTime: lane.demoRawTime, pendingResult: lane.pendingResult ? { ...lane.pendingResult } : null, pendingFinalResult: lane.pendingFinalResult ? { ...lane.pendingFinalResult } : null, penalties: lane.penalties, dq: lane.dq, dqResultTime: lane.dqResultTime }; }
-function restoreFalseStartState(lane) { const restore = lane.falseStartRestore; if (!restore) return; lane.time = restore.time; lane.finalRawTime = restore.finalRawTime; lane.demoRawTime = restore.demoRawTime; lane.pendingResult = restore.pendingResult ? { ...restore.pendingResult } : null; lane.pendingFinalResult = restore.pendingFinalResult ? { ...restore.pendingFinalResult } : null; lane.penalties = restore.penalties; lane.dq = restore.dq; lane.dqResultTime = restore.dqResultTime; lane.running = false; lane.startedAt = null; lane.falseStartRestore = null; }
+function captureFalseStartRestore(lane) { return { time: lane.time, finalRawTime: lane.finalRawTime, demoRawTime: lane.demoRawTime, pendingResult: lane.pendingResult ? { ...lane.pendingResult } : null, pendingFinalResult: lane.pendingFinalResult ? { ...lane.pendingFinalResult } : null, penalties: lane.penalties, dq: lane.dq, dqResultTime: lane.dqResultTime, falseStarts: lane.falseStarts }; }
+function restoreFalseStartState(lane) { const restore = lane.falseStartRestore; if (!restore) return; lane.time = restore.time; lane.finalRawTime = restore.finalRawTime; lane.demoRawTime = restore.demoRawTime; lane.pendingResult = restore.pendingResult ? { ...restore.pendingResult } : null; lane.pendingFinalResult = restore.pendingFinalResult ? { ...restore.pendingFinalResult } : null; lane.penalties = restore.penalties; lane.dq = restore.dq; lane.dqResultTime = restore.dqResultTime; lane.falseStarts = restore.falseStarts; lane.running = false; lane.startedAt = null; lane.falseStartRestore = null; }
 function handleFalseStart(index, number) {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
   if (!lane?.athleteId) return;
   if (number === 1 && lane.falseStarts === 1) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); lane.falseStarts = 0; persist(); renderAll(); return; }
-  if (number === 2 && lane.falseStarts === 2) { lane.falseStarts = 0; lane.pendingResult = null; lane.penalties = 0; lane.dq = false; lane.time = null; persist(); renderLanes(); return; }
+  if (number === 2 && lane.falseStarts === 2) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); persist(); renderAll(); return; }
   if (lane.pendingResult) return;
   const timerWasRunning = state.phase === 'finals' ? state.lanes.some((item) => item.running) : Boolean(lane.running);
   if (state.phase === 'finals') {

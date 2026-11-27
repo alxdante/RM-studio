@@ -1064,6 +1064,13 @@ function parseBleLine(line) {
     const nextMode = payload.mode === 'qualification' || payload.mode === 'race' ? payload.mode : null;
     const nextRaceDisable = typeof payload.race_disable === 'boolean' ? payload.race_disable : bleState.raceDisable;
     const nextQualificationDisable = typeof payload.qualification_disable === 'boolean' ? payload.qualification_disable : bleState.qualificationDisable;
+    if (nextMode === 'race') {
+      bleState.errors = Object.fromEntries([1, 2].map((lane) => {
+        const name = bleState.errors[lane];
+        return [lane, name === `err_finish_2_lane_${lane}` ? name : null];
+      }));
+      renderLanes();
+    }
     const stateChanged = bleState.mode !== nextMode || bleState.raceDisable !== nextRaceDisable || bleState.qualificationDisable !== nextQualificationDisable;
     bleState.mode = nextMode || bleState.mode;
     bleState.raceDisable = nextRaceDisable;
@@ -1085,7 +1092,9 @@ function parseBleLine(line) {
     bleState.signalAt = Date.now();
     renderBle();
   } else if (type === 'error') {
-    if (payload.name === 'err_finish_1_lane_1' || payload.name === 'err_finish_1_lane_2') return;
+    const errorName = String(payload.name || '');
+    if (errorName === 'err_finish_1_lane_1' || errorName === 'err_finish_1_lane_2') return;
+    if (state.phase === 'finals' && errorName !== 'err_finish_2_lane_1' && errorName !== 'err_finish_2_lane_2') return;
     const lane = Number(payload.lane);
     if (lane !== 1 && lane !== 2) return;
     if (payload.active === false) {

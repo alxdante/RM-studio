@@ -1064,11 +1064,8 @@ function parseBleLine(line) {
     const nextMode = payload.mode === 'qualification' || payload.mode === 'race' ? payload.mode : null;
     const nextRaceDisable = typeof payload.race_disable === 'boolean' ? payload.race_disable : bleState.raceDisable;
     const nextQualificationDisable = typeof payload.qualification_disable === 'boolean' ? payload.qualification_disable : bleState.qualificationDisable;
-    if (nextMode === 'race') {
-      bleState.errors = Object.fromEntries([1, 2].map((lane) => {
-        const name = bleState.errors[lane];
-        return [lane, name === `err_finish_2_lane_${lane}` ? name : null];
-      }));
+    if (nextMode) {
+      bleState.errors = { 1: null, 2: null };
       renderLanes();
     }
     const stateChanged = bleState.mode !== nextMode || bleState.raceDisable !== nextRaceDisable || bleState.qualificationDisable !== nextQualificationDisable;

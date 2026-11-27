@@ -1085,6 +1085,7 @@ function parseBleLine(line) {
     bleState.signalAt = Date.now();
     renderBle();
   } else if (type === 'error') {
+    if (payload.name === 'err_finish_1_lane_1' || payload.name === 'err_finish_1_lane_2') return;
     const lane = Number(payload.lane);
     if (lane !== 1 && lane !== 2) return;
     if (payload.active === false) {

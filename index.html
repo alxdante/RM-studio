@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="DSEG7Classic-BoldItalic.ttf" as="font" type="font/ttf" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20261120-panel-reference" />
+    <link rel="stylesheet" href="styles.css?v=20261128-ble-ota" />
   </head>
   <body>
     <div class="app-shell">
@@ -30,7 +30,21 @@
         <div class="top-actions">
           <span id="saveStatus" class="save-status">Сохранено только что</span>
           <button id="listsBtn" class="btn btn-lists">Списки</button>
-          <div class="ble-action-wrap"><button id="bleBtn" class="btn btn-ble" type="button"><span class="ble-button-signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="bleBtnText">Подключить BLE</span></button><div id="bleDisconnectConfirm" class="ble-disconnect-confirm hidden" role="dialog" aria-label="Подтверждение отключения"><span>Отключить BLE?</span><button id="confirmDisconnectBtn" type="button">ОТКЛЮЧЕНИЕ</button></div></div>
+          <div class="ble-action-wrap">
+            <button id="bleBtn" class="btn btn-ble" type="button"><span class="ble-button-signal" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="bleBtnText">Подключить BLE</span></button>
+            <div id="bleDeviceMenu" class="ble-device-menu hidden" role="dialog" aria-label="Настройки устройства">
+              <div class="ble-menu-title">Устройство</div>
+              <button id="bleSettingsBtn" class="ble-menu-item" type="button" disabled>Настройки устройства</button>
+              <div class="ble-menu-divider"></div>
+              <div class="ble-menu-title">Обновление прошивки</div>
+              <label class="ble-firmware-picker"><span>Выбрать файл .bin</span><input id="otaFirmwareInput" type="file" accept=".bin,application/octet-stream" /></label>
+              <button id="otaFirmwareBtn" class="ble-menu-item ble-menu-update" type="button" disabled>Обновить прошивку</button>
+              <progress id="otaProgress" max="100" value="0"></progress>
+              <small id="otaStatus" class="ble-ota-status">Выберите файл прошивки</small>
+              <div class="ble-menu-divider"></div>
+              <button id="confirmDisconnectBtn" class="ble-menu-item ble-menu-disconnect" type="button">Отключить BLE</button>
+            </div>
+          </div>
           <button id="futureFunctionsBtn" class="btn btn-lists top-future-functions hidden" type="button">Панель</button><button id="themeToggle" class="btn btn-theme" type="button" aria-label="Toggle dark mode">DARK</button>
         </div>
       </header>
@@ -77,6 +91,6 @@
     </div>
     <div id="toast" class="toast" role="status"></div>
     <script src="xlsx.full.min.js"></script>
-    <script src="app.js?v=20261120-ble-disconnect-panel"></script>
+    <script src="app.js?v=20261128-ble-ota"></script>
   </body>
 </html>

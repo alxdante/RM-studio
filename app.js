@@ -842,6 +842,10 @@ function startTicker() { clearInterval(timerHandle); timerHandle = setInterval((
 
 function startAllLanes() {
   if (currentModeDisabled()) return showToast(`${modeDisabledLabel()} = true`);
+  if (state.phase !== 'finals') {
+    sendBleCommand('start');
+    return;
+  }
   bleResetLock = false;
   const demoStart = demoStartAllowed();
   let started = 0;

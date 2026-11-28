@@ -824,8 +824,11 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 .corrections-card .correction-attempt-actions .correction-delete-locked { opacity: .45; cursor: not-allowed; }
 .corrections-card .correction-attempt-actions .correction-dq { color: var(--orange); }
 .corrections-card .correction-attempt-actions .correction-dq-active { background: var(--orange); color: #fff; box-shadow: 0 0 0 2px color-mix(in srgb, var(--orange) 25%, transparent); }
+.corrections-card .correction-save { display: inline-flex; align-items: center; justify-content: center; width: 72px; box-sizing: border-box; margin-left: 4px; padding: 7px 8px; border: 1px solid var(--teal); border-radius: 6px; background: transparent; color: var(--teal); font: 600 11px "DM Mono", monospace; }
+.corrections-card .correction-save:disabled { opacity: .45; cursor: not-allowed; }
 .corrections-card .correction-attempt-actions .correction-delete:hover,
-.corrections-card .correction-attempt-actions .correction-dq:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.corrections-card .correction-attempt-actions .correction-dq:hover,
+.corrections-card .correction-save:not(:disabled):hover { background: color-mix(in srgb, currentColor 10%, transparent); }
 .corrections-card .modal-actions .btn { font-size: 13px; }
 
 

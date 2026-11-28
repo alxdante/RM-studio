@@ -1294,7 +1294,7 @@ function renderCorrections() {
   };
   host.innerHTML = rows.size ? [...rows.values()].map((row) => {
     const athlete = athleteById(row.athleteId); const category = categoryById(row.categoryId); const first = row.attempts[1]; const second = row.attempts[2];
-    return `<tr><td>${escapeHtml(category?.label || row.categoryId)}</td><td>${escapeHtml(athlete?.name || row.athleteId)}</td>${renderAttempt(first, 1)}${renderAttempt(second, 2)}<td><button type="button" class="text-button" data-correction-save="${escapeHtml(first?.id || '')}" data-correction-save-second="${escapeHtml(second?.id || '')}" ${first || second ? '' : 'disabled'}>Сохранить</button></td></tr>`;
+    return `<tr><td>${escapeHtml(category?.label || row.categoryId)}</td><td>${escapeHtml(athlete?.name || row.athleteId)}</td>${renderAttempt(first, 1)}${renderAttempt(second, 2)}<td><button type="button" class="text-button correction-save" data-correction-save="${escapeHtml(first?.id || '')}" data-correction-save-second="${escapeHtml(second?.id || '')}" ${first || second ? '' : 'disabled'}>Сохранить</button></td></tr>`;
   }).join('') : '<tr><td colspan="9" class="queue-empty">В журнале квалификации пока нет записей.</td></tr>';
 }
 function correctionEntryById(id) { return (state.raceLog || []).find((entry) => entry.id === id && entry.phase === 'qualification' && !entry.correctionAction) || null; }

@@ -1163,6 +1163,94 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
   font-size: 14px;
 }
 
+/* Qualification queue layout: metadata is independent from the fixed results block. */
+.queue-result-header,
+.queue-result-row {
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 66px)) minmax(0, 1fr) auto;
+  min-width: 0 !important;
+}
+
+.queue-result-results {
+  display: grid;
+  grid-template-columns: 64px 64px 70px;
+  gap: 8px;
+  min-width: 0;
+  width: max-content;
+  justify-self: end;
+  text-align: right;
+}
+
+.queue-result-results > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.queue-result-header .queue-result-results {
+  color: var(--muted);
+  font: 10px "DM Mono", monospace;
+  letter-spacing: .08em;
+}
+
+.queue-result-row .queue-result-results {
+  color: var(--muted);
+  font: 12px "DM Mono", monospace;
+}
+
+.queue-result-row .queue-result-results strong {
+  color: var(--ink);
+  font: 500 12px "DM Mono", monospace;
+}
+
+.lane-waiting.queue-hide-dob .queue-result-header,
+.lane-waiting.queue-hide-dob .queue-result-row,
+.lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
+.lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row {
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(0, 1fr) auto;
+}
+
+.lane-waiting.queue-hide-region .queue-result-header,
+.lane-waiting.queue-hide-region .queue-result-row {
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 66px)) minmax(0, 1fr) auto;
+}
+
+.lane-waiting.queue-hide-dob .queue-result-header > span:nth-child(3),
+.lane-waiting.queue-hide-dob .queue-result-row > span:nth-child(3),
+.lane-waiting.queue-hide-region .queue-result-header > span:nth-child(4),
+.lane-waiting.queue-hide-region .queue-result-row > span:nth-child(4) {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .queue-result-results { grid-template-columns: 58px 58px 64px; gap: 5px; }
+  .queue-result-header,
+  .queue-result-row,
+  .lane-waiting.queue-hide-dob .queue-result-header,
+  .lane-waiting.queue-hide-dob .queue-result-row,
+  .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
+  .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row,
+  .lane-waiting.queue-hide-region .queue-result-header,
+  .lane-waiting.queue-hide-region .queue-result-row {
+    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 66px)) minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .queue-result-results { grid-template-columns: 54px 54px 60px; gap: 4px; }
+  .queue-result-header,
+  .queue-result-row,
+  .lane-waiting.queue-hide-dob .queue-result-header,
+  .lane-waiting.queue-hide-dob .queue-result-row,
+  .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
+  .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row,
+  .lane-waiting.queue-hide-region .queue-result-header,
+  .lane-waiting.queue-hide-region .queue-result-row {
+    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 66px)) minmax(0, 1fr) auto;
+  }
+}
+
 
 .queue-result-row span:nth-of-type(3),
 .queue-result-row span:nth-of-type(4) {

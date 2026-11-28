@@ -1072,8 +1072,10 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
 .corrections-card .add-athlete-fields input::placeholder,
 .corrections-card .corrections-search input::placeholder {
-  color: var(--muted);
+  color: var(--ink-2);
   opacity: 1;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .visually-hidden {

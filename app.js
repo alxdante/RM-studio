@@ -1502,6 +1502,12 @@ function trimUnusedFinalRaces(match) {
   return races;
 }
 function finalRaceSelectionAllowed(match, raceIndex) { if (raceIndex <= 0) return true; const races = ensureMatchRaces(match); const previous = races[raceIndex - 1]; return finalRaceComplete(previous); }
+function finalMatchHasResult(match) { return ensureMatchRaces(match).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0); }
+function laterStageHasResult(bracket, match) {
+  const athletes = new Set([match.athlete1, match.athlete2].filter(Boolean));
+  if (!athletes.size) return false;
+  return bracket.matches.some((candidate) => candidate !== match && candidate.round > match.round && [candidate.athlete1, candidate.athlete2].some((athleteId) => athletes.has(athleteId)) && finalMatchHasResult(candidate));
+}
 function resolveMatchWinner(match, categoryId) {
   const races = ensureMatchRaces(match);
   const wins = { [match.athlete1]: 0, [match.athlete2]: 0 };
@@ -1591,7 +1597,7 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   state.lanes = [createLane(categoryId), createLane(categoryId)];
   state.phaseLanes.finals = state.lanes;
   const runComplete = finalRaceComplete(races[index]);
-  const laterRaceStarted = races.slice(index + 1).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0);
+  const laterRaceStarted = races.slice(index + 1).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0) || laterStageHasResult(category.bracket, match);
   // A completed RUN remains the current editable RUN until any later RUN
   // receives a result. Merely opening/creating the next RUN must not lock the
   // previous one; FS, DQ and penalties are still corrections to this RUN.

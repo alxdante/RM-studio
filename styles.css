@@ -1051,6 +1051,11 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
   background: transparent;
 }
 
+.corrections-card #addAthleteForm .btn,
+.corrections-card .modal-actions .btn {
+  border-radius: 8px;
+}
+
 .corrections-section .corrections-search {
   margin: 0 0 10px;
 }

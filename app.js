@@ -1302,6 +1302,13 @@ function qualificationHasFinalBracket(categoryId) { return Boolean(categoryState
 function recomputeQualificationAttempt(categoryId) { const category = categoryState(categoryId); category.attempt = categoryComplete(categoryId, 1) ? (categoryComplete(categoryId, 2) ? 3 : 2) : 1; }
 function clearQualificationValue(categoryId, athleteId, attempt) { const category = categoryState(categoryId); for (const key of ['attempts', 'rawAttempts', 'penalties', 'dq', 'falseStarts']) { if (category[key]?.[attempt]) delete category[key][attempt][athleteId]; } }
 function recordCorrection(entry, action, extra = {}) { const correction = { id: `correction-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: Date.now(), phase: 'qualification', correctionAction: action, correctionOf: entry.id, categoryId: entry.categoryId, attempt: entry.attempt, source: 'correction', ...extra }; state.raceLog.push(correction); }
+function qualificationDqRestoreTime(entry) {
+  if (Number.isFinite(Number(entry.preDqAdjustedTime)) && Number(entry.preDqAdjustedTime) > 0) return Number(entry.preDqAdjustedTime);
+  const rawTime = Number(entry.rawTime);
+  if (!Number.isFinite(rawTime) || rawTime <= 0) return null;
+  const penalties = Number(entry.penalties || 0);
+  return Number((rawTime + (penalties >= 5 ? 0 : penalties * 0.2)).toFixed(3));
+}
 function editQualificationResults(entryIds, forceDqIds = [], forceClearDqIds = []) {
   const entries = entryIds.map((id) => id ? correctionEntryById(id) : null).filter(Boolean);
   if (!entries.length) return;
@@ -1321,8 +1328,9 @@ function markQualificationDq(entryId) {
   const entry = correctionEntryById(entryId); const resultInput = $(`[data-correction-result="${entryId}"]`); const penaltyInput = $(`[data-correction-penalty="${entryId}"]`);
   if (!entry || !resultInput || !penaltyInput) return;
   if (entry.dq) {
-    if (!Number.isFinite(Number(entry.preDqAdjustedTime)) || Number(entry.preDqAdjustedTime) <= 0) return deleteQualificationResult(entryId);
-    resultInput.value = entry.preDqAdjustedTime ?? '';
+    const restoredTime = qualificationDqRestoreTime(entry);
+    if (!Number.isFinite(restoredTime) || restoredTime <= 0) return deleteQualificationResult(entryId);
+    resultInput.value = restoredTime;
     const restoredPenalties = Number(entry.preDqPenalties ?? entry.penalties ?? 0);
     penaltyInput.value = restoredPenalties >= 5 ? '0' : restoredPenalties;
     editQualificationResults([entryId], [], [entryId]);

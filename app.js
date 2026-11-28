@@ -493,8 +493,8 @@ function handleFalseStart(index, number) {
   const lane = state.lanes[index];
   if (lane?.reviewOnly) return showToast('Review mode: completed RUN is read-only');
   if (!lane?.athleteId) return;
-  if (number === 1 && lane.falseStarts === 1) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); lane.falseStarts = 0; persist(); renderAll(); return; }
-  if (number === 2 && lane.falseStarts === 2) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); lane.falseStarts = 1; lane.dq = false; persist(); renderAll(); return; }
+  if (number === 1 && lane.falseStarts === 1) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); lane.falseStarts = 0; recordFalseStartEvent(index); persist(); renderAll(); return; }
+  if (number === 2 && lane.falseStarts === 2) { if (state.phase === 'finals') state.lanes.forEach((item) => restoreFalseStartState(item)); else restoreFalseStartState(lane); lane.falseStarts = 1; lane.dq = false; recordFalseStartEvent(index); persist(); renderAll(); return; }
   if (lane.pendingResult) return;
   const timerWasRunning = state.phase === 'finals' ? state.lanes.some((item) => item.running) : Boolean(lane.running);
   if (state.phase === 'finals') {

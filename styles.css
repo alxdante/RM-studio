@@ -361,7 +361,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
-.queue-result-header, .queue-result-row { display: grid; grid-template-columns: 28px minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) minmax(80px, 160px) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
+.queue-result-header, .queue-result-row { display: grid; grid-template-columns: 28px minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, 1fr) minmax(80px, var(--queue-region-width, 160px)) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
 .queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 10px "DM Mono", monospace; letter-spacing: .08em; }
 .queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
 .queue-result-header span:nth-child(5), .queue-result-row span:nth-of-type(5) { grid-column: 5; }

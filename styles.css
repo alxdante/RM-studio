@@ -1006,7 +1006,7 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
 
 .add-athlete-fields {
-  grid-template-columns: minmax(275px, 2.2fr) 112px 112px minmax(240px, 2.4fr) 55px;
+  grid-template-columns: minmax(275px, 2.2fr) 112px 112px minmax(205px, 2.4fr) 90px;
 }
 
 .add-athlete-fields #addAthleteRating {

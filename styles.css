@@ -361,7 +361,7 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .lane-waiting { margin-top: 10px; padding: 14px 15px 15px; overflow-x: auto; }
 .waiting-head { font-size: 10px; margin-bottom: 9px; }
 .waiting-list { grid-template-columns: 1fr; }
-.queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) minmax(80px, 160px) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; }
+.queue-result-header, .queue-result-row { display: grid; grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) var(--queue-region-width, 160px) 64px 64px 70px; width: 100%; min-width: 0; gap: 8px; align-items: center; justify-content: space-between; }
 .queue-result-header { padding: 0 9px 7px; color: var(--muted); font: 10px "DM Mono", monospace; letter-spacing: .08em; }
 .queue-result-header span:nth-child(n+5), .queue-result-row span:nth-child(n+5), .queue-result-row strong { text-align: right; }
 .queue-result-header span:nth-child(5), .queue-result-row span:nth-of-type(5) { grid-column: 5; }
@@ -376,8 +376,8 @@ button, input, select { font: inherit; } button { cursor: pointer; } button:disa
 .queue-result-row strong { color: var(--ink); font-weight: 500; }
 .queue-result-empty { background: rgba(234,236,228,.35); }
 .queue-result-empty span, .queue-result-empty strong { min-height: 19px; border-bottom: 1px solid rgba(40,56,52,.1); }
-@media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) minmax(80px, 160px) 58px 58px 64px; min-width: 690px; gap: 5px; } }
-@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) minmax(80px, 160px) 54px 54px 60px; min-width: 0; gap: 4px; } .queue-result-row { font-size: 12px; } }
+@media (max-width: 900px) { .queue-result-header, .queue-result-row { grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) var(--queue-region-width, 160px) 58px 58px 64px; min-width: 690px; gap: 5px; } }
+@media (max-width: 760px) { .lane-time { font-size: 72px; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(70px, var(--queue-dob-width, 70px)) var(--queue-region-width, 160px) 54px 54px 60px; min-width: 0; gap: 4px; } .queue-result-row { font-size: 12px; } }
 @media (max-width: 620px) { .queue-result-header span:nth-child(3), .queue-result-header span:nth-child(4), .queue-result-row span:nth-of-type(3), .queue-result-row span:nth-of-type(4) { display: none; } .queue-result-header, .queue-result-row { grid-template-columns: minmax(0, 24px) minmax(126px, 1fr) 0 0 54px 54px 60px; } }
 
 /* App-like presentation: focus on controls, lanes and queues. */
@@ -782,7 +782,7 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 /* Hide secondary athlete details when their actual track becomes too narrow. */
 .lane-waiting.queue-hide-dob .queue-result-header,
 .lane-waiting.queue-hide-dob .queue-result-row {
-  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(80px, 160px) 64px 64px 70px;
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) 0 var(--queue-region-width, 160px) 64px 64px 70px;
 }
 
 .lane-waiting.queue-hide-region .queue-result-header,
@@ -805,7 +805,7 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 @media (max-width: 900px) {
   .lane-waiting.queue-hide-dob .queue-result-header,
   .lane-waiting.queue-hide-dob .queue-result-row {
-    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(80px, 160px) 58px 58px 64px;
+    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) 0 var(--queue-region-width, 160px) 58px 58px 64px;
   }
 
   .lane-waiting.queue-hide-region .queue-result-header,
@@ -822,7 +822,7 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 @media (max-width: 760px) {
   .lane-waiting.queue-hide-dob .queue-result-header,
   .lane-waiting.queue-hide-dob .queue-result-row {
-    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(80px, 160px) 54px 54px 60px;
+    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) 0 var(--queue-region-width, 160px) 54px 54px 60px;
   }
 
   .lane-waiting.queue-hide-region .queue-result-header,

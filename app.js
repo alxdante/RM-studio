@@ -1592,7 +1592,10 @@ function selectFinalRaceForTiming(categoryId, matchId, raceIndex) {
   state.phaseLanes.finals = state.lanes;
   const runComplete = finalRaceComplete(races[index]);
   const laterRaceStarted = races.slice(index + 1).some((race) => [race.time1, race.time2].some((value) => value !== null && value !== undefined) || Number(race.falseStarts1 || 0) > 0 || Number(race.falseStarts2 || 0) > 0);
-  const finalStageLastRunEditable = runComplete && (match.isSmall || match.label === 'Final') && !laterRaceStarted;
+  // A completed RUN remains the current editable RUN until any later RUN
+  // receives a result. Merely opening/creating the next RUN must not lock the
+  // previous one; FS, DQ and penalties are still corrections to this RUN.
+  const finalStageLastRunEditable = runComplete && !laterRaceStarted;
   const reviewOnly = runComplete && !finalStageLastRunEditable;
   const reviewDqOnly = reviewOnly && !match.winnerId && !laterRaceStarted;
   finalLaneAthletes(match, index).forEach((athleteId, laneIndex) => {

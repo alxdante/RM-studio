@@ -589,7 +589,7 @@ function waitingListHtml(lane, index) {
   return athletes.length ? athletes.map((athlete, position) => { const completedAttempt = hasRecordedResult(lane.categoryId, athlete.id, attempt); const currentAthlete = lane.athleteId === athlete.id; return `<div class="queue-result-row ${completedAttempt ? 'attempt-complete ' : ''}${currentAthlete ? 'lane-current-athlete' : ''}"><span class="queue-result-number">${athletes.length - position}</span><span>${escapeHtml(athlete.name)}</span><span>${escapeHtml(formatBirthDate(athlete.birthDate))}</span><span>${escapeHtml(athlete.region || athlete.city || '—')}</span><span class="queue-result-value">${resultCell(lane.categoryId, athlete.id, 1)}</span><span class="queue-result-value">${resultCell(lane.categoryId, athlete.id, 2)}</span><strong class="queue-result-value">${formatBestTime(bestTime(lane.categoryId, athlete.id))}</strong></div>`; }).join('') : '<div class="queue-result-empty">Нет спортсменов в списке</div>';
 }
 const QUEUE_WIDTHS_KEY = 'rm-studio-queue-column-widths-v5';
-const queueResizeLimits = { athlete: [126, 280], region: [80, 220] };
+const queueResizeLimits = { athlete: [200, 280], region: [80, 220] };
 const queueResizePairs = { athlete: ['athlete', null], region: ['region', null] };
 let activeQueueResize = null;
 function queueColumnWidths() { try { const saved = JSON.parse(localStorage.getItem(QUEUE_WIDTHS_KEY) || '{}'); return Object.fromEntries(['athlete', 'dob', 'region'].filter((column) => Number.isFinite(saved[column])).map((column) => [column, saved[column]])); } catch { return {}; } }

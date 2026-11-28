@@ -774,12 +774,12 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
 .lane-waiting.queue-hide-region .queue-result-header,
 .lane-waiting.queue-hide-region .queue-result-row {
-  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) 0 64px 64px 70px;
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) minmax(0, 1fr) 64px 64px 70px;
 }
 
 .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
 .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row {
-  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) 0 0 64px 64px 70px;
+  grid-template-columns: minmax(0, 28px) minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(0, 1fr) 64px 64px 70px;
 }
 
 .lane-waiting.queue-hide-dob .queue-result-header span:nth-child(3),
@@ -797,12 +797,12 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
   .lane-waiting.queue-hide-region .queue-result-header,
   .lane-waiting.queue-hide-region .queue-result-row {
-    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) 0 58px 58px 64px;
+    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) minmax(0, 1fr) 58px 58px 64px;
   }
 
   .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
   .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row {
-    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) 0 0 58px 58px 64px;
+    grid-template-columns: 26px minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(0, 1fr) 58px 58px 64px;
   }
 }
 
@@ -814,12 +814,12 @@ body:not(.display-mode) .lane-waiting:has(.queue-result-empty) { touch-action: n
 
   .lane-waiting.queue-hide-region .queue-result-header,
   .lane-waiting.queue-hide-region .queue-result-row {
-    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) 0 54px 54px 60px;
+    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) minmax(0, var(--queue-dob-width, 67px)) minmax(0, 1fr) 54px 54px 60px;
   }
 
   .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-header,
   .lane-waiting.queue-hide-dob.queue-hide-region .queue-result-row {
-    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) 0 0 54px 54px 60px;
+    grid-template-columns: minmax(0, 24px) minmax(126px, var(--queue-athlete-width, 261px)) 0 minmax(0, 1fr) 54px 54px 60px;
   }
 }
 
